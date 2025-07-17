@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/* scroll bar custiom  */
+/* Scrollbar Track */
+::-webkit-scrollbar {
+  width: 12px; /* for vertical scrollbars */
+  background: transparent !important;
+}
+
+/* Scrollbar Thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color-light);
+  border-radius: 6px;
+  border: 3px solid transparent; /* for padding effect */
+  background-clip: content-box;
+}
+
+/* Scrollbar Track background */
+::-webkit-scrollbar-track {
+  background: #7b79a050;
+  border-radius: 20px;
+}
+
+/* Scrollbar Corner (if both scrollbars appear) */
+::-webkit-scrollbar-corner {
+  background: #f0f0f0;
+}
+
+/* swiper  */
+.swiper-slide {
+  width: 100% !important;
+}
+
+.swiper-button-disabled {
+  background: var(--primary-modal-box);
+  cursor: not-allowed;
+}
