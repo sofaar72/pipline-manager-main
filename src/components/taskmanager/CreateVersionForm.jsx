@@ -9,6 +9,7 @@ import SelectFromTask from "../golbals/SelectFromTask";
 import SelectFromFiles from "../golbals/SelectFromFiles";
 import CDropDown from "../golbals/CDropDown";
 import CdropDownNoBg from "../golbals/CdropDownNoBg";
+import UploadFileArea from "./UploadFileArea";
 
 const CreateVersionForm = ({
   bgColor = "form-bg",
@@ -82,36 +83,7 @@ const CreateVersionForm = ({
               </div>
 
               {/* Upload file area here  */}
-              <div className="w-full flex-1 h-full bg-[var(--primary-color-light)]/20 radius overflow-y-scroll px-4 py-4">
-                {/* file item  */}
-                <div className="w-full h-[40px] flex justify-between gap-2 p-2 bg-[var(--primary-form-bg)] radius text-[10px] relative">
-                  <input
-                    className="absolute top-0 left-0 placeholder:text-white p-2 flex items-center h-full "
-                    type="text"
-                    placeholder="File Name ..."
-                  />
-
-                  <div className="flex gap-4 items-cente flex-1 w-full flex-1 justify-end">
-                    {/* select part  */}
-                    <CdropDownNoBg
-                      options={["Preview", "Export", "Resource"]}
-                      init="Select file Type"
-                      select={() => {}}
-                    ></CdropDownNoBg>
-
-                    {/* add file part  */}
-                    <button className="text-white text-[10px] flex items-center gap-1">
-                      <span className="">Add</span>
-                      <img
-                        className="w-[20px] h-[20px] object-contain"
-                        src="/icons/Add.svg"
-                        alt=""
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
+              <UploadFileArea />
               <CbuttonOne
                 height="h-[30px]"
                 color="var(--primary-color-lowest)"
