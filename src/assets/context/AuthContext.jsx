@@ -12,10 +12,17 @@ export const AuthProvider = ({ children }) => {
     setToken_(accessToken);
   };
 
+  const logout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setToken_(null);
+  };
+
   const contextValue = useMemo(
     () => ({
       token,
       setToken,
+      logout,
     }),
     [token]
   );

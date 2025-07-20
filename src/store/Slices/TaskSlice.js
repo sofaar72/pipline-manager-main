@@ -7,7 +7,7 @@ export const fetchTasks = createAsyncThunk(
   "task/fetchTasks",
   async ({ id, queryParams }, thunkAPI) => {
     try {
-      console.log(id);
+      // console.log(id);
       await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/film/${id}/tasks`, {
         params: queryParams,
@@ -74,6 +74,7 @@ const taskSlice = createSlice({
       .addCase(createTask.fulfilled, (state, action) => {
         state.createStatus.loading = false;
         state.createStatus.success = true;
+        // console.log(action.payload);
         state.tasks.results.push(action.payload); // Optionally update local task list
       })
       .addCase(createTask.rejected, (state, action) => {

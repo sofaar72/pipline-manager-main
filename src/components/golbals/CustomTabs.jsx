@@ -10,46 +10,37 @@ import { useVersions } from "../../hooks/useVersions";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 import VersionsList from "../taskmanager/VersionsList";
 import VersionPreview from "../taskmanager/VersionPreview";
+import { useEntities } from "../../hooks/useEntities";
+import { useTasks } from "../../hooks/useTasks";
+import CreateTaskForm from "../taskmanager/CreateTaskForm";
 
-const CustomTabs = ({ tasks, loading, activeTask, selectTask }) => {
-  const { activeVersion, setActiveVersion } = useEpisodeManagerContext();
-
-  // const handleVersionClick = (versionId) => {
-  //   setActiveVersion(versionId);
-  // };
-
-  // useEffect(() => {
-  //   fetchAllVersions(activeTask);
-  // }, [tasks]);
-
-  const { fetchAllVersions, versionResults, versionLoading, versionError } =
-    useVersions();
-
-  useEffect(() => {
-    if (activeTask) {
-      fetchAllVersions(activeTask);
-    }
-  }, [activeTask]);
-
-  const selectVersion = (verId) => {
-    setActiveVersion(verId);
-  };
+const CustomTabs = ({
+  tasks,
+  loading,
+  activeTask,
+  selectTask,
+  versionResults,
+  versionLoading,
+}) => {
+  const {
+    activeVersion,
+    fetchSingleVersionPreview,
+    versionPreviewData,
+    versionPreviewLoading,
+  } = useVersions();
 
   useEffect(() => {
-    if (versionResults && versionResults?.versions?.length > 0) {
-      selectVersion(versionResults?.versions[0]?.id);
+    if (versionResults?.versions?.length > 0) {
+      fetchSingleVersionPreview(versionResults?.versions[0]?.id);
     }
   }, [versionResults]);
 
   return (
     <div className="w-full h-full  overflow-hidden flex flex-col gap-4  mx-auto">
       {/* Tab Headers */}
+
       <div className="flex h-[60px]  px-4  justify-between items-center border-b border-white/20 ">
-        {loading ? (
-          <div className="flex items-center h-full">
-            <Loading />
-          </div>
-        ) : tasks ? (
+        {tasks ? (
           <div className="flex h-full  gap-1 ">
             {tasks?.map((task, i) => {
               return (
@@ -71,28 +62,54 @@ const CustomTabs = ({ tasks, loading, activeTask, selectTask }) => {
           ""
         )}
 
-        <GlobalModal>
-          <AddTaskForm />
-        </GlobalModal>
+        <GlobalModal
+          modalContent={(setOpen) => {
+            return (
+              <div
+                className="w-full h-[600px] flex items-center justify-center   text-white max-w-[400px] "
+                onClick={(e) => e.stopPropagation()}
+              >
+                <CreateTaskForm setOpen={setOpen} />
+              </div>
+            );
+          }}
+        ></GlobalModal>
       </div>
 
       {/* Tab Content */}
-      {tasks?.length > 0 && (
-        <div className=" flex-1 h-full  max-h-[661px] w-full overflow-y-hidden">
-          <>
-            <TabItem>
-              {/* versions  */}
-              <VersionsList
-                activeVersion={activeVersion}
-                selectVersion={selectVersion}
-              />
 
-              {/* preview  */}
-              <VersionPreview activeVersion={activeVersion} />
-            </TabItem>
-          </>
-        </div>
-      )}
+      <div className=" flex-1 h-full  max-h-[661px] w-full overflow-y-hidden">
+        <>
+          <TabItem>
+            {/* versions  */}
+            {versionLoading ? (
+              <div className="w-[250px] h-full bg-gray-500/50 radius px-[10px] py-[10px] flex flex-col gap-[20px]"></div>
+            ) : (
+              <>
+                {versionResults?.versions?.length > 0 && (
+                  <VersionsList
+                    activeVersion={activeVersion}
+                    selectVersion={fetchSingleVersionPreview}
+                  />
+                )}
+              </>
+            )}
+
+            {/* preview  */}
+            {versionPreviewLoading ? (
+              <div className="w-full flex-1  h-full bg-gray-500/50 radius px-[20px] py-[20px] flex flex-col gap-[20px] animate-pulse"></div>
+            ) : versionResults?.versions?.length > 0 &&
+              versionPreviewData?.previews?.length > 0 ? (
+              <VersionPreview
+                versionData={versionPreviewData}
+                versionLoading={versionPreviewLoading}
+              />
+            ) : (
+              ""
+            )}
+          </TabItem>
+        </>
+      </div>
     </div>
   );
 };

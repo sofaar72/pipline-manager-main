@@ -12,6 +12,7 @@ const GlobalModal = ({
   children,
   text = "Add task",
   clickButton = () => {},
+  modalContent = () => {},
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -44,7 +45,7 @@ const GlobalModal = ({
           onClick={() => setOpen(false)}
         >
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            {children}
+            {modalContent(setOpen) || children}
           </div>
         </div>
       </Dialog>

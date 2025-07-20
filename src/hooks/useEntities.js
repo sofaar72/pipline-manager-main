@@ -4,12 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchFilms } from "../store/Slices/FilmSlice";
 import { useTasks } from "./useTasks";
 
-export const useEntities = ({ selectedEntity }) => {
+export const useEntities = () => {
+  const [selectedEntityType, setSelectedEntityType] = useState("All");
+  const { fetchAllTasks } = useTasks();
   const dispatch = useDispatch();
-  const [activeEntity, setActiveEntity] = useState();
+  const [activeEntity, setActiveEntity] = useState(0);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const perPage = 3;
+  const perPage = 5;
 
   const { films, loading, error } = useSelector((state) => state.film);
   const { results = [], total = 0 } = films || {};
@@ -20,11 +22,11 @@ export const useEntities = ({ selectedEntity }) => {
       fetchFilms({
         project: 474,
         type:
-          selectedEntity === "Episodes"
+          selectedEntityType === "Episodes"
             ? "EP"
-            : selectedEntity === "Sequence"
+            : selectedEntityType === "Sequence"
             ? "SQ"
-            : selectedEntity === "Shot"
+            : selectedEntityType === "Shot"
             ? "SH"
             : undefined,
         name: search || undefined,
@@ -34,13 +36,20 @@ export const useEntities = ({ selectedEntity }) => {
     );
   };
 
-  useEffect(() => {
-    fetchEntities();
-  }, [selectedEntity, search, currentPage]);
+  const selectEntityType = (type) => {
+    setSelectedEntityType(type);
+  };
+  const selectEntity = (id) => {
+    setActiveEntity(id);
+  };
+
+  const fetchEntityTasks = (id) => {
+    selectEntity(id);
+    fetchAllTasks(id);
+  };
 
   return {
     activeEntity,
-    setActiveEntity,
     entityResults: results,
     entityLoading: loading,
     entityError: error,
@@ -50,5 +59,8 @@ export const useEntities = ({ selectedEntity }) => {
     setCurrentPage,
     totalPages,
     fetchEntities,
+    fetchEntityTasks,
+    selectEntityType,
+    selectedEntityType,
   };
 };

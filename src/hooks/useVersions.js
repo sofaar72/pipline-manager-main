@@ -1,30 +1,52 @@
 // hooks/useVersions.js
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { fetchTaskVersions } from "../store/Slices/VersionsSlice";
+import {
+  fetchTaskVersions,
+  fetchVersionPreview,
+} from "../store/Slices/VersionsSlice";
 
 export const useVersions = () => {
   const dispatch = useDispatch();
-
-  const { versions } = useSelector((state) => state.version);
+  const [activeVersion, setActiveVersion] = useState(null);
+  const { versions, versionPreview, createVersion } = useSelector(
+    (state) => state.version
+  );
   const {
     results: versionResults = [],
     loading: versionLoading,
     error: versionError,
   } = versions || {};
+  const {
+    data: versionPreviewData,
+    loading: versionPreviewLoading,
+    error: versionPreviewError,
+  } = versionPreview || {};
 
   const fetchAllVersions = (taskId) => {
     dispatch(fetchTaskVersions({ id: taskId }));
   };
 
-  // const handleVersionClick = (versionId) => {
-  //   setActiveVersionId(versionId);
-  // };
+  const fetchSingleVersionPreview = (versionId) => {
+    // console.log(versionId);
+    dispatch(fetchVersionPreview({ id: versionId }));
+    setActiveVersion(versionId);
+  };
+
+  const createNewVersion = (data) => {
+    dispatch(createVersion(data));
+  };
 
   return {
     versionResults,
     versionLoading,
     versionError,
+    versionPreviewData,
+    versionPreviewLoading,
+    versionPreviewError,
     fetchAllVersions,
+    fetchSingleVersionPreview,
+    activeVersion,
+    createNewVersion,
   };
 };

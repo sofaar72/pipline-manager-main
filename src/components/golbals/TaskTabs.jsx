@@ -12,16 +12,6 @@ const TaskTabs = ({ version }) => {
   const [activeTab, setActiveTab] = useState("tab1");
   const [selectedVersion, setActiveVersion] = useState([]);
 
-  // useEffect(() => {
-  //   // const selectedVersion = versions?.filter(
-  //   //   (version) => version.id === activeVersion
-  //   // );
-  //   setActiveVersion(
-  //     versions?.filter((version) => version.id === activeVersion)
-  //   );
-  // }, [activeVersion]);
-
-  // const{tab}=props
   if (version) {
     return (
       <div className="w-full h-full  overflow-hidden flex flex-col gap-4  mx-auto">

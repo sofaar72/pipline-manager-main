@@ -10,35 +10,25 @@ import React, {
 const EpisodeManagerContext = createContext();
 
 export const EpisodeManagerProvider = ({ children }) => {
-  const [selectedEntity, setSelectedEntity] = useState("All");
+  const [globalActiveEntity, setGlobalActiveEntity] = useState(null);
   const [selectedEpisode, setSelectedEpisode] = useState("Episode 1");
-  const [activeEntity, setActiveEntity] = useState();
   const [activeTask, setActiveTask] = useState(null);
   const [activeVersion, setActiveVersion] = useState(null);
 
-  const selectEntity = (ent) => {
-    setSelectedEntity(ent);
-  };
   const selectEpisode = (ep) => {
     setSelectedEpisode(ep);
   };
 
   const values = {
-    selectedEntity,
-    selectEntity,
     selectEpisode,
     selectedEpisode,
-    activeEntity,
-    setActiveEntity,
     activeTask,
     setActiveTask,
     activeVersion,
     setActiveVersion,
+    globalActiveEntity,
+    setGlobalActiveEntity,
   };
-
-  useEffect(() => {
-    console.log(selectedEntity);
-  }, [selectedEntity]);
 
   return (
     <EpisodeManagerContext.Provider value={values}>

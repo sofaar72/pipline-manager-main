@@ -2,7 +2,7 @@ import React from "react";
 import FormInputC from "../golbals/FormInputC";
 import { DialogPanel } from "@headlessui/react";
 
-const AddTaskForm = () => {
+const AddTaskForm = ({ entity }) => {
   return (
     <DialogPanel
       transition

@@ -4,9 +4,13 @@ import LoginForm from "../components/login/LoginForm";
 
 const LoginPage = () => {
   return (
-    <div className="w-full h-full  flex max-width">
+    <div
+      className="w-full h-full  flex 
+    "
+    >
+      {/* max-width */}
       {/* wrapper  */}
-      <div className="w-full h-full flex">
+      <div className="w-full h-full flex flex-col lg:flex-row">
         <LoginWelcome />
         <LoginForm />
       </div>

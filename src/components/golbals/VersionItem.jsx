@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 
 const VersionItem = ({ version, activeVersion, selectVersion }) => {
-  console.log(version);
   return (
     <div
       className={`w-full h-[60px] radius  flex gap-[15px] version-bg items-center px-[5px] py-[4px] cursor-pointer transition hover:!bg-[var(--primary-color-light)] ${

@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import SearchOne from "./golbals/SearchOne";
 import CbuttonOne from "./golbals/Buttons/CbuttonOne";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../assets/context/AuthContext";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleTask, setToggleTask] = useState(false);
+  const { logout } = useAuth();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -154,7 +156,7 @@ const Sidebar = () => {
               Settings
             </NavLink>
           </div>
-          <div className="w-full mt-auto">
+          {/* <div className="w-full mt-auto">
             <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition"
@@ -162,6 +164,16 @@ const Sidebar = () => {
               to={"/Support"}
             >
               Help & Support
+            </NavLink>
+          </div> */}
+          <div className="w-full mt-auto">
+            <NavLink
+              className={
+                "text-sm hover:text-[var(--primary-color-light)] transition"
+              }
+              onClick={logout}
+            >
+              Log out
             </NavLink>
           </div>
         </div>

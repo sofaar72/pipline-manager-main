@@ -9,19 +9,25 @@ import { useTypes } from "../../hooks/useTypes";
 import FormPLaceHolder from "../golbals/PlaceHolders.jsx/FormPlaceHolder";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 import { toast, ToastContainer } from "react-toastify";
+import { useEntities } from "../../hooks/useEntities";
 
 const CreateTaskForm = ({
   bgColor = "form-bg",
-  title = "This Entity Have No Task Create One Firsts",
+  title = "Create Task",
   titleSize = "text-[14px]",
   submit,
+  setOpen = () => {},
 }) => {
-  const { activeEntity } = useEpisodeManagerContext();
   const { typeResults, typeLoading, typeError, fetchAllTypes } = useTypes();
   // const { typeResults, typeLoading, typeError, fetchAllTypes } = useE();
 
-  const { addTask, createTaskLoading, createTaskError, taskSuccess } =
-    useTasks();
+  const {
+    addTask,
+    createTaskLoading,
+    createTaskError,
+    taskSuccess,
+    taskResults,
+  } = useTasks();
   const [checked, setChecked] = useState(false);
   const initialValues = {
     type: 2,
@@ -29,6 +35,8 @@ const CreateTaskForm = ({
 
   const [assignees, setAssignees] = useState([]);
   const [selectedType, setSelectedType] = useState({});
+
+  const { globalActiveEntity } = useEpisodeManagerContext();
 
   const submitForm = (taskData) => {
     // console.log(taskData);
@@ -38,11 +46,12 @@ const CreateTaskForm = ({
       assignee: [975, 1309],
       status: "540",
       parent_type: "PRD",
-      parent: activeEntity,
+      parent: globalActiveEntity,
 
       // film:
     };
     addTask(data);
+    setOpen(false);
   };
 
   useEffect(() => {
@@ -50,7 +59,9 @@ const CreateTaskForm = ({
   }, [assignees]);
 
   useEffect(() => {
-    fetchAllTypes();
+    if (taskResults.length === 0) {
+      fetchAllTypes();
+    }
   }, []);
 
   const selectType = (type) => {

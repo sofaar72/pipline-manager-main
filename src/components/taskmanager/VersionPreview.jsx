@@ -6,33 +6,8 @@ import CdropDown from "../golbals/CdropDown";
 import PreviewSlider from "./PreviewSlider";
 import GlobalModal from "../golbals/GlobalModal";
 
-const VersionPreview = ({ activeVersion }) => {
-  const { versionResults, versionLoading } = useVersions();
-
-  const [selectedVersion, setSelectedVersion] = useState({});
+const VersionPreview = ({ versionData, versionLoading }) => {
   const [selectedPrevImage, setSelectedPrevImage] = useState("");
-
-  // useEffect(() => {
-  //   console.log(versionResults);
-  // }, [activeVersion]);
-
-  const fillterVersion = () => {
-    const filteredResult = versionResults?.versions?.filter(
-      (version) => version.id === activeVersion
-    );
-    setSelectedVersion(filteredResult);
-  };
-
-  useEffect(() => {
-    fillterVersion();
-  }, [activeVersion]);
-
-  useEffect(() => {
-    console.log(selectedVersion);
-    if (selectedVersion && selectedVersion[0]) {
-      setSelectedPrevImage(selectedVersion[0]?.previews[0]);
-    }
-  }, [selectedVersion]);
 
   if (versionLoading) {
     return (
@@ -43,7 +18,6 @@ const VersionPreview = ({ activeVersion }) => {
   }
 
   const selectPrevImage = (prevImg) => {
-    console.log(prevImg);
     setSelectedPrevImage(prevImg);
   };
 
@@ -51,7 +25,7 @@ const VersionPreview = ({ activeVersion }) => {
     <div className="w-full flex-1 h-full bg-[var(--bg-color)] radius px-[20px] py-[20px] flex flex-col gap-[20px] ">
       {/* top part  */}
       <div className="w-full h-[520px] radius overflow-hidden relative ">
-        {selectedVersion && selectedVersion[0]?.previews && (
+        {versionData?.previews?.length > 0 && (
           <>
             <div className="absolute top-[10px] right-[10px] z-20  flex flex-row gap-4 items-center bg-black/10 radius p-4 backdrop-blur-sm cursor-pointer">
               <div className="flex items-center justify-center bg-[var(--primary-color-lower)] text-white p-1 rounded-full hover:bg-[var(--primary-color-light)] transition">
@@ -95,31 +69,32 @@ const VersionPreview = ({ activeVersion }) => {
               </div>
 
               {/* <CdropDown
-                image
-                options={Object?.keys(selectedVersion[0]?.previews)}
-                init={0}
-                select={selectPrevImage}
-              /> */}
+        image
+        options={Object?.keys(selectedVersion[0]?.previews)}
+        init={0}
+        select={selectPrevImage}
+      /> */}
             </div>
             {/* preview image  */}
             <div className="w-full h-full overflow-hidden">
               <PreviewSlider
-                slides={selectedVersion[0]?.previews}
+                slides={versionData?.previews}
                 selectPrevImage={selectPrevImage}
               />
             </div>
-            {/* <img
-              className="w-full h-full object-cover"
-              src={selectedVersion[0]?.previews[selectedPrevImage]}
-              alt=""
-            /> */}
           </>
         )}
         {/* <VideoAnnotator /> */}
         {/* <VideoAnotatorWithPackage /> */}
       </div>
-      {versionResults && selectedVersion?.length && (
-        <TaskTabs version={selectedVersion[0]} />
+
+      {versionData?.files?.length > 0 ||
+      versionData?.dependencies?.length > 0 ? (
+        <TaskTabs version={versionData} />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <span className="text-white text-sm">No data found</span>
+        </div>
       )}
     </div>
   );
