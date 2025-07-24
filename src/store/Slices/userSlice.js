@@ -40,11 +40,14 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        console.log(action.payload);
         // console.log(action.payload);
         state.loading = false;
         state.user = action.payload;
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
+        state.user.id = action.payload.user.id;
+        state.user.email = action.payload.user.email;
         state.success = true;
       })
       .addCase(loginUser.rejected, (state, action) => {

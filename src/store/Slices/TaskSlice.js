@@ -23,6 +23,10 @@ export const createTask = createAsyncThunk("task/createTask", async (data) => {
   console.log(data);
   try {
     const response = await axiosInstance.post(`/tasks/`, data);
+    console.log(response.status);
+    // if (response.status == 201) {
+    //   fetchTasks({ id: data.film_id });
+    // }
     return response.data;
   } catch (error) {
     console.log("Error response:", error.response);
@@ -74,8 +78,8 @@ const taskSlice = createSlice({
       .addCase(createTask.fulfilled, (state, action) => {
         state.createStatus.loading = false;
         state.createStatus.success = true;
-        // console.log(action.payload);
-        state.tasks.results.push(action.payload); // Optionally update local task list
+        console.log(action.payload);
+        state.tasks.results = action.payload; // Optionally update local task list
       })
       .addCase(createTask.rejected, (state, action) => {
         state.createStatus.loading = false;

@@ -1,23 +1,25 @@
 import LayoutOne from "../layout/LayoutOne";
-import MainContent from "../components/MainContent";
-import FilesContent from "../components/FilesContent";
+
 import { EpisodeManagerProvider } from "../assets/context/EpisodeManagerContext";
 import { useEntities } from "../hooks/useEntities";
-import { useEffect } from "react";
+import PreviewPrev from "../components/golbals/PlaceHolders.jsx/PreviewPrev";
+import PreviewPageContents from "../components/previewPage/PreviewPageContents";
 
-const TaskManager = () => {
+const PreviewPage = () => {
   const { entityResults } = useEntities();
 
   return (
     <EpisodeManagerProvider>
       <LayoutOne>
         <div className="w-full h-full text-white flex gap-[30px] flex-col lg:flex-row">
-          <MainContent />
-          {entityResults.length > 0 && <FilesContent />}
+          <div className="w-full h-full">
+            {/* <PreviewPrev /> */}
+            <PreviewPageContents />
+          </div>
         </div>
       </LayoutOne>
     </EpisodeManagerProvider>
   );
 };
 
-export default TaskManager;
+export default PreviewPage;

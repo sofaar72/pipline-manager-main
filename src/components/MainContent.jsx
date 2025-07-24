@@ -11,39 +11,20 @@ import Pagination from "./golbals/Pagination";
 import { useEntities } from "../hooks/useEntities";
 import MainContentVisibleData from "./taskmanager/MainContentVisibleData";
 import MainContentPrev from "./golbals/PlaceHolders.jsx/MainContentPrev";
+import { useNavigate } from "react-router-dom";
 
-const MainContent = () => {
-  const {
-    entityResults,
-    entityLoading,
-    entityError,
-    setSearch,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    fetchEntities,
-    fetchEntityTasks,
-    search,
-    activeEntity,
-    selectEntityType,
-    selectedEntityType,
-  } = useEntities();
-  const { setGlobalActiveEntity } = useEpisodeManagerContext();
-
-  useEffect(() => {
-    fetchEntities();
-  }, [search, currentPage, selectedEntityType]);
-
-  useEffect(() => {
-    if (entityResults && entityResults.length > 0) {
-      fetchEntityTasks(entityResults[0].id);
-    }
-  }, [entityResults]);
-
-  useEffect(() => {
-    setGlobalActiveEntity(activeEntity);
-  }, [activeEntity]);
-
+const MainContent = ({
+  dataType,
+  entityResults,
+  entityLoading,
+  entityError,
+  setSearch,
+  currentPage,
+  setCurrentPage,
+  selectEntityType,
+  totalPages,
+  selectedEntityType,
+}) => {
   return (
     <>
       {entityLoading ? (
@@ -55,11 +36,10 @@ const MainContent = () => {
           entityResults={entityResults}
           entityLoading={entityLoading}
           entityError={entityError}
+          dataType={dataType}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           totalPages={totalPages}
-          fetchEntityTasks={fetchEntityTasks}
-          activeEntity={activeEntity}
         />
       )}
     </>

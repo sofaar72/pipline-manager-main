@@ -1,6 +1,7 @@
 // src/features/film/filmSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/AxiosInstance";
+import { toast } from "react-toastify";
 
 export const fetchTaskVersions = createAsyncThunk(
   "task/fetchTaskVersions",
@@ -11,6 +12,7 @@ export const fetchTaskVersions = createAsyncThunk(
       const response = await axiosInstance.get(`/tasks/${id}`, {
         params: queryParams,
       });
+
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -36,6 +38,9 @@ export const createVersion = createAsyncThunk(
     console.log(data);
     try {
       const response = await axiosInstance.post(`/versions/`, data);
+      if (response.status === 201) {
+        toast.success("Version created successfully");
+      }
       return response.data;
     } catch (error) {
       console.log("Error response:", error.response);
@@ -53,7 +58,7 @@ const versionSlice = createSlice({
     // data: { results: [], loading: false, error: null },
     versions: { results: [], loading: false, error: null },
     versionPreview: { data: {}, loading: false, error: null },
-    createVersion: { data: {}, loading: false, error: null },
+    createVersionData: { data: {}, loading: false, error: null },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -90,17 +95,17 @@ const versionSlice = createSlice({
     // create version
     builder
       .addCase(createVersion.pending, (state) => {
-        state.createVersion.loading = true;
-        state.createVersion.error = null;
+        state.createVersionData.loading = true;
+        state.createVersionData.error = null;
       })
       .addCase(createVersion.fulfilled, (state, action) => {
-        state.createVersion.loading = false;
-        state.createVersion.success = true;
-        state.versions.results.push(action.payload); // Optionally update local task list
+        state.createVersionData.loading = false;
+        state.createVersionData.success = true;
+        // state.versions.results.push(action.payload); // Optionally update local task list
       })
       .addCase(createVersion.rejected, (state, action) => {
-        state.createVersion.loading = false;
-        state.createVersion.error = action.payload;
+        state.createVersionData.loading = false;
+        state.createVersionData.error = action.payload;
       });
   },
 });

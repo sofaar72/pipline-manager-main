@@ -42,7 +42,10 @@ const VersionsList = ({ activeVersion, selectVersion }) => {
                   className="w-full h-[600px] flex items-center justify-center   text-white max-w-[500px] "
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <CreateVersionForm setOpen={setOpen} />
+                  <CreateVersionForm
+                    taskId={versionResults?.id || ""}
+                    setOpen={setOpen}
+                  />
                 </div>
               </>
             );

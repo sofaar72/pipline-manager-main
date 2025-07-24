@@ -35,3 +35,7 @@
   background: var(--primary-modal-box);
   cursor: not-allowed;
 }
+
+/* .tooltip-file-name {
+  background: !var(--primary-form-bg);
+} */

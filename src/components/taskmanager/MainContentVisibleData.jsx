@@ -1,13 +1,15 @@
-import React from "react";
-import CdropDown from "../golbals/CdropDown";
+import React, { useEffect } from "react";
+
 import { entities } from "../../fakeContents/Entities";
 
 import SearchTwo from "../golbals/SearchTwo";
 import EntityItem from "../golbals/EntityItem";
 import Pagination from "../golbals/Pagination";
 import Loading from "../golbals/Loading";
+import CdropDown from "../golbals/CDropDown";
 
 const MainContentVisibleData = ({
+  dataType,
   selectEntityType,
   setSearch,
   entityLoading,
@@ -16,8 +18,6 @@ const MainContentVisibleData = ({
   currentPage,
   setCurrentPage,
   totalPages,
-  fetchEntityTasks,
-  activeEntity,
 }) => {
   return (
     <div className="w-full max-w-main h-full main-bg radius sec-padd-x sec-padd-y flex flex-col gap-[22px]">
@@ -42,12 +42,7 @@ const MainContentVisibleData = ({
           <div className="w-full text-sm">No data found, please try again!</div>
         ) : (
           entityResults?.map((film) => (
-            <EntityItem
-              key={film.id}
-              item={film}
-              fetchTask={fetchEntityTasks}
-              isActive={activeEntity === film.id}
-            />
+            <EntityItem key={film.id} item={film} dataType={dataType} />
           ))
         )}
       </div>

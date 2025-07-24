@@ -10,6 +10,7 @@ import FormPLaceHolder from "../golbals/PlaceHolders.jsx/FormPlaceHolder";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 import { toast, ToastContainer } from "react-toastify";
 import { useEntities } from "../../hooks/useEntities";
+import { useParams } from "react-router-dom";
 
 const CreateTaskForm = ({
   bgColor = "form-bg",
@@ -20,6 +21,7 @@ const CreateTaskForm = ({
 }) => {
   const { typeResults, typeLoading, typeError, fetchAllTypes } = useTypes();
   // const { typeResults, typeLoading, typeError, fetchAllTypes } = useE();
+  const { dataType } = useEpisodeManagerContext();
 
   const {
     addTask,
@@ -36,17 +38,21 @@ const CreateTaskForm = ({
   const [assignees, setAssignees] = useState([]);
   const [selectedType, setSelectedType] = useState({});
 
-  const { globalActiveEntity } = useEpisodeManagerContext();
+  const { entityResults, entityLoading, entityError, fetchAllEntities } =
+    useEntities();
+
+  const { id } = useParams();
 
   const submitForm = (taskData) => {
     // console.log(taskData);
     const data = {
-      type: selectedType.id,
+      type: selectedType?.id,
+
       // assignee: assignees.map((assine) => assine.id),
       assignee: [975, 1309],
-      status: "540",
-      parent_type: "PRD",
-      parent: globalActiveEntity,
+      status: 540,
+      parent_type: dataTypes === "production" ? "PRD" : "BLD",
+      parent: id,
 
       // film:
     };
@@ -62,22 +68,23 @@ const CreateTaskForm = ({
     if (taskResults.length === 0) {
       fetchAllTypes();
     }
+    // if (dataType === "assets") {
+
+    // }
   }, []);
 
   const selectType = (type) => {
     setSelectedType(type);
   };
 
-  const notify = (message) => toast(message);
+  // if (createTaskError) {
+  //   notify("test");
+  //   return <ToastContainer />
+  // }
 
-  if (createTaskError) {
-    notify("test");
-    return <ToastContainer />;
-  }
-
-  useEffect(() => {
-    console.log(createTaskError);
-  }, [createTaskError]);
+  // useEffect(() => {
+  //   console.log(createTaskError);
+  // }, [createTaskError]);
 
   if (typeLoading) {
     return (
@@ -88,6 +95,7 @@ const CreateTaskForm = ({
       />
     );
   }
+
   return (
     <div className="w-full h-full  form-bg radius px-[10px] py-[40px] flex flex-col items-center justify-between">
       <h2 className={` text-center ${titleSize} uppercase font-[600]`}>
@@ -126,6 +134,19 @@ const CreateTaskForm = ({
                 getTypes={selectType}
                 selectedType={selectedType}
               ></FormInputC>
+
+              {dataType === "assets" && (
+                <FormInputC
+                  type="select2"
+                  name="task_type"
+                  placeholder="Select Variant"
+                  formValue={values.assignee}
+                  checked={checked}
+                  types={typeResults}
+                  getTypes={selectType}
+                  selectedType={selectedType}
+                ></FormInputC>
+              )}
 
               {/* Assignee checkbox  */}
               <div className="mb-auto">

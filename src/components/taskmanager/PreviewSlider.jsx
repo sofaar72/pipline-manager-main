@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useLayoutEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import { FaPlay } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 // Import Swiper styles
 import "swiper/css";
@@ -11,6 +13,11 @@ import DownloadButton from "../golbals/Buttons/DownloadButton";
 const PreviewSlider = ({ slides, selectPrevImage }) => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handlePlay = () => {
+    navigate("/task-manager/preview");
+  };
 
   return (
     <div className="relative w-full h-full">
@@ -32,7 +39,19 @@ const PreviewSlider = ({ slides, selectPrevImage }) => {
       >
         {slides?.map((slide, i) => (
           <SwiperSlide key={i}>
-            <img className="w-full h-full object-cover" src={slide} alt="" />
+            <div className="w-full h-full relative  ">
+              <img className="w-full h-full object-cover" src={slide} alt="" />
+              <div className=" cursor-pointer absolute flex items-center justify-center top-0 left-0 w-full h-full bg-black/50  opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <div className="flex gap-2">
+                  <button
+                    onClick={handlePlay}
+                    className="w-[100px] h-[100px] bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer"
+                  >
+                    <FaPlay className="text-white text-2xl" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </SwiperSlide>
         ))}
 

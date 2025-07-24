@@ -9,7 +9,11 @@ import SelectFromTask from "../golbals/SelectFromTask";
 import SelectFromFiles from "../golbals/SelectFromFiles";
 import CDropDown from "../golbals/CDropDown";
 import CdropDownNoBg from "../golbals/CdropDownNoBg";
-import UploadFileArea from "./UploadFileArea";
+import UploadFileForm from "./UploadFileForm";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFiles } from "../../store/Slices/FileSlice";
+import VersionsFileTogglerBox from "./VersionsFileTogglerBox";
+import { toast, ToastContainer } from "react-toastify";
 
 const CreateVersionForm = ({
   bgColor = "form-bg",
@@ -17,10 +21,10 @@ const CreateVersionForm = ({
   titleSize = "text-[14px]",
   submit,
   setOpen = () => {},
+  taskId = "",
 }) => {
-  const [selectedTask, setSelectedTask] = useState({});
-  const [selectedFile, setSelectedFile] = useState({});
-  const { createNewVersion } = useVersions();
+  const { createNewVersion, createVersionLoading, createVersionError } =
+    useVersions();
   const {
     addTask,
     createTaskLoading,
@@ -29,20 +33,35 @@ const CreateVersionForm = ({
     taskResults,
   } = useTasks();
 
+  const [versionFiles, setVersionFiles] = useState([]);
   const initialValues = {
-    taskId: "23131",
-    files: [],
+    taskId: taskId || "", // default empty or pre-filled
+    // files: selectedFile ? [selectedFile] : [],
   };
 
   const submitForm = (taskData) => {
-    // console.log(taskData);
     const data = {
-      taskId: 31213,
-      files: [],
+      task: taskId,
+      files: versionFiles,
     };
-    createNewVersion(data);
-    setOpen(false);
+
+    if (versionFiles.length > 0) {
+      createNewVersion(data);
+      // setOpen(false);
+    } else {
+      toast.error("Please upload files");
+    }
   };
+  const dispatch = useDispatch();
+  const { files, loading: filesLoading } = useSelector((state) => state.file);
+
+  useEffect(() => {
+    dispatch(fetchFiles());
+  }, []);
+
+  useEffect(() => {
+    console.log(createVersionLoading);
+  }, [createVersionLoading]);
 
   // const notify = (message) => toast(message);
 
@@ -75,6 +94,7 @@ const CreateVersionForm = ({
             <form
               className="w-full flex-1 flex flex-col gap-[20px] px-4 overflow-hidden "
               onSubmit={handleSubmit}
+              encType="multipart/form-data"
             >
               {/* task Id  */}
               <div className="w-full h-[42px] bg-transparent relative text-white border border-white/20 rounded-[5px] flex items-center justify-between px-[10px]">
@@ -82,15 +102,22 @@ const CreateVersionForm = ({
                 <span>{values.taskId}</span>
               </div>
 
-              {/* Upload file area here  */}
-              <UploadFileArea />
+              <VersionsFileTogglerBox
+                versionFiles={versionFiles}
+                setVersionFiles={setVersionFiles}
+                files={files}
+                filesLoading={filesLoading}
+              />
               <CbuttonOne
-                height="h-[30px]"
+                height="h-[40px]"
                 color="var(--primary-color-lowest)"
                 type="submit"
-                loading={createTaskLoading}
+                loading={createVersionLoading}
+                disabled={createVersionLoading || versionFiles.length === 0}
               >
-                <span className="text-sm">Create Version</span>
+                <span className="text-sm">
+                  {createVersionLoading ? "Creating..." : "Create Version"}
+                </span>
                 <img
                   className="w-[20px] h-[20px] object-contain"
                   src="/icons/Add.svg"

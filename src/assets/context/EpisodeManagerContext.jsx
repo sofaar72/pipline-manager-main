@@ -10,8 +10,11 @@ import React, {
 const EpisodeManagerContext = createContext();
 
 export const EpisodeManagerProvider = ({ children }) => {
+  const [dataType, setDataType] = useState(null);
+
   const [globalActiveEntity, setGlobalActiveEntity] = useState(null);
   const [selectedEpisode, setSelectedEpisode] = useState("Episode 1");
+  const [activeEntity, setActiveEntity] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [activeVersion, setActiveVersion] = useState(null);
 
@@ -22,12 +25,16 @@ export const EpisodeManagerProvider = ({ children }) => {
   const values = {
     selectEpisode,
     selectedEpisode,
+    activeEntity,
+    setActiveEntity,
     activeTask,
     setActiveTask,
     activeVersion,
     setActiveVersion,
     globalActiveEntity,
     setGlobalActiveEntity,
+    dataType,
+    setDataType,
   };
 
   return (

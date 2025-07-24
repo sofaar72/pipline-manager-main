@@ -20,7 +20,7 @@ const GlobalModal = ({
       {text ? (
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 transition  rounded-md text-white  text-sm  px-[10px] py-[5px] cursor-pointer 
+          className="flex min-w-[120px] justify-center items-center gap-2 transition  rounded-md text-white  text-sm  px-[10px] py-[5px] cursor-pointer 
         hover:bg-[var(--primary-color-light)]/20
         "
         >

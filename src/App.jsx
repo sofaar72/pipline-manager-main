@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import AllRoutes from "./Routes/AllRoutes";
+import { EpisodeManagerProvider } from "./assets/context/EpisodeManagerContext";
 
 function App() {
   useEffect(() => {
@@ -13,9 +14,11 @@ function App() {
 
   return (
     <div className="bg-glob">
-      <div className="w-full flex gap-[31px] justify-between h-screen">
-        <AllRoutes />
-      </div>
+      <EpisodeManagerProvider>
+        <div className="w-full flex gap-[31px] justify-between h-screen">
+          <AllRoutes />
+        </div>
+      </EpisodeManagerProvider>
     </div>
   );
 }

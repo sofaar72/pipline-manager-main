@@ -9,6 +9,7 @@ const CbuttonOne = ({
   cClasses = "",
   type = "",
   loading = false,
+  onClick = () => {},
 }) => {
   return (
     <button
@@ -23,6 +24,7 @@ const CbuttonOne = ({
       ]}
       disabled={loading || disabled}
       type={type}
+      onClick={onClick}
     >
       {children}
       {loading && (

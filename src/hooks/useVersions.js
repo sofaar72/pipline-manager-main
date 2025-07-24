@@ -5,11 +5,12 @@ import {
   fetchTaskVersions,
   fetchVersionPreview,
 } from "../store/Slices/VersionsSlice";
+import { createVersion } from "../store/Slices/VersionsSlice";
 
 export const useVersions = () => {
   const dispatch = useDispatch();
   const [activeVersion, setActiveVersion] = useState(null);
-  const { versions, versionPreview, createVersion } = useSelector(
+  const { versions, versionPreview, createVersionData } = useSelector(
     (state) => state.version
   );
   const {
@@ -22,6 +23,11 @@ export const useVersions = () => {
     loading: versionPreviewLoading,
     error: versionPreviewError,
   } = versionPreview || {};
+  const {
+    data: createVersionResult,
+    loading: createVersionLoading,
+    error: createVersionError,
+  } = createVersionData || {};
 
   const fetchAllVersions = (taskId) => {
     dispatch(fetchTaskVersions({ id: taskId }));
@@ -48,5 +54,7 @@ export const useVersions = () => {
     fetchSingleVersionPreview,
     activeVersion,
     createNewVersion,
+    createVersionLoading,
+    createVersionError,
   };
 };

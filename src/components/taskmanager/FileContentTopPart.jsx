@@ -9,6 +9,7 @@ const FileContentTopPart = ({ results }) => {
         <img className="w-[18px] h-[full" src="/icons/Bookmark.svg" alt="" />
         <h3 className="text-sm capitalize">{results?.type?.name}</h3>
       </div>
+      <Dvider />
       <div className="flex gap-[18px] w-full h-[90px] justify-between py-2 items-center">
         <div className="w-[100px] h-full radius overflow-hidden">
           <img
@@ -69,7 +70,6 @@ const FileContentTopPart = ({ results }) => {
           </div>
         </div>
       </div>
-      <Dvider />
     </div>
   );
 };

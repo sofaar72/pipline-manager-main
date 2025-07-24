@@ -8,7 +8,7 @@ export const useEntities = () => {
   const [selectedEntityType, setSelectedEntityType] = useState("All");
   const { fetchAllTasks } = useTasks();
   const dispatch = useDispatch();
-  const [activeEntity, setActiveEntity] = useState(0);
+
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 5;
@@ -39,17 +39,12 @@ export const useEntities = () => {
   const selectEntityType = (type) => {
     setSelectedEntityType(type);
   };
-  const selectEntity = (id) => {
-    setActiveEntity(id);
-  };
 
   const fetchEntityTasks = (id) => {
-    selectEntity(id);
     fetchAllTasks(id);
   };
 
   return {
-    activeEntity,
     entityResults: results,
     entityLoading: loading,
     entityError: error,

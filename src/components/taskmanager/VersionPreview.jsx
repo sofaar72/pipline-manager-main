@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TaskTabs from "../golbals/TaskTabs";
 import { useVersions } from "../../hooks/useVersions";
 import Loading from "../golbals/Loading";
-import CdropDown from "../golbals/CdropDown";
+
 import PreviewSlider from "./PreviewSlider";
 import GlobalModal from "../golbals/GlobalModal";
 

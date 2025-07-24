@@ -6,7 +6,9 @@ import { Files } from "../../fakeContents/Files";
 import FilesItemExport from "./FilesItemExport";
 import FilesItemDependency from "./FilesItemDependency";
 import CbuttonOne from "./Buttons/CbuttonOne";
-import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
+
+import CreateOnlyFile from "../taskmanager/CreateOnlyFile";
+import GlobalModal from "./GlobalModal";
 
 const TaskTabs = ({ version }) => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -50,14 +52,35 @@ const TaskTabs = ({ version }) => {
                   return <FilesItemExport file={file} key={i} />;
                 })}
               </div>
-              <CbuttonOne height="h-[30px]" color="var(--primary-color-lowest)">
-                <span className="text-sm">Add File</span>
-                <img
-                  className="w-[15px] h-[15px]"
-                  src="/icons/Add.svg"
-                  alt=""
-                />
-              </CbuttonOne>
+
+              <GlobalModal
+                text=""
+                clickButton={(openModal) => {
+                  return (
+                    <CbuttonOne
+                      height="w-full h-[30px]"
+                      color="var(--primary-color-lowest)"
+                      onClick={() => {
+                        openModal(true);
+                      }}
+                    >
+                      <span className="text-sm">Add File</span>
+                      <img
+                        className="w-[15px] h-[15px]"
+                        src="/icons/Add.svg"
+                        alt=""
+                      />
+                    </CbuttonOne>
+                  );
+                }}
+              >
+                <div
+                  className="w-full h-full max-w-[400px] text-white"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <CreateOnlyFile />
+                </div>
+              </GlobalModal>
             </div>
           )}
 

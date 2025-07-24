@@ -35,7 +35,12 @@ export const useTasks = () => {
   };
 
   const addTask = (taskData) => {
-    dispatch(createTask({ ...taskData }));
+    dispatch(createTask({ ...taskData })).then((res) => {
+      console.log(res);
+      if (res) {
+        fetchAllTasks(res?.payload?.film);
+      }
+    });
   };
 
   return {

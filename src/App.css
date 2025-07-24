@@ -14,7 +14,10 @@
   --primary-color-dark: #13121d;
   --primary-modal-box: #605a96;
   --box-shadow: 0px 4px 10px #06060628;
-  --primary-form-bg: #302e59;
+  --primary-form-bg: #343069;
+  --primary-add-file-bg: #544eaf;
+  --secondary-normal: #d7890d;
+  --third-normal: #0dd750;
 
   /* --primary-color-normal: #575586; */
 }
@@ -61,6 +64,14 @@ input {
 }
 a.active {
   color: var(--primary-color-light);
+}
+
+.ent-item.active {
+  @apply bg-[var(--primary-color-light)];
+}
+
+.icons .active {
+  @apply bg-[var(--primary-color-light)] rounded-full;
 }
 
 .c-button {
