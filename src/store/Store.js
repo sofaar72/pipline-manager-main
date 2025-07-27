@@ -7,6 +7,7 @@ import TypeReducer from "./Slices/TypeSlice";
 import userReducer from "./Slices/userSlice";
 import fileReducer from "./Slices/FileSlice";
 import assetReducer from "./Slices/AssetSlice";
+import variationsReducer from "./Slices/VariationsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,5 +18,6 @@ export const store = configureStore({
     type: TypeReducer,
     user: userReducer,
     file: fileReducer,
+    variation: variationsReducer,
   },
 });

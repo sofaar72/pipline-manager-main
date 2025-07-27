@@ -6,6 +6,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { assetChilds } from "../../fakeContents/AssetChilds";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { IoIosMore } from "react-icons/io";
+import { useAssets } from "../../hooks/useAssets";
 
 const EntityItem = ({ item, dataType }) => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const EntityItem = ({ item, dataType }) => {
       className={`ent-item w-full radius !text-white h-[98px] flex gap-[15px] item-bg items-center px-[10px] py-[5px] cursor-pointer transition hover:!bg-[var(--primary-color-light)] 
         relative`}
       to={`/task-manager/${dataType}/${item.id}`}
+      state={dataType === "assets" ? { item } : {}}
     >
       {/* ${
       isActive ? "!bg-[var(--primary-color-light)] " : "bg-transparent"
@@ -55,10 +57,10 @@ const EntityItem = ({ item, dataType }) => {
                 <div className="flex items-center gap-1">
                   <MenuButton
                     className="text-sm bg-[#7472C0] px-2 py-1 rounded-md flex items-center gap-1 transition hover:bg-[#7472C0]/80 cursor-pointer"
-                    // onClick={(e) => {
-                    //   e.preventDefault();
-                    //   e.stopPropagation();
-                    // }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                   >
                     <span className="text-[10px]">{childs}</span>
                     <ChevronDownIcon

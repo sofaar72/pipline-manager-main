@@ -15,30 +15,17 @@ import { FaRegUser } from "react-icons/fa";
 import { GrDocumentConfig } from "react-icons/gr";
 import { IoMdSettings } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
+import SidebarDropdown from "./SidebarDropdown";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleTask, setToggleTask] = useState(false);
+
   const { logout } = useAuth();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
-
-  const showTasks = () => {
-    setToggleTask(!toggleTask);
-  };
-
-  const dropBox = useRef(null);
-  const [dropHeight, setDropHeight] = useState(0);
-
-  useEffect(() => {
-    const dropCurrent = dropBox.current;
-    if (dropCurrent) {
-      dropCurrent.style.height = `${dropCurrent.scrollHeight}px`;
-      setDropHeight(dropCurrent.scrollHeight);
-    }
-  }, [toggleTask]);
 
   return (
     <div
@@ -89,7 +76,7 @@ const Sidebar = () => {
           <div
             className="w-full h-full transition flex  justify-center"
             style={{
-              maxHeight: toggleTask ? `calc(${dropHeight}px + 30px)` : "30px",
+              maxHeight: "30px",
             }}
           >
             <NavLink
@@ -101,7 +88,7 @@ const Sidebar = () => {
               <FaTasks
                 className="w-full h-full"
                 style={{
-                  height: toggleTask ? `calc(${dropHeight}px + 30px)` : "30px",
+                  height: "30px",
                 }}
               />
             </NavLink>
@@ -218,52 +205,13 @@ const Sidebar = () => {
             >
               Overview
             </NavLink>
-            <div
-              className={`w-full flex cursor-pointer flex-col relative text-sm hover:text-[var(--primary-color-light)] transition h-[30px]
-                  p-[3px] rounded-full
-                  
-       
-                  `}
-              style={{
-                height: toggleTask ? `calc(${dropHeight}px + 30px)` : "30px",
-              }}
-              onClick={showTasks}
-            >
-              <span>Task Manager</span>
-
-              <div
-                ref={dropBox}
-                className={`absolute  left-0 top-[25px]  w-full py-4 flex gap-2 overflow-hidden transition-all duration-500 ease-in-out  ${
-                  toggleTask
-                    ? " opacity-100 translate-y-0 pointer-events-auto scale-100"
-                    : " opacity-0 translate-y-[-10%] pointer-events-none scale-0"
-                }`}
-              >
-                <img
-                  className="w-[15px] h-[44px]"
-                  src="/images/lines.png"
-                  alt=""
-                />
-                <div className="flex-1 flex flex-col gap-2">
-                  <NavLink
-                    className={
-                      "text-white hover:text-[var(--primary-color-light)]"
-                    }
-                    to="/task-manager/production"
-                  >
-                    Production
-                  </NavLink>
-                  <NavLink
-                    className={
-                      "text-white hover:text-[var(--primary-color-light)]"
-                    }
-                    to="/task-manager/assets"
-                  >
-                    Assets
-                  </NavLink>
-                </div>
-              </div>
-            </div>
+            <SidebarDropdown
+              label="Task Manager"
+              links={[
+                { label: "Production", to: "/task-manager/production" },
+                { label: "Assets", to: "/task-manager/assets" },
+              ]}
+            />
             <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
@@ -272,14 +220,14 @@ const Sidebar = () => {
             >
               Gun Chart
             </NavLink>
-            <NavLink
-              className={
-                "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
-              }
-              to={"/projects"}
-            >
-              Projects
-            </NavLink>
+            <SidebarDropdown
+              label="Projects"
+              links={[
+                { label: "Create Project", to: "/projects/create" },
+                { label: "Select Project", to: "/projects/select" },
+              ]}
+            />
+
             <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"

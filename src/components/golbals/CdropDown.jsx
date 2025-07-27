@@ -14,12 +14,12 @@ export default function CdropDown({
   const onChangeSelect = (e, opt) => {
     // e.preventDefault();
     console.log(opt);
-    setSelected(opt);
-    select(opt);
+    setSelected(opt.name ? opt.name : opt);
+    select(opt.id ? opt.id : opt);
   };
 
   return (
-    <Menu as="div" className="relative inline-block text-left ">
+    <Menu as="div" className="relative inline-block text-left shrink-0 ">
       <div>
         <CbuttonTwo as={CbuttonTwo}>
           {selected}
@@ -30,9 +30,9 @@ export default function CdropDown({
         </CbuttonTwo>
       </div>
 
-      <MenuItems className=" absolute left-0 z-20 mt-2 w-fit !min-w-20 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col ">
-        {options?.map((option) => (
-          <MenuItem key={option} as="button">
+      <MenuItems className=" absolute left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col ">
+        {options?.map((option, i) => (
+          <MenuItem key={i} as="button">
             {({ active }) => (
               <button
                 onClick={(e) => onChangeSelect(e, option)}
@@ -40,7 +40,7 @@ export default function CdropDown({
                   active ? "bg-gray-100 text-gray-900" : "text-white"
                 }`}
               >
-                {option}
+                {option?.name ? option.name : option}
               </button>
             )}
           </MenuItem>

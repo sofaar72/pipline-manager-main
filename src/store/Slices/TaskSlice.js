@@ -18,6 +18,24 @@ export const fetchTasks = createAsyncThunk(
     }
   }
 );
+// Fetch assets tasks
+export const fetchAssetsTasks = createAsyncThunk(
+  "task/fetchAssetsTasks",
+  async ({ id, queryParams }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(
+        `/assets/variations/${id}/tasks`,
+        {
+          params: queryParams,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 // CREATE TASK
 export const createTask = createAsyncThunk("task/createTask", async (data) => {
   console.log(data);
@@ -68,6 +86,20 @@ const taskSlice = createSlice({
         state.tasks.error = action.payload;
       });
 
+    // FETCH ASSETS TASKS
+    builder
+      .addCase(fetchAssetsTasks.pending, (state) => {
+        state.tasks.loading = true;
+        state.tasks.error = null;
+      })
+      .addCase(fetchAssetsTasks.fulfilled, (state, action) => {
+        state.tasks.loading = false;
+        state.tasks.results = action.payload;
+      })
+      .addCase(fetchAssetsTasks.rejected, (state, action) => {
+        state.tasks.loading = false;
+        state.tasks.error = action.payload;
+      });
     // CREATE TASK
     builder
       .addCase(createTask.pending, (state) => {

@@ -10,7 +10,7 @@ import React, {
 const EpisodeManagerContext = createContext();
 
 export const EpisodeManagerProvider = ({ children }) => {
-  const [dataType, setDataType] = useState(null);
+  const [dataType, setDataType] = useState("production");
 
   const [globalActiveEntity, setGlobalActiveEntity] = useState(null);
   const [selectedEpisode, setSelectedEpisode] = useState("Episode 1");

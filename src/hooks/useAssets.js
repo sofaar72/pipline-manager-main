@@ -6,7 +6,10 @@ import { useTasks } from "./useTasks";
 
 export const useAssets = () => {
   const [selectedAssetType, setSelectedAssetType] = useState("All");
-  const { fetchAllTasks } = useTasks();
+
+  const { fetchAllAssetsTasks } = useTasks({
+    dataType: "assets",
+  });
   const dispatch = useDispatch();
 
   const [search, setSearch] = useState("");
@@ -41,7 +44,7 @@ export const useAssets = () => {
   };
 
   const fetchAssetTasks = (id) => {
-    fetchAllTasks(id);
+    fetchAllAssetsTasks(id);
   };
 
   return {

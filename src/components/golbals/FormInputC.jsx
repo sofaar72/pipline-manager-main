@@ -17,7 +17,11 @@ const FormInputC = (props) => {
     assignees = [],
     setAssignees = () => {},
     types = [],
+
     getTypes = () => {},
+    variations = [],
+    selectedVariation = {},
+    selectVariation = () => {},
     selectedType = {},
     handleChange = () => {},
     error = "",
@@ -136,6 +140,36 @@ const FormInputC = (props) => {
           items={types?.results}
           setItems={getTypes}
           selectedType={selectedType}
+        ></DropDownModal>
+      </div>
+    );
+  }
+  if (type === "select_variation") {
+    return (
+      <div className="w-full h-[42px] bg-transparent relative  z-[20]">
+        <div
+          className="w-full h-full flex items-center justify-between gap-2 cursor-pointer"
+          onClick={() => setOpenDropDown(!openDropDown)}
+        >
+          <span className="text-sm font-[300] text-white/70">
+            {selectedVariation.name ? selectedVariation?.name : placeholder}
+          </span>
+          <img
+            className={`transition ${openDropDown ? "rotate-180" : "rotate-0"}`}
+            src="/icons/Arrow Down.svg"
+            alt=""
+          />
+        </div>
+        {/* bottom border  */}
+        <div className="w-full h-[1px] line-grad bottom-0 absolute"></div>
+
+        {/* user assign modal  */}
+        <DropDownModal
+          openDropDown={openDropDown}
+          closeDropDown={setOpenDropDown}
+          items={variations?.results}
+          setItems={selectVariation}
+          selectedType={selectedVariation}
         ></DropDownModal>
       </div>
     );

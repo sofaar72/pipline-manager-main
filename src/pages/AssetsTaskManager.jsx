@@ -24,6 +24,8 @@ const AssetsTaskManager = () => {
     search,
     selectAssetType,
     selectedAssetType,
+    variationId,
+    setVariationId,
   } = useAssets();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -40,7 +42,9 @@ const AssetsTaskManager = () => {
 
   useEffect(() => {
     if (assetResults && assetResults.length > 0) {
-      navigate(`/task-manager/assets/${assetResults[0]?.id}`);
+      navigate(`/task-manager/assets/${assetResults[0]?.id}`, {
+        state: { item: assetResults[0] },
+      });
       // fetchAssetTasks(assetResults[0].id);
     }
     setDataType("assets");
@@ -48,7 +52,9 @@ const AssetsTaskManager = () => {
 
   useEffect(() => {
     if (assetResults && assetResults.length > 0) {
-      navigate(`/task-manager/assets/${assetResults[0]?.id}`);
+      navigate(`/task-manager/assets/${assetResults[0]?.id}`, {
+        state: { item: assetResults[0] },
+      });
     }
   }, [assetResults]);
 
@@ -74,6 +80,8 @@ const AssetsTaskManager = () => {
           selectEntityType={selectAssetType}
           totalPages={totalPages}
           selectedEntityType={selectedAssetType}
+          variationId={variationId}
+          setVariationId={setVariationId}
         />
         <Outlet />
         {/* <NoFileContent /> */}

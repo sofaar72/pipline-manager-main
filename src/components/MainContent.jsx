@@ -23,7 +23,6 @@ const MainContent = ({
   setCurrentPage,
   selectEntityType,
   totalPages,
-  selectedEntityType,
 }) => {
   return (
     <>

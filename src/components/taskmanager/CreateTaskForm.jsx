@@ -11,6 +11,7 @@ import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerCon
 import { toast, ToastContainer } from "react-toastify";
 import { useEntities } from "../../hooks/useEntities";
 import { useParams } from "react-router-dom";
+import { useVariations } from "../../hooks/useVariations";
 
 const CreateTaskForm = ({
   bgColor = "form-bg",
@@ -20,6 +21,12 @@ const CreateTaskForm = ({
   setOpen = () => {},
 }) => {
   const { typeResults, typeLoading, typeError, fetchAllTypes } = useTypes();
+  const {
+    variationResults,
+    variationLoading,
+    variationError,
+    fetchAllVariation,
+  } = useVariations();
   // const { typeResults, typeLoading, typeError, fetchAllTypes } = useE();
   const { dataType } = useEpisodeManagerContext();
 
@@ -29,7 +36,9 @@ const CreateTaskForm = ({
     createTaskError,
     taskSuccess,
     taskResults,
-  } = useTasks();
+  } = useTasks({
+    dataType: dataType === "production" ? "production" : "assets",
+  });
   const [checked, setChecked] = useState(false);
   const initialValues = {
     type: 2,
@@ -37,9 +46,12 @@ const CreateTaskForm = ({
 
   const [assignees, setAssignees] = useState([]);
   const [selectedType, setSelectedType] = useState({});
+  const [selectedVariation, setSelectedVariation] = useState({});
 
   const { entityResults, entityLoading, entityError, fetchAllEntities } =
-    useEntities();
+    useEntities({
+      dataType: dataType === "production" ? "production" : "assets",
+    });
 
   const { id } = useParams();
 
@@ -51,8 +63,8 @@ const CreateTaskForm = ({
       // assignee: assignees.map((assine) => assine.id),
       assignee: [975, 1309],
       status: 540,
-      parent_type: dataTypes === "production" ? "PRD" : "BLD",
-      parent: id,
+      parent_type: dataType === "production" ? "PRD" : "BLD",
+      parent: dataType === "production" ? id : selectedVariation?.id,
 
       // film:
     };
@@ -67,14 +79,25 @@ const CreateTaskForm = ({
   useEffect(() => {
     if (taskResults.length === 0) {
       fetchAllTypes();
+      if (dataType === "assets") {
+        fetchAllVariation(id);
+      }
     }
     // if (dataType === "assets") {
 
     // }
   }, []);
 
+  useEffect(() => {
+    console.log(dataType);
+  }, [dataType]);
+
   const selectType = (type) => {
     setSelectedType(type);
+  };
+
+  const selectVariation = (variation) => {
+    setSelectedVariation(variation);
   };
 
   // if (createTaskError) {
@@ -85,6 +108,10 @@ const CreateTaskForm = ({
   // useEffect(() => {
   //   console.log(createTaskError);
   // }, [createTaskError]);
+
+  useEffect(() => {
+    console.log(selectedVariation);
+  }, [selectedVariation]);
 
   if (typeLoading) {
     return (
@@ -123,28 +150,27 @@ const CreateTaskForm = ({
                 placeholder="Task Type"
                 formValue={values.type}
               ></FormInputC> */}
-
-              <FormInputC
-                type="select2"
-                name="task_type"
-                placeholder="Select Type"
-                formValue={values.assignee}
-                checked={checked}
-                types={typeResults}
-                getTypes={selectType}
-                selectedType={selectedType}
-              ></FormInputC>
-
-              {dataType === "assets" && (
+              <div className="w-full relative z-[99999]">
                 <FormInputC
                   type="select2"
                   name="task_type"
-                  placeholder="Select Variant"
+                  placeholder="Select Type"
                   formValue={values.assignee}
                   checked={checked}
                   types={typeResults}
                   getTypes={selectType}
                   selectedType={selectedType}
+                ></FormInputC>
+              </div>
+
+              {dataType === "assets" && (
+                <FormInputC
+                  type="select_variation"
+                  name="task_type"
+                  placeholder="Select Variation"
+                  variations={variationResults}
+                  selectedVariation={selectedVariation}
+                  selectVariation={selectVariation}
                 ></FormInputC>
               )}
 

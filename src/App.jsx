@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import "./assets/styles/createproject.css";
 
 import AllRoutes from "./Routes/AllRoutes";
 import { EpisodeManagerProvider } from "./assets/context/EpisodeManagerContext";

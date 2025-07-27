@@ -6,7 +6,7 @@ import { useTasks } from "./useTasks";
 
 export const useEntities = () => {
   const [selectedEntityType, setSelectedEntityType] = useState("All");
-  const { fetchAllTasks } = useTasks();
+  const { fetchAllTasks } = useTasks({ dataType: "production" });
   const dispatch = useDispatch();
 
   const [search, setSearch] = useState("");

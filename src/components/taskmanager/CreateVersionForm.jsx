@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchFiles } from "../../store/Slices/FileSlice";
 import VersionsFileTogglerBox from "./VersionsFileTogglerBox";
 import { toast, ToastContainer } from "react-toastify";
+import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 
 const CreateVersionForm = ({
   bgColor = "form-bg",
@@ -23,6 +24,7 @@ const CreateVersionForm = ({
   setOpen = () => {},
   taskId = "",
 }) => {
+  const { dataType } = useEpisodeManagerContext();
   const { createNewVersion, createVersionLoading, createVersionError } =
     useVersions();
   const {
@@ -31,7 +33,9 @@ const CreateVersionForm = ({
     createTaskError,
     taskSuccess,
     taskResults,
-  } = useTasks();
+  } = useTasks({
+    dataType: dataType === "production" ? "production" : "assets",
+  });
 
   const [versionFiles, setVersionFiles] = useState([]);
   const initialValues = {

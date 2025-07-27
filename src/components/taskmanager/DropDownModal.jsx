@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AssigneeUser from "./AssigneeUser";
 import { Assignees } from "../../fakeContents/Assignees";
 import TasksIcon from "../golbals/CustomIcons.jsx/TasksIcon";
@@ -6,7 +6,7 @@ import TasksIcon from "../golbals/CustomIcons.jsx/TasksIcon";
 const DropDownModal = ({
   openDropDown,
   closeDropDown,
-  items,
+  items = [],
   setItems,
   selectedType,
 }) => {
@@ -14,6 +14,10 @@ const DropDownModal = ({
     setItems({ id: item.id, name: item.name });
     closeDropDown(!openDropDown);
   };
+
+  useEffect(() => {
+    console.log(items);
+  }, [items]);
   return (
     <div
       className={`w-full overflow-hidden h-fit bg-[#28263E] backdrop-blur-lg radius absolute left-0 top-[100%] transition px-4 py-4 z-[5000]  ${
@@ -21,7 +25,7 @@ const DropDownModal = ({
       }`}
     >
       <div className="w-full flex gap-0 flex-col h-[200px]">
-        <div className="w-full h-full flex flex-col  justify-between gap-0 overflow-y-auto py-4">
+        <div className="w-full h-full flex flex-col   gap-4 overflow-y-auto py-4">
           {items?.map((item, i) => {
             return (
               <div

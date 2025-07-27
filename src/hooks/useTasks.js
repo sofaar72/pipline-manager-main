@@ -1,10 +1,14 @@
 // hooks/useTasks.js
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { createTask, fetchTasks } from "../store/Slices/TaskSlice";
+import {
+  createTask,
+  fetchAssetsTasks,
+  fetchTasks,
+} from "../store/Slices/TaskSlice";
 import { useVersions } from "./useVersions";
 
-export const useTasks = () => {
+export const useTasks = ({ dataType = "production" }) => {
   const [activeTask, setActiveTask] = useState(null);
   const { fetchAllVersions } = useVersions();
   const dispatch = useDispatch();
@@ -22,7 +26,15 @@ export const useTasks = () => {
   } = createStatus || {};
 
   const fetchAllTasks = (entityId) => {
-    dispatch(fetchTasks({ id: entityId }));
+    if (dataType === "production") {
+      dispatch(fetchTasks({ id: entityId }));
+    } else {
+      dispatch(fetchAssetsTasks({ id: entityId, queryParams: {} }));
+    }
+  };
+
+  const fetchAllAssetsTasks = (id) => {
+    dispatch(fetchAssetsTasks({ id, queryParams: {} }));
   };
 
   const selectTask = (id) => {
@@ -36,9 +48,13 @@ export const useTasks = () => {
 
   const addTask = (taskData) => {
     dispatch(createTask({ ...taskData })).then((res) => {
-      console.log(res);
       if (res) {
-        fetchAllTasks(res?.payload?.film);
+        console.log(res);
+        if (dataType === "production") {
+          fetchAllTasks(res?.payload?.film);
+        } else {
+          fetchAllAssetsTasks(res?.payload?.asset_variation);
+        }
       }
     });
   };
@@ -54,5 +70,6 @@ export const useTasks = () => {
     fetchTaskVersion,
     fetchAllTasks,
     addTask,
+    fetchAllAssetsTasks,
   };
 };

@@ -23,7 +23,7 @@ const ProductionTaskManager = () => {
     search,
     selectEntityType,
     selectedEntityType,
-  } = useEntities();
+  } = useEntities({});
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const path = pathname.split("/");

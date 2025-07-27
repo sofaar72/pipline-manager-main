@@ -9,8 +9,7 @@ import { useVersions } from "../../hooks/useVersions";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 import VersionsList from "../taskmanager/VersionsList";
 import VersionPreview from "../taskmanager/VersionPreview";
-import { useEntities } from "../../hooks/useEntities";
-import { useTasks } from "../../hooks/useTasks";
+
 import CreateTaskForm from "../taskmanager/CreateTaskForm";
 import CbuttonOne from "./Buttons/CbuttonOne";
 import { Swiper } from "swiper/react";
@@ -20,6 +19,9 @@ import "swiper/css/free-mode";
 // import required modules
 import { FreeMode, Scrollbar, Mousewheel } from "swiper/modules";
 import { SwiperSlide } from "swiper/react";
+import CdropDown from "./CDropDown";
+import { useLocation } from "react-router-dom";
+import { useAssets } from "../../hooks/useAssets";
 
 const CustomTabs = ({
   tasks,
@@ -37,20 +39,32 @@ const CustomTabs = ({
     versionPreviewLoading,
   } = useVersions();
 
+  const location = useLocation();
+  const { item } = location.state || {};
+  const { fetchAssetTasks } = useAssets();
+
   useEffect(() => {
     if (versionResults?.versions?.length > 0) {
       fetchSingleVersionPreview(versionResults?.versions[0]?.id);
     }
   }, [versionResults]);
 
+  const selectVariants = (variant) => {
+    fetchAssetTasks(variant);
+  };
+
+  useEffect(() => {
+    console.log(item);
+  }, [item]);
+
   return (
     <div className="w-full h-full  overflow-hidden flex flex-col gap-4  mx-auto">
       {/* Tab Headers */}
-      <div className="w-full flex items-center justify-between gap-4 shrink-0 overflow-hidden ">
+      <div className="w-full flex items-center justify-between gap-4 shrink-0  ">
         {/* TABS  */}
         <div className="w-full flex flex-1 h-[60px]  px-4  justify-between items-center   overflow-x-auto">
           <div
-            className=" w-full max-w-[600px] flex h-full flex-1 gap-1
+            className=" w-full max-w-[500px] flex h-full flex-1 gap-1
             overflow-x-auto border-b border-white/20"
           >
             {tasks ? (
@@ -105,11 +119,18 @@ const CustomTabs = ({
           </div>
         </div>
         {dataType === "assets" && (
-          <>
-            <CbuttonOne color="var(--primary-color-light)" height="h-[40px]">
-              Select Variants
-            </CbuttonOne>
-          </>
+          <div className="w-fit ">
+            <CdropDown
+              options={item?.variations?.map((variation) => {
+                return {
+                  name: variation.name,
+                  id: variation.id,
+                };
+              })}
+              select={selectVariants}
+              init="Variants"
+            />
+          </div>
         )}
       </div>
       {/* Tab Content */}

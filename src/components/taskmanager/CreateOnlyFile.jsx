@@ -10,6 +10,7 @@ import SelectFromFiles from "../golbals/SelectFromFiles";
 import CDropDown from "../golbals/CDropDown";
 import CdropDownNoBg from "../golbals/CdropDownNoBg";
 import UploadFileForm from "./UploadFileForm";
+import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 
 const CreateOnlyFile = ({
   bgColor = "form-bg",
@@ -18,6 +19,7 @@ const CreateOnlyFile = ({
   submit,
   setOpen = () => {},
 }) => {
+  const { dataType } = useEpisodeManagerContext();
   const [selectedTask, setSelectedTask] = useState({});
   const [selectedFiles, setSelectedFiles] = useState([]);
 
@@ -27,7 +29,9 @@ const CreateOnlyFile = ({
     createTaskError,
     taskSuccess,
     taskResults,
-  } = useTasks();
+  } = useTasks({
+    dataType: dataType === "production" ? "production" : "assets",
+  });
 
   const initialValues = {
     taskId: selectedTask?.id || "", // default empty or pre-filled

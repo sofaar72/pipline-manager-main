@@ -9,7 +9,7 @@ import {
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import PreviewPage from "../pages/PreviewPage";
-import ProjectsPage from "../pages/ProjectsPage";
+import ProjectsPage from "../pages/Projects/ProjectsPage";
 import EmptyPage from "../pages/EmptyPage";
 
 import { AuthProvider } from "../assets/context/AuthContext";
@@ -19,6 +19,7 @@ import FilesContent from "../components/FilesContent";
 import ProjectTaskManager from "../pages/ProductionTaskManager";
 import ProductionTaskManager from "../pages/ProductionTaskManager";
 import AssetsTaskManager from "../pages/AssetsTaskManager";
+import CreateProjectPage from "../pages/Projects/CreateProjectPage";
 
 const AllRoutes = () => {
   return (
@@ -33,7 +34,16 @@ const AllRoutes = () => {
                 <ProjectsPage />
               </PrivateRoute>
             }
-          />
+          >
+            <Route
+              path="create"
+              element={
+                <PrivateRoute>
+                  <CreateProjectPage />
+                </PrivateRoute>
+              }
+            />
+          </Route>
           <Route
             path="/users"
             element={

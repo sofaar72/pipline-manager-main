@@ -20,7 +20,7 @@ const MainContentVisibleData = ({
   totalPages,
 }) => {
   return (
-    <div className="w-full max-w-main h-full main-bg radius sec-padd-x sec-padd-y flex flex-col gap-[22px]">
+    <div className="w-full max-w-main shrink-0 h-full main-bg radius sec-padd-x sec-padd-y flex flex-col gap-[22px]">
       {/* Top controls */}
       <div className="w-full flex flex-col pb-[10px] gap-[20px] border-b border-white/10 ">
         <div className="w-full radius h-[40px] flex justify-between gap-2">

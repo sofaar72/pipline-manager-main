@@ -16,9 +16,10 @@ const AssigneeModal = ({
     >
       <div className="w-full flex gap-4 flex-col h-[200px] ">
         <div className="w-full h-full grid grid-cols-[repeat(6,1fr)]  justify-between gap-2 overflow-y-auto py-4">
-          {Assignees.map((assignee) => {
+          {Assignees.map((assignee, index) => {
             return (
               <AssigneeUser
+                key={index}
                 assignees={assignees}
                 setOpenAssign={setOpenAssign}
                 setAssignees={setAssignees}

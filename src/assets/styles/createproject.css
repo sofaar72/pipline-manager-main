@@ -1,0 +1,13 @@
+.create-project-form-bg {
+  @apply bg-gradient-to-r from-[#7474BC] to-[#4B4B69];
+}
+
+.create-innerofrom {
+  @apply bg-gradient-to-b from-transparent to-[#505070];
+}
+
+input.input-create {
+  @apply w-full h-[40px];
+  border-bottom: 0.5px solid #ffffff50 !important ;
+  width: 100%;
+}
