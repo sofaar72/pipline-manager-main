@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { entities } from "../../fakeContents/Entities";
 
@@ -7,18 +8,33 @@ import EntityItem from "../golbals/EntityItem";
 import Pagination from "../golbals/Pagination";
 import Loading from "../golbals/Loading";
 import CdropDown from "../golbals/CDropDown";
+import EntitiListWrapper from "./EntitiListWrapper";
+import MainContentPrev from "../golbals/PlaceHolders.jsx/MainContentPrev";
+import { useEntities } from "../../hooks/useEntities";
+import CbuttonOne from "../golbals/Buttons/CbuttonOne";
+import { useAssets } from "../../hooks/useAssets";
 
 const MainContentVisibleData = ({
   dataType,
   selectEntityType,
   setSearch,
-  entityLoading,
   entityError,
   entityResults,
   currentPage,
   setCurrentPage,
   totalPages,
 }) => {
+  const { entityLoading } = useEntities({});
+  const { assetLoading } = useAssets({});
+  const navigate = useNavigate();
+
+  const goToSelectProject = () => {
+    navigate("/projects/select");
+  };
+
+  const location = useLocation();
+  const { entityType } = location.state;
+
   return (
     <div className="w-full max-w-main shrink-0 h-full main-bg radius sec-padd-x sec-padd-y flex flex-col gap-[22px]">
       {/* Top controls */}
@@ -29,6 +45,12 @@ const MainContentVisibleData = ({
             init={"All"}
             select={selectEntityType}
           />
+          <CbuttonOne
+            cClasses=" bg-[var(--primary-color-light)]/40 hover:!bg-[var(--primary-color-light)]"
+            onClick={goToSelectProject}
+          >
+            Select Project
+          </CbuttonOne>
         </div>
         <SearchTwo searchQuery={setSearch} loading={entityLoading} />
         <div className="w-1/2 radius h-[18px]">
@@ -36,16 +58,14 @@ const MainContentVisibleData = ({
         </div>
       </div>
 
-      {/* Entities List */}
-      <div className="w-full h-full flex flex-col gap-[22px] overflow-y-auto custom-scrollbar pr-2">
-        {entityError ? (
-          <div className="w-full text-sm">No data found, please try again!</div>
-        ) : (
-          entityResults?.map((film) => (
-            <EntityItem key={film.id} item={film} dataType={dataType} />
-          ))
-        )}
-      </div>
+      <EntitiListWrapper
+        entityError={entityError}
+        entityResults={entityResults}
+        dataType={dataType}
+        entityLoading={
+          entityType === "Production" ? entityLoading : assetLoading
+        }
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (

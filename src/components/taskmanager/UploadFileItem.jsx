@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import CdropDown from "../golbals/CDropDown";
 import CdropDownNoBg from "../golbals/CdropDownNoBg";
+import { useVersions } from "../../hooks/useVersions";
 
 const UploadFileItem = ({
   id,
@@ -10,10 +11,14 @@ const UploadFileItem = ({
   setFiles,
   uploadItems,
   setUploadItems,
+
   removeUploadItem,
 }) => {
   const fileInputRef = useRef(null);
   const [fileType, setFileType] = useState("is_preview");
+  const { versionResults } = useVersions();
+
+  const taskId = versionResults?.id;
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -37,6 +42,8 @@ const UploadFileItem = ({
       is_export: fileType === "is_export" ? true : undefined,
       is_resource: fileType === "is_resource" ? true : undefined,
       is_preview: fileType === "is_preview" ? true : undefined,
+      file: file,
+      task: taskId,
     };
     setUploadItems(updatedItems);
   };

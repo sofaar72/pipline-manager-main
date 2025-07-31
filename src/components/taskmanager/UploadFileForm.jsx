@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import UploadFileItem from "./UploadFileItem";
 import CbuttonOne from "../golbals/Buttons/CbuttonOne";
-import { uploadFileToServer } from "../../store/Slices/FileSlice";
+import {
+  uploadFileToServer,
+  uploadSmallFileToServer,
+} from "../../store/Slices/FileSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useUser } from "../../hooks/useUser";
 
@@ -9,16 +12,18 @@ import { ToastContainer, toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import * as tus from "tus-js-client";
 
-const UploadFileForm = ({ setVersionFiles = () => {} }) => {
+const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
   const [uploadItems, setUploadItems] = useState([]);
+
   const [files, setFiles] = useState([]);
   const [successUpload, setSuccessUpload] = useState(false);
 
   const dispatch = useDispatch();
   const { user } = useUser();
 
-  const { uploadFile: uploadFileData } = useSelector((state) => state.file);
-  const { loading: uploadFileLoading } = uploadFileData;
+  const { uploadFile: uploadFileData, loading: filesLoading } = useSelector(
+    (state) => state.file
+  );
 
   const handleUpload = (uploadUrl) => {
     files.forEach((file) => {
@@ -57,6 +62,9 @@ const UploadFileForm = ({ setVersionFiles = () => {} }) => {
     setFiles((prev) =>
       prev.filter((_, idx) => uploadItems[idx]?.id !== idToRemove)
     );
+
+    setVersionFiles([]);
+    // }
   };
 
   const uploadFile = () => {
@@ -73,34 +81,54 @@ const UploadFileForm = ({ setVersionFiles = () => {} }) => {
         size: 433256,
       },
     ];
-    console.log(uploadItems);
-    dispatch(uploadFileToServer({ file: uploadItems }))
-      .then((res) => {
-        const url = res?.payload?.files?.[0]?.tus_url;
-        if (!url) throw new Error("Missing upload URL");
-        handleUpload(url);
 
-        toast.success("Files uploaded successfully");
+    // console.log({ files: { ...uploadItems, file: files } });
+    if (uploadItems[0].size > 1000000) {
+      dispatch(uploadFileToServer({ file: uploadItems }))
+        .then((res) => {
+          const url = res?.payload?.files?.[0]?.tus_url;
+          if (!url) throw new Error("Missing upload URL");
 
+          console.log(res.payload.files);
+          handleUpload(url);
+
+          toast.success("Files uploaded successfully");
+
+          if (setVersionFiles) {
+            const ids = res.payload?.files?.map((f) => f.media_id) || [];
+            setVersionFiles(ids);
+          }
+
+          setSuccessUpload(true);
+        })
+        .catch((error) => {
+          console.error("Upload preparation failed:", error);
+          toast.error("Upload preparation failed");
+        });
+    } else {
+      const formData = new FormData();
+      uploadItems.forEach((item, index) => {
+        formData.append(`files_${index}`, item.file);
+        formData.append(
+          `metadata_${index}`,
+          JSON.stringify({
+            is_exported: item.is_exported,
+            is_preview: item.is_preview,
+            is_resource: item.is_resource,
+            task: item.task,
+          })
+        );
+      });
+
+      dispatch(uploadSmallFileToServer({ file: formData })).then((res) => {
         if (setVersionFiles) {
-          const ids = res.payload?.files?.map((f) => f.media_id) || [];
+          console.log(res.payload);
+          const ids = res.payload?.map((f) => f.media_id) || [];
           setVersionFiles(ids);
         }
-
-        setSuccessUpload(true);
-      })
-      .catch((error) => {
-        console.error("Upload preparation failed:", error);
-        toast.error("Upload preparation failed");
       });
+    }
   };
-
-  // useEffect(() => {
-  //   console.log(uploadItems);
-  // }, [uploadItems]);
-  // useEffect(() => {
-  //   console.log(files);
-  // }, [files]);
 
   return (
     <div className="w-full flex flex-col gap-4 h-full">
@@ -136,12 +164,12 @@ const UploadFileForm = ({ setVersionFiles = () => {} }) => {
         color="var(--secondary-normal)"
         type="submit"
         onClick={uploadFile}
-        disabled={files.length === 0 || uploadFileLoading}
+        disabled={files.length === 0 || filesLoading}
       >
         <span className="text-sm">
           {successUpload ? `${files.length} Files Uploaded` : "Upload Files"}
         </span>
-        {uploadFileLoading && (
+        {filesLoading && (
           <span className="text-sm ml-2">
             <FaSpinner className="animate-spin" />
           </span>

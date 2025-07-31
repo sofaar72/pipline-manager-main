@@ -20,6 +20,10 @@ import ProjectTaskManager from "../pages/ProductionTaskManager";
 import ProductionTaskManager from "../pages/ProductionTaskManager";
 import AssetsTaskManager from "../pages/AssetsTaskManager";
 import CreateProjectPage from "../pages/Projects/CreateProjectPage";
+import SelectProjectPage from "../pages/Projects/SelectProjectPage";
+import RegisterPage from "../pages/RegisterPage";
+import { EpisodeManagerProvider } from "../assets/context/EpisodeManagerContext";
+import NotFound from "../pages/NotFound";
 
 const AllRoutes = () => {
   return (
@@ -40,6 +44,14 @@ const AllRoutes = () => {
               element={
                 <PrivateRoute>
                   <CreateProjectPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="select"
+              element={
+                <PrivateRoute>
+                  <SelectProjectPage />
                 </PrivateRoute>
               }
             />
@@ -159,6 +171,15 @@ const AllRoutes = () => {
               </PublicRoute>
             }
           />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

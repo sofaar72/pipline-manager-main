@@ -1,12 +1,14 @@
 // src/features/film/filmSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/AxiosInstance";
+import { toast } from "react-toastify";
 
 export const fetchFiles = createAsyncThunk(
   "file/fetchFiles",
   async (_, thunkAPI) => {
     try {
       const response = await axiosInstance.get("/file/");
+
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -30,6 +32,33 @@ export const uploadFileToServer = createAsyncThunk(
         // }
       );
 
+      if (response.status === 2 - 1) {
+        toast.success("Files uploaded successfully");
+      }
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
+export const uploadSmallFileToServer = createAsyncThunk(
+  "file/uploadSmallFileToServer",
+  async ({ file }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post(
+        `/file/upload/`,
+        file, // ✅ Send the FormData directly
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Optional: Axios sets this automatically when FormData is used
+          },
+        }
+      );
+      if (response.status === 201) {
+        toast.success("files uploaded successfully");
+      }
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -42,37 +71,55 @@ const fileSlice = createSlice({
   name: "file",
   initialState: {
     // data: { results: [], loading: false, error: null },
-    uploadFile: { results: [], loading: false, error: null },
-    files: { results: [], loading: false, error: null },
+    uploadFile: { results: [] },
+    files: { results: [] },
+    uploadSmallFile: { results: [] },
+    loading: false,
+    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     // fetch files
     builder.addCase(fetchFiles.pending, (state) => {
-      state.files.loading = true;
-      state.files.error = null;
+      state.loading = true;
+      state.error = null;
     });
     builder.addCase(fetchFiles.fulfilled, (state, action) => {
-      state.files.loading = false;
+      state.loading = false;
       state.files.results = action.payload.results;
     });
     builder.addCase(fetchFiles.rejected, (state, action) => {
-      state.files.loading = false;
-      state.files.error = action.payload;
+      state.loading = false;
+      state.error = action.payload;
     });
     // upload files to server
     builder
       .addCase(uploadFileToServer.pending, (state) => {
-        state.uploadFile.loading = true;
-        state.uploadFile.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(uploadFileToServer.fulfilled, (state, action) => {
-        state.uploadFile.loading = false;
+        state.loading = false;
         state.uploadFile.results = action.payload; // ✅ Correct path
       })
       .addCase(uploadFileToServer.rejected, (state, action) => {
-        state.uploadFile.loading = false;
-        state.uploadFile.error = action.payload;
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // upload small file to server
+    builder
+      .addCase(uploadSmallFileToServer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadSmallFileToServer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.uploadSmallFile.results = action.payload;
+      })
+      .addCase(uploadSmallFileToServer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

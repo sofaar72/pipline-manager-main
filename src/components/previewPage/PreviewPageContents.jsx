@@ -5,6 +5,8 @@ import { FaFileAlt } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { IoMdAdd } from "react-icons/io";
 import { VideoAnnotator } from "./VideoAnnotator";
+import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
+import { useEntities } from "../../hooks/useEntities";
 
 const sampleComments = [
   {
@@ -25,6 +27,8 @@ const PreviewPageContents = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [comments, setComments] = useState(sampleComments);
+  const { dataType } = useEpisodeManagerContext();
+  const { entityResults } = useEntities();
 
   const segments = pathname.split("/").filter(Boolean);
   const pathArray = [];
@@ -35,13 +39,22 @@ const PreviewPageContents = () => {
     }
   });
 
+  const locationState = useLocation().state;
+
   return (
     <div className="w-full h-full flex items-center justify-center gap-[20px]">
       <div className="w-full flex-1 h-full flex flex-col justify-between gap-[20px]">
         {/* address part */}
         <div className="w-fit h-[40px] flex items-center gap-[5px] radius text-white text-sm">
           <MdKeyboardDoubleArrowLeft
-            onClick={() => navigate("/task-manager/production")}
+            // onClick={() => navigate("/task-manager/production")}
+            onClick={() => {
+              if (dataType && locationState?.id) {
+                navigate(`/task-manager/${dataType}/${locationState.id}`, {
+                  state: { fromPreview: true, id: locationState.id },
+                });
+              }
+            }}
             className="text-2xl cursor-pointer hover:text-[var(--primary-color-light)] transition"
           />
           {pathArray.map((item, index) => (

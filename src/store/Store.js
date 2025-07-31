@@ -8,6 +8,7 @@ import userReducer from "./Slices/userSlice";
 import fileReducer from "./Slices/FileSlice";
 import assetReducer from "./Slices/AssetSlice";
 import variationsReducer from "./Slices/VariationsSlice";
+import projectReducer from "./Slices/ProjectsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -19,5 +20,6 @@ export const store = configureStore({
     user: userReducer,
     file: fileReducer,
     variation: variationsReducer,
+    project: projectReducer,
   },
 });

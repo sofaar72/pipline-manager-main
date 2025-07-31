@@ -5,11 +5,9 @@ import { Outlet } from "react-router-dom";
 
 const ProjectsPage = () => {
   return (
-    <EpisodeManagerProvider>
-      <LayoutOne>
-        <Outlet />
-      </LayoutOne>
-    </EpisodeManagerProvider>
+    <LayoutOne>
+      <Outlet />
+    </LayoutOne>
   );
 };
 

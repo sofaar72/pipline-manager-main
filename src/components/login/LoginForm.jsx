@@ -6,16 +6,21 @@ import { useFormSchema } from "../../hooks/useFormSchema";
 import { useUser } from "../../hooks/useUser";
 import { toast, ToastContainer } from "react-toastify";
 import ToastBox from "../golbals/ToastBox";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../assets/context/AuthContext";
 import Lottie from "lottie-react";
 import animationData from "../../assets/lotties/amongUs.json";
 
 const LoginForm = () => {
   const { formSchema } = useFormSchema();
+  const { registerUserResponse } = useUser();
   const initialValues = {
-    email: "moghadam_h@arssin.com",
-    password: "Hm@123456",
+    email: registerUserResponse
+      ? registerUserResponse.email
+      : "moghadam_h@arssin.com",
+    password: registerUserResponse
+      ? registerUserResponse.password
+      : "Hm@123456",
   };
   const { setToken } = useAuth();
   const { login, user, loading, error, success, accessToken, refreshToken } =
@@ -60,7 +65,7 @@ const LoginForm = () => {
           isSubmitting,
         }) => (
           <form
-            className="w-full max-w-[500px]  flex flex-col gap-[40px] bg-gray-500/20 radius p-[40px]"
+            className="w-full h-[700px] max-w-[500px]  flex flex-col justify-center gap-[40px] bg-[var(--primary-color-light)]/5 radius p-[40px]"
             onSubmit={handleSubmit}
           >
             <h2 className={` text-center  uppercase font-[600] text-white`}>
@@ -85,6 +90,16 @@ const LoginForm = () => {
               formValue={values.password}
               error={touched.password && errors.password}
             />
+
+            <p className="text-white text-sm font-[200]">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-[var(--primary-color-light)]"
+              >
+                Register
+              </Link>
+            </p>
 
             <CbuttonOne
               height="h-[40px]"

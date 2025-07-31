@@ -10,13 +10,11 @@ import Pagination from "./golbals/Pagination";
 
 import { useEntities } from "../hooks/useEntities";
 import MainContentVisibleData from "./taskmanager/MainContentVisibleData";
-import MainContentPrev from "./golbals/PlaceHolders.jsx/MainContentPrev";
-import { useNavigate } from "react-router-dom";
 
 const MainContent = ({
   dataType,
   entityResults,
-  entityLoading,
+
   entityError,
   setSearch,
   currentPage,
@@ -26,21 +24,16 @@ const MainContent = ({
 }) => {
   return (
     <>
-      {entityLoading ? (
-        <MainContentPrev />
-      ) : (
-        <MainContentVisibleData
-          selectEntityType={selectEntityType}
-          setSearch={setSearch}
-          entityResults={entityResults}
-          entityLoading={entityLoading}
-          entityError={entityError}
-          dataType={dataType}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-        />
-      )}
+      <MainContentVisibleData
+        selectEntityType={selectEntityType}
+        setSearch={setSearch}
+        entityResults={entityResults}
+        entityError={entityError}
+        dataType={dataType}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalPages={totalPages}
+      />
     </>
   );
 };

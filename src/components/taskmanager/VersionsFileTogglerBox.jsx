@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FetchFilesList from "./FetchFilesList";
 import UploadFileForm from "./UploadFileForm";
 import { ToastContainer } from "react-toastify";
@@ -14,6 +14,10 @@ const VersionsFileTogglerBox = ({
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
+
+  useEffect(() => {
+    setVersionFiles([]);
+  }, [isChecked]);
 
   return (
     <>
@@ -49,7 +53,10 @@ const VersionsFileTogglerBox = ({
           ) : (
             <>
               {/* Upload file area here  */}
-              <UploadFileForm setVersionFiles={setVersionFiles} />
+              <UploadFileForm
+                setVersionFiles={setVersionFiles}
+                versionFiles={versionFiles}
+              />
             </>
           )}
         </div>

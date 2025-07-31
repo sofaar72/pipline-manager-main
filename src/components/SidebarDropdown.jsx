@@ -40,6 +40,7 @@ const SidebarDropdown = ({ label, links }) => {
             <NavLink
               key={to}
               to={to}
+              state={{ entityType: label }}
               className="text-white hover:text-[var(--primary-color-light)]"
             >
               {label}

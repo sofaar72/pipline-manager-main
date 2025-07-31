@@ -13,7 +13,6 @@ import NoFileContent from "../components/golbals/PlaceHolders.jsx/NoFileContent"
 const ProductionTaskManager = () => {
   const {
     entityResults,
-    entityLoading,
     entityError,
     setSearch,
     currentPage,
@@ -23,6 +22,7 @@ const ProductionTaskManager = () => {
     search,
     selectEntityType,
     selectedEntityType,
+    navigateToDefaultEntity,
   } = useEntities({});
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -32,30 +32,17 @@ const ProductionTaskManager = () => {
 
   useEffect(() => {
     fetchEntities();
-    navigate(`/task-manager/production/${entityResults[0]?.id}`);
   }, [search, currentPage, selectedEntityType]);
 
   useEffect(() => {
     if (entityResults && entityResults.length > 0) {
-      navigate(`/task-manager/production/${entityResults[0]?.id}`);
-      // fetchEntityTasks(entityResults[0].id);
-    }
-    setDataType("production");
-  }, []);
-
-  useEffect(() => {
-    if (entityResults && entityResults.length > 0) {
-      navigate(`/task-manager/production/${entityResults[0]?.id}`);
+      navigateToDefaultEntity();
     }
   }, [entityResults]);
 
   useEffect(() => {
     setDataType("production");
   }, [dataType]);
-
-  // useEffect(() => {
-  //   setGlobalActiveEntity(entityResults[0]?.id);
-  // }, [entityResults]);
 
   return (
     <EpisodeManagerProvider>
@@ -64,7 +51,6 @@ const ProductionTaskManager = () => {
           <MainContent
             dataType={dataType}
             entityResults={entityResults}
-            entityLoading={entityLoading}
             entityError={entityError}
             setSearch={setSearch}
             currentPage={currentPage}

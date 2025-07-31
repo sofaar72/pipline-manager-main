@@ -3,10 +3,11 @@ import { useAuth } from "../assets/context/AuthContext";
 
 const PrivateRoute = ({ children }) => {
   const { token } = useAuth();
-  console.log(token);
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate to="/login" replace /> || <Navigate to="/register" replace />
+    );
   }
   return children;
 };

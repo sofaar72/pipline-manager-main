@@ -13,5 +13,38 @@ export const useFormSchema = () => {
   //   formSchema.isValid().then(function (valid) {
   //     valid; // => true
   //   });
+
+  return { formSchema };
+};
+
+export const useRegisterFormSchema = () => {
+  let formSchema = yup.object().shape({
+    first_name: yup.string().required("This field may not be blank"),
+    last_name: yup.string().required("This field may not be blank"),
+    email: yup.string().email().required("Email is required"),
+    password: yup.string().required("Password is required"),
+  });
+
+  // check validity
+  //   formSchema.isValid().then(function (valid) {
+  //     valid; // => true
+  //   });
+
+  return { formSchema };
+};
+
+export const usecreateProjectSchema = () => {
+  let formSchema = yup.object().shape({
+    name: yup.string().required("This field may not be blank"),
+    code: yup.string().required("This field may not be blank"),
+    production_type: yup.string().required("is not a valid choice."),
+    status: yup.string().required("is not a valid choice."),
+    root_dir: yup
+      .string()
+      .required("This field may not be blank")
+      .max(150, "This field length must be less than 150 characters"),
+    // team: yup.array().of(yup.string()).required("Team is required"),
+  });
+
   return { formSchema };
 };

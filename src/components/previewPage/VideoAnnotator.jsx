@@ -18,8 +18,59 @@ export const VideoAnnotator = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [annotations, setAnnotations] = useState({}); // { time: [shapes] }
   const [anotateable, setAnotateable] = useState(false);
-
+  const [selectedTool, setSelectedTool] = useState("rectangle");
+  const [selectedColor, setSelectedColor] = useState("red");
   // extract video frames
+  // useEffect(() => {
+  //   const extractFrames = async () => {
+  //     const video = videoRef.current;
+  //     const canvas = canvasRef.current;
+  //     if (!video || !canvas) return;
+
+  //     const context = canvas.getContext("2d");
+  //     const duration = video.duration;
+  //     const frameInterval = 1; // seconds between each frame
+  //     const newThumbnails = [];
+
+  //     const captureFrameAt = (time) => {
+  //       return new Promise((resolve) => {
+  //         video.currentTime = time;
+  //         const onSeeked = () => {
+  //           context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  //           const dataURL = canvas.toDataURL("image/png");
+  //           newThumbnails.push({ time, image: dataURL });
+  //           video.removeEventListener("seeked", onSeeked);
+  //           resolve();
+  //         };
+  //         video.addEventListener("seeked", onSeeked);
+  //       });
+  //     };
+
+  //     // Pause video before extracting
+  //     video.pause();
+
+  //     for (let t = 0; t < duration; t += frameInterval) {
+  //       await captureFrameAt(t);
+  //     }
+
+  //     setThumbnails(newThumbnails);
+  //   };
+
+  //   const video = videoRef.current;
+  //   if (video) {
+  //     video.addEventListener("loadedmetadata", extractFrames);
+  //     return () => {
+  //       video.removeEventListener("loadedmetadata", extractFrames);
+  //     };
+  //   }
+  // }, []);
+
+  const deleteAnnotations = (selectedTime) => {
+    const updated = { ...annotations };
+    delete updated[selectedTime];
+    setAnnotations(updated);
+  };
+
   useEffect(() => {
     const extractFrames = async () => {
       const video = videoRef.current;
@@ -27,13 +78,12 @@ export const VideoAnnotator = () => {
       if (!video || !canvas) return;
 
       const context = canvas.getContext("2d");
-      const duration = video.duration;
-      const frameInterval = 1; // seconds between each frame
+      const fps = 25;
+      const frameInterval = 1 / fps;
       const newThumbnails = [];
 
       const captureFrameAt = (time) => {
         return new Promise((resolve) => {
-          video.currentTime = time;
           const onSeeked = () => {
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const dataURL = canvas.toDataURL("image/png");
@@ -41,15 +91,31 @@ export const VideoAnnotator = () => {
             video.removeEventListener("seeked", onSeeked);
             resolve();
           };
+
           video.addEventListener("seeked", onSeeked);
+          video.currentTime = time;
         });
       };
 
-      // Pause video before extracting
       video.pause();
 
-      for (let t = 0; t < duration; t += frameInterval) {
-        await captureFrameAt(t);
+      const waitForMetadata = () =>
+        new Promise((resolve) => {
+          if (video.readyState >= 1) {
+            resolve();
+          } else {
+            video.addEventListener("loadedmetadata", resolve, { once: true });
+          }
+        });
+
+      await waitForMetadata();
+
+      const duration = video.duration;
+      const totalFrames = Math.floor(duration * fps);
+
+      for (let i = 0; i <= totalFrames; i++) {
+        const time = i * frameInterval;
+        await captureFrameAt(time);
       }
 
       setThumbnails(newThumbnails);
@@ -88,7 +154,9 @@ export const VideoAnnotator = () => {
 
   useEffect(() => {
     const video = videoRef.current;
-    const frameStep = 1; // 25 FPS
+    const fps = 25;
+    const frameStep = 1 / fps; // equals 0.04 for 25 FPS
+    // const frameStep = 1; // 25 FPS
 
     const handleKeyDown = (e) => {
       if (!video) return;
@@ -186,13 +254,19 @@ export const VideoAnnotator = () => {
       <div className="w-full h-full flex-1 bg-gray-500/50 radius overflow-hidden relative">
         {/* play/pause icon overlay */}
 
-        {anotateable && currentTime !== null && (
+        {currentTime !== null && (
           <AnnotationCanvas
             videoRef={videoRef}
             selectedTime={currentTime}
             isPlaying={!isPaused}
             annotations={annotations}
             setAnnotations={setAnnotations}
+            anotateable={anotateable}
+            selectedTool={selectedTool}
+            setSelectedTool={setSelectedTool}
+            selectedColor={selectedColor}
+            setSelectedColor={setSelectedColor}
+            deleteAnnotations={deleteAnnotations}
           />
         )}
 
@@ -202,16 +276,20 @@ export const VideoAnnotator = () => {
             onClick={pauseOrPlay}
           >
             {isPaused ? (
-              <FaPlay className="text-white text-3xl opacity-80 hover:scale-110 transition" />
+              <div className="w-[100px] h-[100px] flex items-center justify-center bg-white/20 rounded-full">
+                <FaPlay className="text-white text-3xl opacity-100 hover:scale-110 transition" />
+              </div>
             ) : (
-              <FaPause className="text-white text-3xl opacity-80 hover:scale-110 transition" />
+              <div className="w-[100px] h-[100px] flex items-center justify-center bg-white/20 rounded-full">
+                <FaPause className="text-white text-3xl opacity-100 hover:scale-110 transition" />
+              </div>
             )}
           </div>
         )}
 
         <video
           ref={videoRef}
-          src="/videos/sample.mp4"
+          src="/videos/sample2.mp4"
           className="w-full h-full object-cover"
           autoPlay
           loop
@@ -233,14 +311,14 @@ export const VideoAnnotator = () => {
           {thumbnails.length > 0 ? (
             thumbnails.map((thumb, index) => {
               const isSelected = currentTime === thumb.time;
-              console.log(thumb.time);
-              console.log(currentTime);
+              // console.log(thumb.time);
+              // console.log(currentTime);
               return (
                 <img
                   key={index}
                   src={thumb.image}
                   alt={`Frame at ${thumb.time}s`}
-                  className={`w-32 h-auto cursor-pointer hover:scale-105 transition ${
+                  className={`w-5 h-auto cursor-pointer hover:scale-105 transition object-cover ${
                     isSelected
                       ? "border-4 border-[var(--primary-color-light)] scale-105"
                       : "border-transparent"
@@ -266,7 +344,10 @@ export const VideoAnnotator = () => {
 
         <div
           className="absolute z-[90] top-0 left-0 cursor-pointer p-2 bg-black/50 text-white"
-          onClick={() => setAnotateable(!anotateable)}
+          onClick={() => {
+            setAnotateable(!anotateable);
+            // pauseOrPlay();
+          }}
         >
           {anotateable ? "🖌️ Annotation Mode ON" : "🎬 View Mode"}
         </div>

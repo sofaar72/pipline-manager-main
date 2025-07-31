@@ -5,17 +5,15 @@ import LayoutOne from "../layout/LayoutOne";
 
 const HomePage = () => {
   return (
-    <EpisodeManagerProvider>
-      <TusClientProvider defaultOptions={{}}>
-        <LayoutOne>
-          <div className="w-full h-full text-white flex gap-[30px] flex-col lg:flex-row">
-            {/* <MainContent />
+    <TusClientProvider defaultOptions={{}}>
+      <LayoutOne>
+        <div className="w-full h-full text-white flex gap-[30px] flex-col lg:flex-row">
+          {/* <MainContent />
           <FilesContent /> */}
-            <MultiFileUploader />
-          </div>
-        </LayoutOne>
-      </TusClientProvider>
-    </EpisodeManagerProvider>
+          <MultiFileUploader />
+        </div>
+      </LayoutOne>
+    </TusClientProvider>
   );
 };
 

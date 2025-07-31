@@ -20,6 +20,8 @@
   --third-normal: #0dd750;
 
   --create-project-form-bg: #52516e;
+  --select-project-bg: #52516e;
+  --select-project-header: #1b192c;
 
   /* --primary-color-normal: #575586; */
 }
@@ -42,6 +44,32 @@ input:focus {
 }
 input:focus {
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  /* transition: background-color 5000s ease-in-out 0s; */
+  /* -webkit-text-fill-color: white !important; */
+}
+
+/* Add to global CSS (e.g., index.css or App.css) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  /* opacity: 0; */
+  cursor: pointer;
+  appearance: none;
+
+  background-color: white !important;
+  border-radius: 100px !important;
+  width: 15px !important;
+  height: 15px !important;
+  padding: 2px !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 button:focus {
   border: none;
   outline: none;

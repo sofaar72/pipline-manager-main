@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFilms } from "../store/Slices/FilmSlice";
 import { useTasks } from "./useTasks";
+import { useNavigate } from "react-router-dom";
 
 export const useEntities = () => {
   const [selectedEntityType, setSelectedEntityType] = useState("All");
   const { fetchAllTasks } = useTasks({ dataType: "production" });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,22 +20,31 @@ export const useEntities = () => {
   const totalPages = Math.ceil(total / perPage);
 
   const fetchEntities = () => {
-    dispatch(
-      fetchFilms({
-        project: 474,
-        type:
-          selectedEntityType === "Episodes"
-            ? "EP"
-            : selectedEntityType === "Sequence"
-            ? "SQ"
-            : selectedEntityType === "Shot"
-            ? "SH"
-            : undefined,
-        name: search || undefined,
-        page: currentPage,
-        page_size: perPage,
-      })
-    );
+    const project = localStorage.getItem("project_id");
+    if (project) {
+      dispatch(
+        fetchFilms({
+          project: project,
+          type:
+            selectedEntityType === "Episodes"
+              ? "EP"
+              : selectedEntityType === "Sequence"
+              ? "SQ"
+              : selectedEntityType === "Shot"
+              ? "SH"
+              : undefined,
+          name: search || undefined,
+          page: currentPage,
+          page_size: perPage,
+        })
+      );
+    }
+  };
+
+  const navigateToDefaultEntity = () => {
+    if (results && results.length > 0) {
+      navigate(`/task-manager/production/${results[0].id}`);
+    }
   };
 
   const selectEntityType = (type) => {
@@ -57,5 +68,6 @@ export const useEntities = () => {
     fetchEntityTasks,
     selectEntityType,
     selectedEntityType,
+    navigateToDefaultEntity,
   };
 };

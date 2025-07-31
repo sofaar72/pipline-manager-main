@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAssets } from "../store/Slices/AssetSlice";
 import { useTasks } from "./useTasks";
+import { useNavigate } from "react-router-dom";
 
 export const useAssets = () => {
   const [selectedAssetType, setSelectedAssetType] = useState("All");
@@ -11,6 +12,7 @@ export const useAssets = () => {
     dataType: "assets",
   });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,22 +23,31 @@ export const useAssets = () => {
   const totalPages = Math.ceil(total / perPage);
 
   const fetchAllAssets = () => {
-    dispatch(
-      fetchAssets({
-        project: 474,
-        type:
-          selectedAssetType === "Episodes"
-            ? "EP"
-            : selectedAssetType === "Sequence"
-            ? "SQ"
-            : selectedAssetType === "Shot"
-            ? "SH"
-            : undefined,
-        name: search || undefined,
-        page: currentPage,
-        page_size: perPage,
-      })
-    );
+    const project = localStorage.getItem("project_id");
+    if (project) {
+      dispatch(
+        fetchAssets({
+          project: project,
+          type:
+            selectedAssetType === "Episodes"
+              ? "EP"
+              : selectedAssetType === "Sequence"
+              ? "SQ"
+              : selectedAssetType === "Shot"
+              ? "SH"
+              : undefined,
+          name: search || undefined,
+          page: currentPage,
+          page_size: perPage,
+        })
+      );
+    }
+  };
+
+  const navigateToDefaultEntity = () => {
+    if (results && results.length > 0) {
+      navigate(`/task-manager/assets/${results[0].id}`);
+    }
   };
 
   const selectAssetType = (type) => {
@@ -60,5 +71,6 @@ export const useAssets = () => {
     fetchAssetTasks,
     selectAssetType,
     selectedAssetType,
+    navigateToDefaultEntity,
   };
 };

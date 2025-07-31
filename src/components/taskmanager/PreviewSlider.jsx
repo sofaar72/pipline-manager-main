@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useLayoutEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { FaPlay } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Import Swiper styles
 import "swiper/css";
@@ -14,9 +14,10 @@ const PreviewSlider = ({ slides, selectPrevImage }) => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const handlePlay = () => {
-    navigate("/task-manager/preview");
+    navigate(`/task-manager/preview/`, { state: { id } });
   };
 
   return (
@@ -30,6 +31,7 @@ const PreviewSlider = ({ slides, selectPrevImage }) => {
         onBeforeInit={(swiper) => {
           swiper.params.navigation.prevEl = prevRef.current;
           swiper.params.navigation.nextEl = nextRef.current;
+          selectPrevImage(slides[swiper.activeIndex]);
         }}
         onSlideChange={(swiper) => {
           selectPrevImage(slides[swiper.activeIndex]);

@@ -5,7 +5,7 @@ const Loading = ({ size }) => {
     <div role="status">
       <svg
         aria-hidden="true"
-        class={`${
+        className={`${
           size || "w-10 h-10"
         } text-gray-200 animate-spin dark:text-gray-600 fill-[var(--primary-color-lower)]`}
         viewBox="0 0 100 101"
@@ -21,7 +21,7 @@ const Loading = ({ size }) => {
           fill="currentFill"
         />
       </svg>
-      <span class="sr-only">Loading...</span>
+      <span className="sr-only">Loading...</span>
     </div>
   );
 };

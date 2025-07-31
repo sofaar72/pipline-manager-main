@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import SearchOne from "./golbals/SearchOne";
 import CbuttonOne from "./golbals/Buttons/CbuttonOne";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../assets/context/AuthContext";
 // icons
 import { FaHome } from "react-icons/fa";
@@ -16,15 +16,38 @@ import { GrDocumentConfig } from "react-icons/gr";
 import { IoMdSettings } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
 import SidebarDropdown from "./SidebarDropdown";
+import { useUser } from "../hooks/useUser";
+import { useEntities } from "../hooks/useEntities";
+import CdropDown from "./golbals/CDropDown";
+import { useSelector } from "react-redux";
+import { selectProject } from "../store/Slices/ProjectsSlice";
+import { useProject } from "../hooks/useProject";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleTask, setToggleTask] = useState(false);
 
-  const { logout } = useAuth();
+  const project = useSelector((state) => state.project);
+  const { projectsData } = useProject();
+
+  const navigate = useNavigate();
+  // const { logout } = useAuth();
+  const { logout } = useUser();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  const logoutHandler = (e) => {
+    // e.preventDefault();
+    logout().then(() => {
+      navigate("/login");
+    });
+  };
+  const { entityResults } = useEntities();
+
+  const selectProjectItem = (proj) => {
+    selectProject(proj);
   };
 
   return (
@@ -48,42 +71,49 @@ const Sidebar = () => {
         {/* icons  */}
 
         <div className="w-full h-full  flex-1 flex flex-col items-center gap-[25px] text-white ">
-          <NavLink
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/dashboard"}
+            // to={"/dashboard"}
           >
             <FaHome className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </div>
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/productivity"}
+            // to={"/productivity"}
           >
             <AiFillProduct className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </div>
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/overview"}
+            // to={"/overview"}
           >
             <GrOverview className="w-full h-full" />
-          </NavLink>
-
+          </div>
+          <div
+            className={
+              "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
+            }
+            // to={"/projects"}
+          >
+            <img className="w-full h-full" src="/icons/Pie Chart.svg" alt="" />
+          </div>
           <div
             className="w-full h-full transition flex  justify-center"
             style={{
               maxHeight: "30px",
             }}
           >
-            <NavLink
+            <div
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full "
               }
-              to={"/task-manager/production"}
+              // to={"/task-manager/production"}
             >
               <FaTasks
                 className="w-full h-full"
@@ -91,56 +121,49 @@ const Sidebar = () => {
                   height: "30px",
                 }}
               />
-            </NavLink>
+            </div>
           </div>
-          <NavLink
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/gun-chart"}
+            // to={"/gun-chart"}
           >
             <FaChartBar className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </div>
+
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/projects"}
-          >
-            <img className="w-full h-full" src="/icons/Pie Chart.svg" alt="" />
-          </NavLink>
-          <NavLink
-            className={
-              "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
-            }
-            to={"/users"}
+            // to={"/users"}
           >
             <FaUserGroup className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </div>
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/user-profile"}
+            // to={"/user-profile"}
           >
             <FaRegUser className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </div>
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/register-configs"}
+            // to={"/register-configs"}
           >
             <GrDocumentConfig className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </div>
+          <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            to={"/settings"}
+            // to={"/settings"}
           >
             <IoMdSettings className="w-full h-full" />
-          </NavLink>
+          </div>
         </div>
       </div>
       <div
@@ -166,17 +189,41 @@ const Sidebar = () => {
               className={
                 "!text-white hover:!text-[var(--primary-color-light)] text-sm transition"
               }
-              onClick={logout}
+              onClick={logoutHandler}
             >
               <div className="w-[25px] h-[25px] flex items-center justify-center">
                 <CiLogout className="w-full h-full" />
               </div>
             </NavLink>
           </div>
-          {/* <div className="w-full h-full flex flex-col gap-y-[10px]">
-            <SearchOne />
-            <CbuttonOne>Add Project</CbuttonOne>
-          </div> */}
+          <div className="w-full  flex flex-col gap-y-[10px] mt-auto">
+            {/* <SearchOne /> */}
+
+            {/* {projectsData && projectsData.length > 0 && (
+              <CdropDown
+                options={projectsData || []}
+                select={selectProjectItem}
+                init={project?.selecedProject}
+                type="normal"
+                // icon={<MdOutlineSort className="text-[20px] text-white" />}
+              />
+  
+            )} */}
+            <div
+              className="w-full h-fit  flex items-center justify-between text-xs p-2 bg-[var(--primary-color-light)]/20 radius mb-4 hover:bg-[var(--primary-color-light)]/40 transition-all duration-200 cursor-pointer"
+              onClick={() => {
+                navigate("/projects/select");
+              }}
+            >
+              <span className="uppercase">Project :</span>
+              <span>
+                {localStorage.getItem("project_name")
+                  ? localStorage.getItem("project_name").slice(0, 10)
+                  : project.selectedProject.name.slice(0, 10)}
+              </span>
+            </div>
+            {/* <CbuttonOne>Add Project</CbuttonOne> */}
+          </div>
         </div>
         {/* bottom part  */}
         <div className="w-full h-full  flex-1 flex flex-col  text-white ">
@@ -197,6 +244,7 @@ const Sidebar = () => {
             >
               Productivity
             </NavLink>
+
             <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
@@ -206,9 +254,22 @@ const Sidebar = () => {
               Overview
             </NavLink>
             <SidebarDropdown
+              label="Projects"
+              links={[
+                { label: "Create Project", to: "/projects/create" },
+                { label: "Select Project", to: "/projects/select" },
+              ]}
+            />
+            <SidebarDropdown
               label="Task Manager"
               links={[
-                { label: "Production", to: "/task-manager/production" },
+                {
+                  label: "Production",
+                  to:
+                    entityResults && entityResults.length > 0
+                      ? `/task-manager/production/${entityResults[0]?.id}`
+                      : "/task-manager/production",
+                },
                 { label: "Assets", to: "/task-manager/assets" },
               ]}
             />
@@ -220,13 +281,6 @@ const Sidebar = () => {
             >
               Gun Chart
             </NavLink>
-            <SidebarDropdown
-              label="Projects"
-              links={[
-                { label: "Create Project", to: "/projects/create" },
-                { label: "Select Project", to: "/projects/select" },
-              ]}
-            />
 
             <NavLink
               className={

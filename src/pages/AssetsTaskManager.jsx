@@ -26,45 +26,27 @@ const AssetsTaskManager = () => {
     selectedAssetType,
     variationId,
     setVariationId,
+    navigateToDefaultEntity,
   } = useAssets();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const path = pathname.split("/");
   const { setDataType, dataType, setGlobalActiveEntity } =
     useEpisodeManagerContext();
+
   useEffect(() => {
     fetchAllAssets();
   }, [search, currentPage, selectedAssetType]);
 
-  useLayoutEffect(() => {
-    setDataType("assets");
-  }, []);
-
   useEffect(() => {
     if (assetResults && assetResults.length > 0) {
-      navigate(`/task-manager/assets/${assetResults[0]?.id}`, {
-        state: { item: assetResults[0] },
-      });
-      // fetchAssetTasks(assetResults[0].id);
-    }
-    setDataType("assets");
-  }, []);
-
-  useEffect(() => {
-    if (assetResults && assetResults.length > 0) {
-      navigate(`/task-manager/assets/${assetResults[0]?.id}`, {
-        state: { item: assetResults[0] },
-      });
+      navigateToDefaultEntity();
     }
   }, [assetResults]);
 
   useEffect(() => {
     setDataType("assets");
   }, [dataType]);
-
-  useEffect(() => {
-    setGlobalActiveEntity(assetResults[0]?.id);
-  }, [assetResults]);
 
   return (
     <LayoutOne>

@@ -1,0 +1,23 @@
+:root {
+  /* progress colors  */
+  --progress-linear-color-one: #7676fb;
+  --progress-linear-color-two: #2ec5c5;
+  --progress-linear-color-three: #ff8a05;
+}
+
+.project-item-one {
+  @apply bg-gradient-to-r from-[#8080C2] to-[#4B4B69] transition-all  duration-300 hover:bg-gradient-to-r hover:from-[#4B4B69] hover:to-[#4B4B69];
+  width: 100%;
+  min-height: 140px;
+  height: fit-content;
+  cursor: pointer;
+}
+
+.project-item-two {
+  @apply bg-gradient-to-r from-[#8080C2] to-[#4B4B69] transition-all  duration-300 hover:bg-gradient-to-r hover:from-[#4B4B69] hover:to-[#4B4B69];
+  width: 100%;
+  min-width: 300px;
+  min-height: 222px;
+  height: fit-content;
+  cursor: pointer;
+}
