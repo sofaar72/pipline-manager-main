@@ -33,7 +33,7 @@ const MainContentVisibleData = ({
   };
 
   const location = useLocation();
-  const { entityType } = location.state;
+  const state = location?.state;
 
   return (
     <div className="w-full max-w-main shrink-0 h-full main-bg radius sec-padd-x sec-padd-y flex flex-col gap-[22px]">
@@ -63,7 +63,7 @@ const MainContentVisibleData = ({
         entityResults={entityResults}
         dataType={dataType}
         entityLoading={
-          entityType === "Production" ? entityLoading : assetLoading
+          state && state?.entityType === "Assets" ? assetLoading : entityLoading
         }
       />
 

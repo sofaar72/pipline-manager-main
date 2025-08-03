@@ -20,7 +20,7 @@ const ProjectItemOne = ({ project, selectProject, selectedProject }) => {
     <div
       className={` shrink-0 relative ${
         selectedProject?.id === project?.id
-          ? "bg-[var(--primary-color-light)]"
+          ? "bg-[var(--primary-color-light)] min-h-[140px]"
           : "project-item-one radius p-4"
       }`}
       onClick={() => handleCheck(project)}

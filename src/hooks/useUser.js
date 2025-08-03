@@ -1,7 +1,13 @@
 // hooks/useTasks.js
 import { useDispatch, useSelector } from "react-redux";
 
-import { loginUser, registerUser, logoutUser } from "../store/Slices/userSlice";
+import {
+  loginUser,
+  registerUser,
+  logoutUser,
+  fetchUserRoles,
+  fetchAllUsers,
+} from "../store/Slices/userSlice";
 import bcrypt from "bcryptjs";
 
 const saltRounds = 5;
@@ -20,7 +26,20 @@ export const useUser = () => {
     registerError,
     registerSuccess,
     registerUserResponse,
+    userRoles,
+    users,
   } = useSelector((state) => state.user);
+
+  const {
+    results: roleResults,
+    loading: roleLoading,
+    error: roleError,
+  } = userRoles;
+  const {
+    results: userResults,
+    loading: userLoading,
+    error: userError,
+  } = users;
 
   const login = async (userData) => {
     // const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
@@ -35,6 +54,14 @@ export const useUser = () => {
 
   const logout = async () => {
     dispatch(logoutUser());
+  };
+
+  const getUserRoles = () => {
+    dispatch(fetchUserRoles());
+  };
+
+  const getUsers = () => {
+    dispatch(fetchAllUsers());
   };
 
   return {
@@ -52,5 +79,13 @@ export const useUser = () => {
     registerUser,
     registerUserResponse,
     logout,
+    getUserRoles,
+    roleResults,
+    roleLoading,
+    roleError,
+    getUsers,
+    userResults,
+    userLoading,
+    userError,
   };
 };

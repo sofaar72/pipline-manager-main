@@ -13,6 +13,7 @@ export const DropDownModalWrapper = ({
   selectedType,
   children,
 }) => {
+  // console.log(items);
   return (
     <DropDownContext.Provider
       value={{

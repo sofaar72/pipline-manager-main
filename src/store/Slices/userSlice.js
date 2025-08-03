@@ -72,6 +72,36 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+// user Roles
+export const fetchUserRoles = createAsyncThunk(
+  "user/fetchUserRole",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get("/users/role");
+      if (response.status === 200) {
+      }
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
+// users
+export const fetchAllUsers = createAsyncThunk(
+  "user/fetchUsers",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get("/users");
+      if (response.status === 200) {
+      }
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 // Step 2: Slice
 const userSlice = createSlice({
   name: "user",
@@ -89,6 +119,17 @@ const userSlice = createSlice({
     logoutLoading: false,
     logoutError: null,
     logoutSuccess: false,
+    userRoles: {
+      results: [],
+      loading: false,
+      error: null,
+    },
+
+    users: {
+      results: [],
+      loading: false,
+      error: null,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -127,6 +168,36 @@ const userSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.registerLoading = false;
         state.registerError = "somthing went wrong";
+      });
+    // user Roles
+    builder
+      .addCase(fetchUserRoles.pending, (state) => {
+        state.userRoles.loading = true;
+        state.userRoles.error = null;
+      })
+      .addCase(fetchUserRoles.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.userRoles.loading = true;
+        state.userRoles.results = action.payload?.results;
+      })
+      .addCase(fetchUserRoles.rejected, (state, action) => {
+        state.userRoles.loading = true;
+        state.userRoles.error = "somthing went wrong";
+      });
+    // fetch users
+    builder
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.users.loading = true;
+        state.users.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.users.loading = false;
+        state.users.results = action.payload?.results;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.users.loading = false;
+        state.users.error = "somthing went wrong";
       });
 
     // logout

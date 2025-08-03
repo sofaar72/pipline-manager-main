@@ -32,6 +32,22 @@ export const useRegisterFormSchema = () => {
 
   return { formSchema };
 };
+export const userAddFormSchema = () => {
+  let formSchema = yup.object().shape({
+    first_name: yup.string().required("This field may not be blank"),
+    last_name: yup.string().required("This field may not be blank"),
+    email: yup.string().email().required("Email is required"),
+    password: yup.string().required("Password is required"),
+    // role: yup.string().required("Role is required"),
+  });
+
+  // check validity
+  //   formSchema.isValid().then(function (valid) {
+  //     valid; // => true
+  //   });
+
+  return { formSchema };
+};
 
 export const usecreateProjectSchema = () => {
   let formSchema = yup.object().shape({

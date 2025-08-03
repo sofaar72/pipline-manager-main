@@ -9,6 +9,8 @@ import { useEntities } from "../hooks/useEntities";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import NoFileContent from "../components/golbals/PlaceHolders.jsx/NoFileContent";
+import { useProject } from "../hooks/useProject";
+import { useSelector } from "react-redux";
 
 const ProductionTaskManager = () => {
   const {
@@ -24,6 +26,7 @@ const ProductionTaskManager = () => {
     selectedEntityType,
     navigateToDefaultEntity,
   } = useEntities({});
+  const { selectedProject } = useSelector((state) => state.project);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const path = pathname.split("/");
@@ -32,7 +35,7 @@ const ProductionTaskManager = () => {
 
   useEffect(() => {
     fetchEntities();
-  }, [search, currentPage, selectedEntityType]);
+  }, [search, currentPage, selectedEntityType, selectedProject]);
 
   useEffect(() => {
     if (entityResults && entityResults.length > 0) {

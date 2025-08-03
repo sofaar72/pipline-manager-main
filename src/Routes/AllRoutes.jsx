@@ -24,6 +24,7 @@ import SelectProjectPage from "../pages/Projects/SelectProjectPage";
 import RegisterPage from "../pages/RegisterPage";
 import { EpisodeManagerProvider } from "../assets/context/EpisodeManagerContext";
 import NotFound from "../pages/NotFound";
+import UsersPage from "../pages/UsersPage";
 
 const AllRoutes = () => {
   return (
@@ -56,14 +57,7 @@ const AllRoutes = () => {
               }
             />
           </Route>
-          <Route
-            path="/users"
-            element={
-              <PrivateRoute>
-                <EmptyPage title="Users Page" />
-              </PrivateRoute>
-            }
-          />
+
           <Route
             path="/register-configs"
             element={
@@ -85,6 +79,14 @@ const AllRoutes = () => {
             element={
               <PrivateRoute>
                 <EmptyPage title="Dashboard Page" />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute>
+                <UsersPage />
               </PrivateRoute>
             }
           />

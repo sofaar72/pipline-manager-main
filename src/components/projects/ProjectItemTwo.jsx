@@ -17,7 +17,7 @@ const ProjectItemTwo = ({ project, selectProject, selectedProject }) => {
     <div
       className={` radius p-4 shrink-0 relative ${
         selectedProject?.id == project?.id
-          ? "bg-[var(--primary-color-light)]"
+          ? "bg-[var(--primary-color-light)] min-h-[222px]"
           : "project-item-two radius p-4"
       }`}
       onClick={() => handleSelectProject(project)}

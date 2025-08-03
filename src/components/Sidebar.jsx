@@ -19,16 +19,16 @@ import SidebarDropdown from "./SidebarDropdown";
 import { useUser } from "../hooks/useUser";
 import { useEntities } from "../hooks/useEntities";
 import CdropDown from "./golbals/CDropDown";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectProject } from "../store/Slices/ProjectsSlice";
 import { useProject } from "../hooks/useProject";
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleTask, setToggleTask] = useState(false);
 
   const project = useSelector((state) => state.project);
-  const { projectsData } = useProject();
 
   const navigate = useNavigate();
   // const { logout } = useAuth();
@@ -47,8 +47,14 @@ const Sidebar = () => {
   const { entityResults } = useEntities();
 
   const selectProjectItem = (proj) => {
-    selectProject(proj);
+    dispatch(selectProject(proj));
   };
+
+  const { getAllProjects, projectsData } = useProject();
+
+  useEffect(() => {
+    getAllProjects();
+  }, []);
 
   return (
     <div
@@ -78,6 +84,14 @@ const Sidebar = () => {
             // to={"/dashboard"}
           >
             <FaHome className="w-full h-full" />
+          </div>
+          <div
+            className={
+              "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
+            }
+            // to={"/users"}
+          >
+            <FaUserGroup className="w-full h-full" />
           </div>
           <div
             className={
@@ -136,14 +150,6 @@ const Sidebar = () => {
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            // to={"/users"}
-          >
-            <FaUserGroup className="w-full h-full" />
-          </div>
-          <div
-            className={
-              "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
-            }
             // to={"/user-profile"}
           >
             <FaRegUser className="w-full h-full" />
@@ -198,18 +204,23 @@ const Sidebar = () => {
           </div>
           <div className="w-full  flex flex-col gap-y-[10px] mt-auto">
             {/* <SearchOne /> */}
-
-            {/* {projectsData && projectsData.length > 0 && (
-              <CdropDown
-                options={projectsData || []}
-                select={selectProjectItem}
-                init={project?.selecedProject}
-                type="normal"
-                // icon={<MdOutlineSort className="text-[20px] text-white" />}
-              />
-  
-            )} */}
-            <div
+            <div className="w-full flex flex-col gap-y-[4px]">
+              <span className="text-[10px]">Projects :</span>
+              {projectsData && projectsData.length > 0 && (
+                <div className="mb-2">
+                  <CdropDown
+                    options={projectsData || []}
+                    select={selectProjectItem}
+                    init={project?.selectedProject?.name?.slice(0, 10)}
+                    type="typeSidebar"
+                    cClass="!px-2 !py-2 overflow-hidden !bg-[var(--primary-add-file-bg)]"
+                    cClassMenu="!w-full"
+                    // icon={<MdOutlineSort className="text-[20px] text-white" />}
+                  />
+                </div>
+              )}
+            </div>
+            {/* <div
               className="w-full h-fit  flex items-center justify-between text-xs p-2 bg-[var(--primary-color-light)]/20 radius mb-4 hover:bg-[var(--primary-color-light)]/40 transition-all duration-200 cursor-pointer"
               onClick={() => {
                 navigate("/projects/select");
@@ -219,10 +230,9 @@ const Sidebar = () => {
               <span>
                 {localStorage.getItem("project_name")
                   ? localStorage.getItem("project_name").slice(0, 10)
-                  : project.selectedProject.name.slice(0, 10)}
+                  : project?.selectedProject?.name?.slice(0, 10)}
               </span>
-            </div>
-            {/* <CbuttonOne>Add Project</CbuttonOne> */}
+            </div> */}
           </div>
         </div>
         {/* bottom part  */}
@@ -235,6 +245,14 @@ const Sidebar = () => {
               to={"/dashboard"}
             >
               Dashboard
+            </NavLink>
+            <NavLink
+              className={
+                "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
+              }
+              to={"/users"}
+            >
+              Users
             </NavLink>
             <NavLink
               className={
@@ -282,14 +300,6 @@ const Sidebar = () => {
               Gun Chart
             </NavLink>
 
-            <NavLink
-              className={
-                "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
-              }
-              to={"/users"}
-            >
-              Users
-            </NavLink>
             <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"

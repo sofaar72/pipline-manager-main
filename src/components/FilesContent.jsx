@@ -59,25 +59,27 @@ const FilesContent = () => {
     fetchAssetTasks(item?.variations[0]?.id);
   }, [item]);
 
-  return (
-    <div className="w-full max-w-files h-full main-bg radius">
-      {taskLoading || entityLoading ? (
-        <FileContentPlace />
-      ) : taskResults.length > 0 ? (
-        <FileContentVisibleData
-          taskResults={taskResults}
-          fetchVersion={fetchTaskVersion}
-          taskLoading={taskLoading}
-          activeTask={activeTask}
-          versionResults={versionResults}
-          versionLoading={versionLoading}
-          versionError={versionError}
-        />
-      ) : (
-        <NoTask />
-      )}
-    </div>
-  );
+  if (entityResults && entityResults.length > 0) {
+    return (
+      <div className="w-full max-w-files h-full main-bg radius">
+        {taskLoading || entityLoading ? (
+          <FileContentPlace />
+        ) : taskResults.length > 0 ? (
+          <FileContentVisibleData
+            taskResults={taskResults}
+            fetchVersion={fetchTaskVersion}
+            taskLoading={taskLoading}
+            activeTask={activeTask}
+            versionResults={versionResults}
+            versionLoading={versionLoading}
+            versionError={versionError}
+          />
+        ) : (
+          <NoTask />
+        )}
+      </div>
+    );
+  }
 };
 
 export default FilesContent;

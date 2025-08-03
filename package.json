@@ -18,6 +18,8 @@
     "@pdftron/webviewer-video": "^4.34.2",
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.11",
+    "ag-grid-community": "^34.1.0",
+    "ag-grid-react": "^34.1.0",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",

@@ -26,6 +26,13 @@
   /* --primary-color-normal: #575586; */
 }
 
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
 /* tailwind  */
 @theme {
   --color-primary: var(--primary-color-lower);
@@ -35,6 +42,10 @@
 body {
   font-family: "Poppins", sans-serif;
 }
+
+/* .ag-header-cell-label {
+  justify-content: center;
+} */
 
 input,
 input:focus {

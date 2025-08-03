@@ -1,0 +1,83 @@
+.ag-header-center {
+  color: #fff;
+  outline: 1px solid #ffffff !important;
+}
+
+.ag-header-center .ag-header-cell-label {
+  justify-content: center;
+  height: 36px;
+
+  /* padding: 0px !important; */
+  /* background-color: #0dd750; */
+  /* width: 100% !important; */
+}
+
+.custom-grid-border {
+  border: 1px solid #ccc; /* or any color you like */
+  box-sizing: border-box;
+  border-radius: 4px; /* optional */
+}
+
+.my-custom-grid .ag-header {
+  color: white !important;
+  background-color: var(--primary-color-light);
+  /* outline: 1px solid #ccc !important; */
+}
+
+/* Border between rows */
+.ag-row {
+  border-bottom: 1px solid #ffffff !important;
+}
+
+/* Border between cells */
+.ag-cell {
+  /* border: 1px solid #ccc !important; */
+  outline: 1px solid #ffffff !important;
+  /* border-bottom: none !important; */
+}
+
+/* Remove last column right border if needed */
+.ag-center-cols-container .ag-row .ag-cell:last-child {
+  border-right: none;
+}
+
+.ag-header-cell,
+.ag-header-group-cell {
+  /* border-right: 1px solid #ccc !important;
+  border-bottom: 1px solid #ccc !important; */
+}
+
+/* Hide sort icons in all headers */
+.ag-header-cell .ag-sort-order,
+.ag-header-cell .ag-sort-indicator-icon,
+.ag-header-cell .ag-header-label-icon {
+  display: none !important;
+}
+
+.ag-header-cell .ag-header-icon {
+  display: none;
+}
+
+/* Remove default background */
+.my-custom-grid .ag-root-wrapper,
+.my-custom-grid .ag-root,
+/* .my-custom-grid .ag-header, */
+.my-custom-grid .ag-body,
+.my-custom-grid .ag-row,
+.my-custom-grid .ag-cell,
+.my-custom-grid .ag-center-cols-clipper,
+.my-custom-grid .ag-center-cols-container {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: none;
+}
+
+.my-custom-grid .ag-root-wrapper {
+  border: 1px solid #ccc !important;
+  border-radius: 2px;
+}
+/* Optional: Hide row hover background */
+.my-custom-grid .ag-row-hover {
+  background-color: transparent !important;
+}

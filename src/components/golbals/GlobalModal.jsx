@@ -44,7 +44,10 @@ const GlobalModal = ({
           className="fixed inset-0 !z-[100000] w-screen overflow-y-auto radius "
           onClick={() => setOpen(false)}
         >
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <div
+            className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 "
+            // onClick={(e) => e.stopPropagation()}
+          >
             {modalContent(setOpen) || children}
           </div>
         </div>
