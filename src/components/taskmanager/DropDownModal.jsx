@@ -15,9 +15,6 @@ const DropDownModal = ({
     closeDropDown(!openDropDown);
   };
 
-  useEffect(() => {
-    console.log(items);
-  }, [items]);
   return (
     <div
       className={`w-full overflow-hidden h-fit bg-[#28263E] backdrop-blur-lg radius absolute left-0 top-[100%] transition px-4 py-4 z-[5000]  ${

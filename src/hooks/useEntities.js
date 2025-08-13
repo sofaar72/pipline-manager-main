@@ -1,23 +1,60 @@
 // hooks/useEntities.js
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFilms } from "../store/Slices/FilmSlice";
+import { deleteFilm, editFilm, fetchFilms } from "../store/Slices/FilmSlice";
 import { useTasks } from "./useTasks";
 import { useNavigate } from "react-router-dom";
+import { createFilm } from "../store/Slices/FilmSlice";
 
 export const useEntities = () => {
   const [selectedEntityType, setSelectedEntityType] = useState("All");
-  const { fetchAllTasks } = useTasks({ dataType: "production" });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 5;
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  // CREATE
+  const {
+    films,
+    loading,
+    error,
+    createFilm: createFilmData,
+    editFilm: editFilmData,
+    deleteFilm: deleteFilmData,
+  } = useSelector((state) => state.film);
 
-  const { films, loading, error } = useSelector((state) => state.film);
+  const {
+    results: createResults,
+    loading: createLoading,
+    error: createError,
+  } = createFilmData || {};
+
+  // EDIT
+  const {
+    results: editResults,
+    loading: editLoading,
+    error: editError,
+  } = editFilmData || {};
+
+  // DELETE
+  const {
+    results: delelteResults,
+    loading: deleteLoading,
+    error: deleteError,
+  } = deleteFilmData || {};
+
   const { results = [], total = 0 } = films || {};
   const totalPages = Math.ceil(total / perPage);
+
+  const isEntityInCurrentPage = (entId) => {
+    // Get films for the current page
+    const currentEntity = results.slice(startIndex, endIndex);
+    return currentEntity.some((ent) => ent.id === entId);
+  };
 
   const fetchEntities = () => {
     const project = localStorage.getItem("project_id");
@@ -43,16 +80,47 @@ export const useEntities = () => {
 
   const navigateToDefaultEntity = () => {
     if (results && results.length > 0) {
-      navigate(`/task-manager/production/${results[0].id}`);
+      navigate(`/file-manager/production/${results[0].id}`);
     }
   };
 
   const selectEntityType = (type) => {
     setSelectedEntityType(type);
   };
+  const createFilmEntity = async (data, closeModal = () => {}) => {
+    dispatch(createFilm(data)).then((res) => {
+      if (res.payload) {
+        setCurrentPage(1); // this will auto-trigger fetchEntities via useEffect
 
-  const fetchEntityTasks = (id) => {
-    fetchAllTasks(id);
+        setTimeout(
+          () => {
+            closeModal(false);
+            fetchEntities();
+          },
+
+          1000
+        );
+      }
+    });
+  };
+
+  const deleteFilmEntity = async (id, closeModal = () => {}) => {
+    dispatch(deleteFilm(id)).then((res) => {
+      console.log(res);
+      if (res) {
+        setTimeout(() => {
+          closeModal();
+          fetchEntities();
+        }, 1000);
+      }
+    });
+  };
+  const editFilmEntity = async (data, closeModal = () => {}) => {
+    dispatch(editFilm(data)).then((res) => {
+      if (res.payload) {
+        //  closeModal( )
+      }
+    });
   };
 
   return {
@@ -65,9 +133,21 @@ export const useEntities = () => {
     setCurrentPage,
     totalPages,
     fetchEntities,
-    fetchEntityTasks,
     selectEntityType,
     selectedEntityType,
     navigateToDefaultEntity,
+    isEntityInCurrentPage,
+    perPage,
+    createFilmEntity,
+    createLoading,
+    createError,
+    deleteFilmEntity,
+    delelteResults,
+    deleteLoading,
+    deleteError,
+    editFilmEntity,
+    editResults,
+    editLoading,
+    editError,
   };
 };

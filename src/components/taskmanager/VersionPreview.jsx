@@ -80,6 +80,8 @@ const VersionPreview = ({ versionData, versionLoading }) => {
               <PreviewSlider
                 slides={versionData?.previews}
                 selectPrevImage={selectPrevImage}
+                versionId={versionData?.id}
+                taskId={versionData?.task}
               />
             </div>
           </>

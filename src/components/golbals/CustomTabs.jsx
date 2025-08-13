@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import TabItem from "./TabItem";
 
 import TaskTabs from "./TaskTabs";
@@ -17,11 +17,13 @@ import "swiper/css";
 import "swiper/css/free-mode";
 // import "swiper/css/scrollbar";
 // import required modules
-import { FreeMode, Scrollbar, Mousewheel } from "swiper/modules";
+import { FreeMode, Scrollbar, Mousewheel, Navigation } from "swiper/modules";
 import { SwiperSlide } from "swiper/react";
 import CdropDown from "./CDropDown";
 import { useLocation } from "react-router-dom";
 import { useAssets } from "../../hooks/useAssets";
+import { FaArrowLeft } from "react-icons/fa6";
+import { FaArrowRight } from "react-icons/fa6";
 
 const CustomTabs = ({
   tasks,
@@ -40,67 +42,97 @@ const CustomTabs = ({
   } = useVersions();
 
   const location = useLocation();
-  const { item } = location.state || {};
+  const { item, versionId } = location?.state || {};
+
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+
   const { fetchAssetTasks } = useAssets();
 
   useEffect(() => {
     if (versionResults?.versions?.length > 0) {
-      fetchSingleVersionPreview(versionResults?.versions[0]?.id);
+      if (!versionId) {
+        fetchSingleVersionPreview(versionResults?.versions[0]?.id);
+      }
     }
   }, [versionResults]);
+
+  useEffect(() => {
+    fetchSingleVersionPreview(versionId);
+  }, [versionId]);
 
   const selectVariants = (variant) => {
     fetchAssetTasks(variant);
   };
-
-  useEffect(() => {
-    console.log(item);
-  }, [item]);
 
   return (
     <div className="w-full h-full  overflow-hidden flex flex-col gap-4  mx-auto">
       {/* Tab Headers */}
       <div className="w-full flex items-center justify-between gap-4 shrink-0  ">
         {/* TABS  */}
-        <div className="w-full flex flex-1 h-[60px]  px-4  justify-between items-center   overflow-x-auto">
+        <div className="w-full flex flex-1 h-[60px]    justify-between items-center   overflow-x-auto border-b border-white/50">
           <div
             className=" w-full max-w-[500px] flex h-full flex-1 gap-1
-            overflow-x-auto border-b border-white/20"
+            overflow-x-auto flex "
           >
-            {tasks ? (
-              <Swiper
-                direction={"horizontal"}
-                slidesPerView={"auto"}
-                spaceBetween={0}
-                freeMode={true}
-                // draggable={true}
-                scrollbar={true}
-                mousewheel={true}
-                modules={[FreeMode, Mousewheel, Scrollbar]}
-                className="swiper flex h-full  flex-1 gap-1 items-center  p-0"
+            {/* custom Navigation  */}
+            <div className="w-full  h-full flex items-center justify-between ">
+              <span
+                className=" text-white cursor-pointer p-1 text-xs radius hover:bg-[var(--primary-modal-box)] transition"
+                ref={prevRef}
               >
-                {tasks?.map((task, i) => {
-                  return (
-                    <SwiperSlide key={i} className="!w-fit">
-                      <button
-                        key={i}
-                        className={`w-full h-full tab-btn px-4 py-2 text-sm font-medium transition capitalize relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-transparent  ${
-                          activeTask === task?.id
-                            ? "after:!bg-[var(--primary-color-light)] "
-                            : "text-white/90 hover:text-white cursor-pointer "
-                        }`}
-                        onClick={() => selectTask(task?.id)}
-                      >
-                        {task?.type}
-                      </button>
-                    </SwiperSlide>
-                  );
-                })}
-                <span className="text-white/90 text-sm">...</span>
-              </Swiper>
-            ) : (
-              ""
-            )}
+                <FaArrowLeft />
+              </span>
+
+              {tasks ? (
+                <Swiper
+                  modules={[Navigation]}
+                  direction={"horizontal"}
+                  slidesPerView={5}
+                  spaceBetween={0}
+                  freeMode={true}
+                  // draggable={true}
+                  scrollbar={true}
+                  mousewheel={true}
+                  navigation={{
+                    prevEl: prevRef.current,
+                    nextEl: nextRef.current,
+                  }}
+                  onSlideChange={(swiper) => {
+                    console.log("Current slide index:", swiper);
+                  }}
+                  // modules={[FreeMode, Mousewheel, Scrollbar]}
+                  className="swiper flex h-full  flex-1 gap-1 items-center  p-0 "
+                >
+                  {tasks?.map((task, i) => {
+                    return (
+                      <SwiperSlide key={i} className="">
+                        <button
+                          key={i}
+                          className={`w-full h-full tab-btn px-4 py-2 text-sm font-medium transition capitalize relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-transparent  ${
+                            activeTask === task?.id
+                              ? "after:!bg-[var(--primary-color-light)] "
+                              : "text-white/90 hover:text-white cursor-pointer "
+                          }`}
+                          onClick={() => selectTask(task?.id)}
+                        >
+                          {task?.type}
+                        </button>
+                      </SwiperSlide>
+                    );
+                  })}
+                  {/* <span className="text-white/90 text-sm">...</span> */}
+                </Swiper>
+              ) : (
+                ""
+              )}
+              <span
+                className=" text-white cursor-pointer p-1 text-xs radius hover:bg-[var(--primary-modal-box)] transition "
+                ref={nextRef}
+              >
+                <FaArrowRight />
+              </span>
+            </div>
           </div>
 
           <div className="">
@@ -143,12 +175,10 @@ const CustomTabs = ({
               <div className="w-[250px] h-full bg-gray-500/50 radius px-[10px] py-[10px] flex flex-col gap-[20px]"></div>
             ) : (
               <>
-                {versionResults?.versions?.length > 0 && (
-                  <VersionsList
-                    activeVersion={activeVersion}
-                    selectVersion={fetchSingleVersionPreview}
-                  />
-                )}
+                <VersionsList
+                  activeVersion={activeVersion}
+                  selectVersion={fetchSingleVersionPreview}
+                />
               </>
             )}
 

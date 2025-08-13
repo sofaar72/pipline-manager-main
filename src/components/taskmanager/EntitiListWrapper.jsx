@@ -10,7 +10,6 @@ const EntitiListWrapper = ({
   dataType,
   entityLoading,
 }) => {
-  console.log(entityLoading);
   return (
     <>
       {/* Entities List */}

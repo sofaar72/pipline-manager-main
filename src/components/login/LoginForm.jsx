@@ -33,7 +33,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (success && accessToken && refreshToken) {
-      setToken(accessToken, refreshToken);
+      setToken(accessToken, refreshToken, user?.id);
       navigate("/task-manager/production");
     }
   }, [success]);

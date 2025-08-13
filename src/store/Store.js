@@ -9,6 +9,7 @@ import fileReducer from "./Slices/FileSlice";
 import assetReducer from "./Slices/AssetSlice";
 import variationsReducer from "./Slices/VariationsSlice";
 import projectReducer from "./Slices/ProjectsSlice";
+import commentsReducer from "./Slices/CommentsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -21,5 +22,6 @@ export const store = configureStore({
     file: fileReducer,
     variation: variationsReducer,
     project: projectReducer,
+    comments: commentsReducer,
   },
 });

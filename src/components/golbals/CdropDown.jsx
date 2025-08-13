@@ -12,6 +12,7 @@ export default function CdropDown({
   icon = "",
   cClass = "",
   cClassMenu = "",
+  topClass = "",
 }) {
   const [selected, setSelected] = useState(init);
 
@@ -96,10 +97,10 @@ export default function CdropDown({
   ) : type === "typeSidebar" ? (
     <Menu
       as="div"
-      className={` relative inline-block text-left shrink-0 w-full`}
+      className={`${topClass} relative inline-block text-left shrink-0 w-full`}
     >
       <div className={`${cClassMenu} `}>
-        <CbuttonTwo as={CbuttonTwo} cClass="w-full h-fit p-1">
+        <CbuttonTwo as={CbuttonTwo} className={`w-full h-fit p-1 `}>
           {selected.length > 10 ? selected.slice(0, 10) + "..." : selected}
           <ChevronDownIcon
             aria-hidden="true"

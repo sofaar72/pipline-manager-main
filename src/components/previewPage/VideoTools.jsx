@@ -8,7 +8,7 @@ import { MdBackHand } from "react-icons/md";
 
 const VideoTools = ({ goToPrevThumbnail, goToNextThumbnail }) => {
   return (
-    <div className="absolute z-[30] bottom-[calc(0px+80px)] left-0 w-full h-[50px] bg-black/50  backdrop-blur-lg p-4 flex items-center justify-between">
+    <div className="absolute z-[30] bottom-[calc(0px+60px)] left-0 w-full h-[50px] bg-black/50  backdrop-blur-lg p-4 flex items-center justify-between">
       <div className="flex items-center gap-2">
         {/* <span className="text-white text-md">00:00</span> */}
         <div className="flex items-center gap-2">

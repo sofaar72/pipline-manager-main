@@ -24,6 +24,17 @@
   --select-project-header: #1b192c;
 
   /* --primary-color-normal: #575586; */
+
+  /* overview  */
+  --section-bg-color: #332f56;
+  --light: #3be2ff;
+  --animate: #35b5ff;
+  --modeling: #736caf;
+  --texturing: #ff8a05;
+  --rigging: #2ec5c5;
+  --shading: #747474;
+  --icons-color: #635ebb;
+  --search-color: #a5a3e5;
 }
 
 html,
@@ -60,8 +71,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  /* transition: background-color 5000s ease-in-out 0s; */
-  /* -webkit-text-fill-color: white !important; */
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
 }
 
 /* Add to global CSS (e.g., index.css or App.css) */
@@ -164,7 +175,7 @@ a.active {
 }
 .max-width {
   /* @apply max-w-[1440px] mx-auto; */
-  @apply max-w-[1600px] mx-auto;
+  /* @apply max-w-[1600px] mx-auto; */
 }
 
 .g-padd {
@@ -181,7 +192,7 @@ a.active {
 }
 
 .radius {
-  @apply rounded-[5px];
+  @apply rounded-[6px];
 }
 
 .item-bg {

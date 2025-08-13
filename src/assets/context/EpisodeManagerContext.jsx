@@ -12,6 +12,7 @@ const EpisodeManagerContext = createContext();
 export const EpisodeManagerProvider = ({ children }) => {
   const [dataType, setDataType] = useState("production");
 
+  const [globalCurrentPage, setGlobalCurrentPage] = useState(1);
   const [globalActiveEntity, setGlobalActiveEntity] = useState(null);
   const [selectedEpisode, setSelectedEpisode] = useState("Episode 1");
   const [activeEntity, setActiveEntity] = useState(null);
@@ -35,6 +36,8 @@ export const EpisodeManagerProvider = ({ children }) => {
     setGlobalActiveEntity,
     dataType,
     setDataType,
+    globalCurrentPage,
+    setGlobalCurrentPage,
   };
 
   return (

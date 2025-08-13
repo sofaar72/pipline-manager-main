@@ -12,11 +12,16 @@ import { ToastContainer, toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import * as tus from "tus-js-client";
 
-const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
+const UploadFileForm = ({
+  setVersionFiles = () => {},
+  versionFiles = [],
+  versionId = null,
+}) => {
   const [uploadItems, setUploadItems] = useState([]);
 
   const [files, setFiles] = useState([]);
   const [successUpload, setSuccessUpload] = useState(false);
+  const [mediaIds, setMediaIds] = useState([]);
 
   const dispatch = useDispatch();
   const { user } = useUser();
@@ -26,6 +31,8 @@ const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
   );
 
   const handleUpload = (uploadUrl) => {
+    const token = localStorage.getItem("access_token");
+
     files.forEach((file) => {
       const upload = new tus.Upload(file, {
         uploadUrl,
@@ -33,6 +40,9 @@ const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
         metadata: {
           filename: file.name,
           filetype: file.type,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`, // 👈 Add token here
         },
         onError: (error) => {
           console.error("Upload failed:", error);
@@ -55,6 +65,8 @@ const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
     const id = Date.now();
     const newItem = { id, name: "", size: "", type: "", isChecked: false };
     setUploadItems((prev) => [...prev, newItem]);
+
+    setMediaIds([]);
   };
 
   const removeUploadItem = (idToRemove) => {
@@ -63,51 +75,58 @@ const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
       prev.filter((_, idx) => uploadItems[idx]?.id !== idToRemove)
     );
 
-    setVersionFiles([]);
+    setMediaIds([]);
+
     // }
   };
 
-  const uploadFile = () => {
-    if (files.length === 0) {
+  const uploadFile = async () => {
+    setMediaIds([]);
+    if (uploadItems.length === 0) {
       toast.warn("No files selected.");
       return;
     }
 
-    const filesData = [
-      {
-        id: 1753259261578,
-        is_export: true,
-        name: "Screenshot (1).png",
-        size: 433256,
-      },
-    ];
+    const largeFiles = [];
+    const smallFiles = [];
 
-    // console.log({ files: { ...uploadItems, file: files } });
-    if (uploadItems[0].size > 1000000) {
-      dispatch(uploadFileToServer({ file: uploadItems }))
-        .then((res) => {
-          const url = res?.payload?.files?.[0]?.tus_url;
-          if (!url) throw new Error("Missing upload URL");
+    // Split files by size
+    uploadItems.forEach((item) => {
+      if (item.size > 1_000_0000) {
+        largeFiles.push(item);
+      } else {
+        smallFiles.push(item);
+      }
+    });
 
-          console.log(res.payload.files);
-          handleUpload(url);
+    // Handle large file uploads (TUS)
+    if (largeFiles.length > 0) {
+      try {
+        const res = await dispatch(uploadFileToServer({ file: largeFiles }));
 
-          toast.success("Files uploaded successfully");
+        const url = res?.payload?.files?.[0]?.tus_url;
+        if (!url) throw new Error("Missing upload URL");
 
-          if (setVersionFiles) {
-            const ids = res.payload?.files?.map((f) => f.media_id) || [];
-            setVersionFiles(ids);
-          }
+        handleUpload(url);
 
-          setSuccessUpload(true);
-        })
-        .catch((error) => {
-          console.error("Upload preparation failed:", error);
-          toast.error("Upload preparation failed");
-        });
-    } else {
+        toast.success("Large file(s) uploaded successfully");
+
+        const ids = res?.payload?.files?.map((f) => f.media_id) || [];
+
+        setMediaIds((prev) => [...prev, ...ids]);
+
+        setSuccessUpload(true);
+      } catch (error) {
+        console.error("Large file upload failed:", error);
+        toast.error("Large file upload failed");
+      }
+    }
+
+    // Handle small file uploads (FormData)
+    if (smallFiles.length > 0) {
       const formData = new FormData();
-      uploadItems.forEach((item, index) => {
+      smallFiles.forEach((item, index) => {
+        console.log(item);
         formData.append(`files_${index}`, item.file);
         formData.append(
           `metadata_${index}`,
@@ -120,15 +139,24 @@ const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
         );
       });
 
-      dispatch(uploadSmallFileToServer({ file: formData })).then((res) => {
-        if (setVersionFiles) {
-          console.log(res.payload);
-          const ids = res.payload?.map((f) => f.media_id) || [];
-          setVersionFiles(ids);
-        }
-      });
+      dispatch(uploadSmallFileToServer({ file: formData }))
+        .then((res) => {
+          toast.success("Small file(s) uploaded successfully");
+
+          const ids = res?.payload?.map((f) => f.media_id) || [];
+          setMediaIds((prev) => [...prev, ...ids]);
+        })
+        .catch((error) => {
+          console.error("Small file upload failed:", error);
+          toast.error("Small file upload failed");
+        });
     }
   };
+
+  useEffect(() => {
+    console.log(mediaIds);
+    setVersionFiles(mediaIds);
+  }, [mediaIds]);
 
   return (
     <div className="w-full flex flex-col gap-4 h-full">
@@ -143,7 +171,7 @@ const UploadFileForm = ({ setVersionFiles = () => {}, versionFiles = [] }) => {
         <img className="w-[20px] h-[20px]" src="/icons/Add.svg" alt="Add" />
       </button>
 
-      <div className="w-full max-h-[500px] bg-[var(--primary-color-light)]/20 radius p-4 flex flex-col gap-4 overflow-y-auto">
+      <div className="w-full max-h-[200px] bg-[var(--primary-color-light)]/20 radius p-4 flex flex-col gap-4 overflow-y-auto min-h-[180px]">
         {uploadItems.length > 0 &&
           uploadItems.map((item, index) => (
             <UploadFileItem

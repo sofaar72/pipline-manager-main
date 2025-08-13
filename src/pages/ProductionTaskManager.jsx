@@ -6,8 +6,8 @@ import {
   useEpisodeManagerContext,
 } from "../assets/context/EpisodeManagerContext";
 import { useEntities } from "../hooks/useEntities";
-import { useEffect } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import NoFileContent from "../components/golbals/PlaceHolders.jsx/NoFileContent";
 import { useProject } from "../hooks/useProject";
 import { useSelector } from "react-redux";
@@ -25,23 +25,36 @@ const ProductionTaskManager = () => {
     selectEntityType,
     selectedEntityType,
     navigateToDefaultEntity,
+    isEntityInCurrentPage,
+    perPage,
   } = useEntities({});
   const { selectedProject } = useSelector((state) => state.project);
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
+  // send the state
+
+  const location = useLocation();
+  const pathname = location.pathname;
+  const state = location.state;
   const path = pathname.split("/");
   const { setDataType, dataType, setGlobalActiveEntity } =
     useEpisodeManagerContext();
 
-  useEffect(() => {
-    fetchEntities();
-  }, [search, currentPage, selectedEntityType, selectedProject]);
+  const { id } = useParams();
 
   useEffect(() => {
-    if (entityResults && entityResults.length > 0) {
+    fetchEntities();
+  }, [search, selectedEntityType, selectedProject]);
+
+  useEffect(() => {
+    if (!state?.fromPreview && entityResults && entityResults.length > 0) {
       navigateToDefaultEntity();
     }
   }, [entityResults]);
+
+  // useEffect(() => {
+  //   if (currentPage > 1) {
+  //     navigateToDefaultEntity();
+  //   }
+  // }, [entityResults, currentPage]);
 
   useEffect(() => {
     setDataType("production");

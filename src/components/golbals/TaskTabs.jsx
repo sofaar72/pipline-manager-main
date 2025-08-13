@@ -78,7 +78,7 @@ const TaskTabs = ({ version }) => {
                   className="w-full h-full max-w-[400px] text-white"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <CreateOnlyFile />
+                  <CreateOnlyFile version={version} />
                 </div>
               </GlobalModal>
             </div>

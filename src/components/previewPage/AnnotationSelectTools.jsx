@@ -21,7 +21,7 @@ const AnnotationSelectTools = ({
   handleDeleteAll,
 }) => {
   const [isOpenShapeMenu, setIsOpenShapeMenu] = useState(false);
-  const [selectedShape, setSelectedShape] = useState("rectangle");
+  const [selectedShape, setSelectedShape] = useState("pen");
   // const [selectedColor, setSelectedColor] = useState("red");
   const [isOpenColorMenu, setIsOpenColorMenu] = useState(false);
   const handleOpenShapeMenu = (e) => {
@@ -45,7 +45,7 @@ const AnnotationSelectTools = ({
   };
 
   return (
-    <div className="h-[500px] w-[40px] shrink-0 flex flex-col gap-8 justify-between bg-[#2B284B]/40 radius backdrop-blur-2xl px-2 py-4 text-white">
+    <div className=" w-fit shrink-0 flex  gap-8 justify-between bg-[#2B284B]/40 radius backdrop-blur-2xl px-2 py-4 text-white">
       {/* resize  */}
 
       <span className="w-full h-fit flex items-center justify-center cursor-pointer ">
@@ -83,7 +83,7 @@ const AnnotationSelectTools = ({
             size={15}
           />
         )}
-        {selectedShape === "circle" && (
+        {/* {selectedShape === "circle" && (
           <FaRegCircle
             className="text-[3xl] cursor-pointer shrink-0"
             size={15}
@@ -94,9 +94,9 @@ const AnnotationSelectTools = ({
             className="text-[3xl] cursor-pointer shrink-0"
             size={15}
           />
-        )}
+        )} */}
         <ToolsSubMenu
-          items={["rectangle", "circle", "triangle", "pen"]}
+          items={["pen"]}
           isOpenShapeMenu={isOpenShapeMenu}
           setIsOpenShapeMenu={setIsOpenShapeMenu}
           selectShape={handleSelectShape}

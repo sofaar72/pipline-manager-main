@@ -104,8 +104,6 @@ const UsersDataTable = ({ items, loading = false }) => {
     params.api.sizeColumnsToFit();
   };
 
-  console.log(loading);
-
   if (loading) {
     return (
       <div className="w-full h-full bg-gray-200/20 rounded-[2px] animate-pulse"></div>

@@ -46,14 +46,16 @@ export const useTasks = ({ dataType = "production" }) => {
     fetchAllVersions(taskId);
   };
 
-  const addTask = (taskData) => {
+  const addTask = async (taskData, closeModal = () => {}, noTask) => {
     dispatch(createTask({ ...taskData })).then((res) => {
-      if (res) {
-        console.log(res);
+      if (res.payload) {
         if (dataType === "production") {
-          fetchAllTasks(res?.payload?.film);
+          // console.log(res.payload);
+          setTimeout(() => fetchAllTasks(res.payload.film), 1000);
+          // closeModal(false);
+          // fetchAllTasks(res?.payload?.film);
         } else {
-          fetchAllAssetsTasks(res?.payload?.asset_variation);
+          // fetchAllAssetsTasks(res?.payload?.asset_variation);
         }
       }
     });

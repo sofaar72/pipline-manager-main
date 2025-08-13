@@ -21,7 +21,7 @@ const EntityItem = ({ item, dataType }) => {
     <NavLink
       className={`ent-item w-full radius !text-white h-[98px] flex gap-[15px] item-bg items-center px-[10px] py-[5px] cursor-pointer transition hover:!bg-[var(--primary-color-light)] 
         relative`}
-      to={`/task-manager/${dataType}/${item.id}`}
+      to={`/file-manager/${dataType}/${item.id}`}
       state={dataType === "assets" ? { item } : {}}
     >
       {/* ${

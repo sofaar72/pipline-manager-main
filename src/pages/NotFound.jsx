@@ -13,7 +13,7 @@ const NotFound = () => {
           <div className="w-full max-w-[500px] bg-[var(--primary-color-light)]/20 flex flex-col gap-2 items-center justify-center p-4 radius">
             <div className="w-full  bg-[var(--primary-color-light)]/20 h-[100px] radius flex justify-center items-center cursor-pointer hover:bg-[var(--primary-color-light)] transition-all duration-300">
               <Link
-                to="/task-manager/production"
+                to="/file-manager/production"
                 className="text-white underline w-full h-full flex justify-center items-center"
               >
                 Page not Found Go back to Task Manager

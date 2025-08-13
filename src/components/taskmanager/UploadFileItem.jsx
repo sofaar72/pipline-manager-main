@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import CdropDown from "../golbals/CDropDown";
 import CdropDownNoBg from "../golbals/CdropDownNoBg";
@@ -15,7 +15,7 @@ const UploadFileItem = ({
   removeUploadItem,
 }) => {
   const fileInputRef = useRef(null);
-  const [fileType, setFileType] = useState("is_preview");
+  const [fileType, setFileType] = useState("preview");
   const { versionResults } = useVersions();
 
   const taskId = versionResults?.id;
@@ -33,24 +33,44 @@ const UploadFileItem = ({
 
     // Update UI info (name, size, type)
     const updatedItems = [...uploadItems];
+
     updatedItems[index] = {
       ...updatedItems[index],
       name: file.name,
       // size: (file.size / 1024).toFixed(2) + " KB",
       size: file.size,
       // type: file.type,
-      is_export: fileType === "is_export" ? true : undefined,
-      is_resource: fileType === "is_resource" ? true : undefined,
-      is_preview: fileType === "is_preview" ? true : undefined,
+      is_export: fileType === "export" ? true : undefined,
+      is_resource: fileType === "resource" ? true : undefined,
+      is_preview: fileType === "preview" ? true : undefined,
+      // is_work: fileType === "work" ? true : undefined,
       file: file,
       task: taskId,
     };
+
     setUploadItems(updatedItems);
   };
 
   const handleRemove = () => {
     removeUploadItem(id);
   };
+
+  useEffect(() => {
+    console.log(uploadItems);
+  }, [uploadItems]);
+
+  useEffect(() => {
+    const updatedItems = [...uploadItems];
+
+    updatedItems[index] = {
+      ...updatedItems[index],
+
+      is_export: fileType === "export" ? true : undefined,
+      is_resource: fileType === "resource" ? true : undefined,
+      is_preview: fileType === "preview" ? true : undefined,
+    };
+    setUploadItems(updatedItems);
+  }, [fileType]);
 
   return (
     <div className="w-full flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
@@ -59,7 +79,7 @@ const UploadFileItem = ({
           <div className="flex  gap-8">
             <div className="flex flex-col gap-1">
               <span className="font- text-xs text-white">
-                {uploadItems[index]?.name}
+                {uploadItems[index]?.name.slice(0, 20) + "..."}
               </span>
               <span className="text-white/60 text-xs">
                 {(uploadItems[index]?.size / 1024).toFixed(2) + " KB"} —{" "}
@@ -69,8 +89,8 @@ const UploadFileItem = ({
             <div className="flex flex-col gap-1  text-xs">
               <span className="font- text-xs text-white">Select File Type</span>
               <CdropDownNoBg
-                options={["is_preview", "is_export", "is_resource"]}
-                init="is_preview"
+                options={["preview", "export", "resource", "work file"]}
+                init="preview"
                 select={(e) => setFileType(e)}
               />
             </div>

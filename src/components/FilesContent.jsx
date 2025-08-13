@@ -10,24 +10,31 @@ import NoTask from "./taskmanager/NoTask";
 import FileContentVisibleData from "./taskmanager/fileContentVisibleData";
 import { useEntities } from "../hooks/useEntities";
 import FileContentPlace from "./golbals/PlaceHolders.jsx/FileContentPlace";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import NoFileContent from "./golbals/PlaceHolders.jsx/NoFileContent";
 import { useAssets } from "../hooks/useAssets";
 
 const FilesContent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { item } = location.state || {};
-  const { dataType } = useEpisodeManagerContext();
-  const { taskResults, taskLoading, taskError, activeTask, fetchTaskVersion } =
-    useTasks({ dataType: dataType === "production" ? "production" : "assets" });
-  const {
-    entityResults,
-    entityLoading,
-    entityError,
+  const { taskId } = location.state || {};
 
-    fetchEntityTasks,
-  } = useEntities({ dataType: "production" });
+  const { dataType } = useEpisodeManagerContext();
+  const {
+    taskResults,
+    taskLoading,
+    taskError,
+    activeTask,
+    fetchTaskVersion,
+    fetchAllTasks,
+  } = useTasks({
+    dataType: dataType === "production" ? "production" : "assets",
+  });
+  const { entityResults, entityLoading, entityError } = useEntities({
+    dataType: "production",
+  });
 
   const { assetResults, fetchAssetTasks } = useAssets();
   const { versionResults, versionLoading, versionError } = useVersions();
@@ -37,8 +44,10 @@ const FilesContent = () => {
 
   useEffect(() => {
     if (dataType === "production") {
-      fetchEntityTasks(id);
-      setActiveEntity(id);
+      if (id) {
+        fetchAllTasks(id);
+        setActiveEntity(id);
+      }
     } else {
       fetchAssetTasks(item?.variations[0]?.id);
     }
@@ -46,20 +55,28 @@ const FilesContent = () => {
 
   useEffect(() => {
     if (taskResults.length > 0) {
-      fetchTaskVersion(taskResults[0]?.id);
+      if (!taskId) {
+        fetchTaskVersion(taskResults[0]?.id);
+      }
     }
   }, [taskResults]);
 
-  // if (entityResults?.length === 0 || assetResults?.length === 0) {
-  //   return <NoFileContent />;
-  // }
+  useEffect(() => {
+    if (taskId) {
+      fetchTaskVersion(taskId);
+    }
+  }, [taskId]);
 
   useEffect(() => {
-    console.log(item);
-    fetchAssetTasks(item?.variations[0]?.id);
+    if (item) {
+      fetchAssetTasks(item?.variations[0]?.id);
+    }
   }, [item]);
 
-  if (entityResults && entityResults.length > 0) {
+  if (
+    (entityResults && entityResults.length > 0) ||
+    (assetResults && assetResults.length > 0)
+  ) {
     return (
       <div className="w-full max-w-files h-full main-bg radius">
         {taskLoading || entityLoading ? (

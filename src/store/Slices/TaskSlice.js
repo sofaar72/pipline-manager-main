@@ -1,6 +1,7 @@
 // src/features/film/filmSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/AxiosInstance";
+import { toast } from "react-toastify";
 
 // FETCH TASK
 export const fetchTasks = createAsyncThunk(
@@ -12,6 +13,7 @@ export const fetchTasks = createAsyncThunk(
       const response = await axiosInstance.get(`/film/${id}/tasks`, {
         params: queryParams,
       });
+
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -38,16 +40,16 @@ export const fetchAssetsTasks = createAsyncThunk(
 
 // CREATE TASK
 export const createTask = createAsyncThunk("task/createTask", async (data) => {
-  console.log(data);
   try {
     const response = await axiosInstance.post(`/tasks/`, data);
-    console.log(response.status);
-    // if (response.status == 201) {
-    //   fetchTasks({ id: data.film_id });
-    // }
+
+    if (response.status == 201) {
+      toast.success("Task Created!");
+    }
     return response.data;
   } catch (error) {
     console.log("Error response:", error.response);
+    toast.error("something went wrong!");
     return thunkAPI.rejectWithValue(
       error.response?.data?.error || { error: "Server error" }
     );
@@ -110,12 +112,10 @@ const taskSlice = createSlice({
       .addCase(createTask.fulfilled, (state, action) => {
         state.createStatus.loading = false;
         state.createStatus.success = true;
-        console.log(action.payload);
-        state.tasks.results = action.payload; // Optionally update local task list
       })
       .addCase(createTask.rejected, (state, action) => {
         state.createStatus.loading = false;
-        state.createStatus.error = action.payload.error || "Unknown error";
+        // state.createStatus.error = action.payload.error || "Unknown error";
       });
   },
 });

@@ -9,16 +9,35 @@ import "swiper/css";
 import "swiper/css/navigation";
 import AddButton from "../golbals/Buttons/AddButton";
 import DownloadButton from "../golbals/Buttons/DownloadButton";
+import { useEntities } from "../../hooks/useEntities";
 
-const PreviewSlider = ({ slides, selectPrevImage }) => {
+const PreviewSlider = ({
+  slides,
+  selectPrevImage,
+  versionId = "",
+  taskId = "",
+}) => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const navigate = useNavigate();
   const { id } = useParams();
+  const { currentPage } = useEntities();
 
-  const handlePlay = () => {
-    navigate(`/task-manager/preview/`, { state: { id } });
+  const handlePlay = (videoUrl, media_id) => {
+    navigate(`/file-manager/preview/${versionId}`, {
+      state: {
+        id: id,
+        taskId: taskId,
+        versionId: versionId,
+        video: videoUrl,
+        fileId: media_id,
+      },
+    });
   };
+
+  // useEffect(() => {
+  //   console.log(slides);
+  // }, [slides]);
 
   return (
     <div className="relative w-full h-full">
@@ -35,18 +54,28 @@ const PreviewSlider = ({ slides, selectPrevImage }) => {
         }}
         onSlideChange={(swiper) => {
           selectPrevImage(slides[swiper.activeIndex]);
-          console.log("Current slide index:", swiper);
+          // console.log("Current slide index:", swiper);
         }}
         className="w-full h-full overflow-hidden"
       >
         {slides?.map((slide, i) => (
-          <SwiperSlide key={i}>
-            <div className="w-full h-full relative  ">
-              <img className="w-full h-full object-cover" src={slide} alt="" />
+          <SwiperSlide key={i} className="preview">
+            <div className="w-full h-full relative">
+              {slide?.type === "Video" ? (
+                <video src={slide.download_url}></video>
+              ) : (
+                <img
+                  className="w-full h-full object-cover"
+                  src={slide.download_url}
+                  alt=""
+                />
+              )}
               <div className=" cursor-pointer absolute flex items-center justify-center top-0 left-0 w-full h-full bg-black/50  opacity-0 hover:opacity-100 transition-opacity duration-300">
                 <div className="flex gap-2">
                   <button
-                    onClick={handlePlay}
+                    onClick={() =>
+                      handlePlay(slide.download_url, slide.media_id)
+                    }
                     className="w-[100px] h-[100px] bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer"
                   >
                     <FaPlay className="text-white text-2xl" />

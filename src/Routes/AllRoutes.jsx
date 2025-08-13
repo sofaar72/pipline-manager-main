@@ -25,6 +25,7 @@ import RegisterPage from "../pages/RegisterPage";
 import { EpisodeManagerProvider } from "../assets/context/EpisodeManagerContext";
 import NotFound from "../pages/NotFound";
 import UsersPage from "../pages/UsersPage";
+import TaskOverviewPage from "../pages/TaskOverviewPage";
 
 const AllRoutes = () => {
   return (
@@ -94,7 +95,8 @@ const AllRoutes = () => {
             path="/overview"
             element={
               <PrivateRoute>
-                <EmptyPage title="Overview Page" />
+                {/* <EmptyPage title="Overview Page" />  */}
+                <TaskOverviewPage />
               </PrivateRoute>
             }
           />
@@ -123,7 +125,7 @@ const AllRoutes = () => {
             }
           />
           <Route
-            path="/task-manager/production"
+            path="/file-manager/production"
             element={
               <PrivateRoute>
                 <ProductionTaskManager />
@@ -140,7 +142,7 @@ const AllRoutes = () => {
             />
           </Route>
           <Route
-            path="/task-manager/assets"
+            path="/file-manager/assets"
             element={
               <PrivateRoute>
                 <AssetsTaskManager />
@@ -158,7 +160,7 @@ const AllRoutes = () => {
           </Route>
 
           <Route
-            path="/task-manager/preview"
+            path="/file-manager/preview/:version_id"
             element={
               <PrivateRoute>
                 <PreviewPage />

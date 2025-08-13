@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const VersionItem = ({ version, activeVersion, selectVersion }) => {
   return (
@@ -19,9 +20,13 @@ const VersionItem = ({ version, activeVersion, selectVersion }) => {
       <div className="w-[1px] h-full bg-white/10"></div>
       {/* text part  */}
       <div className="w-fit h-full flex flex-col gap-[3px] justify-center ">
-        <span className="text-[11px] font-[300]">
-          Version {version?.version}
-        </span>
+        {version?.version == 0 ? (
+          <span className="text-[11px] font-[300]">Master Version</span>
+        ) : (
+          <span className="text-[11px] font-[300]">
+            Version {version?.version}
+          </span>
+        )}
         <span className="text-[9px] font-[300]">
           Assign to {version?.person?.first_name}
         </span>

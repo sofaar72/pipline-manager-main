@@ -25,6 +25,7 @@ const AnnotationCanvas = ({
   selectedColor,
   setSelectedColor,
   deleteAnnotations,
+  setAnnotationData = () => {},
 }) => {
   const [newShape, setNewShape] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -133,6 +134,7 @@ const AnnotationCanvas = ({
     };
 
     setAnnotations(updated);
+    setAnnotationData(updated);
     resetDraw();
   };
 
@@ -155,8 +157,8 @@ const AnnotationCanvas = ({
 
   return (
     <div
-      className={`absolute z-[60] top-0 left-0 w-full h-full ${
-        anotateable ? "pointer-events-auto" : "pointer-events-none"
+      className={`absolute z-[60] top-0 left-0 w-full h-full flex-1  ${
+        anotateable ? "pointer-events-auto" : "pointer-events-none "
       }`}
     >
       {/* annotation box  */}

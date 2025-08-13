@@ -37,7 +37,7 @@ export const createVersion = createAsyncThunk(
   async (data) => {
     console.log(data);
     try {
-      const response = await axiosInstance.post(`/versions/`, data);
+      const response = await axiosInstance.post(`/versions/publish/`, data);
       if (response.status === 201) {
         toast.success("Version created successfully");
       }

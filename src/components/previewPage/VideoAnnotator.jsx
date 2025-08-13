@@ -9,8 +9,13 @@ import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import VideoTools from "./VideoTools";
 import Loading from "../golbals/Loading";
 import AnnotationCanvas from "./AnnotationCanvas";
+import VideoPlayer from "./VideoPlayer";
 
-export const VideoAnnotator = () => {
+export const VideoAnnotator = ({
+  annotationData,
+  setAnnotationData,
+  videoUrl,
+}) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [thumbnails, setThumbnails] = useState([]);
@@ -18,8 +23,9 @@ export const VideoAnnotator = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [annotations, setAnnotations] = useState({}); // { time: [shapes] }
   const [anotateable, setAnotateable] = useState(false);
-  const [selectedTool, setSelectedTool] = useState("rectangle");
+  const [selectedTool, setSelectedTool] = useState("pen");
   const [selectedColor, setSelectedColor] = useState("red");
+
   // extract video frames
   // useEffect(() => {
   //   const extractFrames = async () => {
@@ -72,63 +78,66 @@ export const VideoAnnotator = () => {
   };
 
   useEffect(() => {
-    const extractFrames = async () => {
+    if (videoUrl) {
+      const extractFrames = async () => {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        if (!video || !canvas) return;
+
+        const context = canvas.getContext("2d");
+        const fps = 25;
+        const frameInterval = 1 / fps;
+        const newThumbnails = [];
+
+        const captureFrameAt = (time) => {
+          return new Promise((resolve) => {
+            const onSeeked = () => {
+              context.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const dataURL = canvas.toDataURL("image/png");
+              console.log("test");
+              newThumbnails.push({ time, image: dataURL });
+              video.removeEventListener("seeked", onSeeked);
+              resolve();
+            };
+
+            video.addEventListener("seeked", onSeeked);
+            video.currentTime = time;
+          });
+        };
+
+        video.pause();
+
+        const waitForMetadata = () =>
+          new Promise((resolve) => {
+            if (video.readyState >= 1) {
+              resolve();
+            } else {
+              video.addEventListener("loadedmetadata", resolve, { once: true });
+            }
+          });
+
+        await waitForMetadata();
+
+        const duration = video.duration;
+        const totalFrames = Math.floor(duration * fps);
+
+        for (let i = 0; i <= totalFrames; i++) {
+          const time = i * frameInterval;
+          await captureFrameAt(time);
+        }
+
+        setThumbnails(newThumbnails);
+      };
+
       const video = videoRef.current;
-      const canvas = canvasRef.current;
-      if (!video || !canvas) return;
-
-      const context = canvas.getContext("2d");
-      const fps = 25;
-      const frameInterval = 1 / fps;
-      const newThumbnails = [];
-
-      const captureFrameAt = (time) => {
-        return new Promise((resolve) => {
-          const onSeeked = () => {
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataURL = canvas.toDataURL("image/png");
-            newThumbnails.push({ time, image: dataURL });
-            video.removeEventListener("seeked", onSeeked);
-            resolve();
-          };
-
-          video.addEventListener("seeked", onSeeked);
-          video.currentTime = time;
-        });
-      };
-
-      video.pause();
-
-      const waitForMetadata = () =>
-        new Promise((resolve) => {
-          if (video.readyState >= 1) {
-            resolve();
-          } else {
-            video.addEventListener("loadedmetadata", resolve, { once: true });
-          }
-        });
-
-      await waitForMetadata();
-
-      const duration = video.duration;
-      const totalFrames = Math.floor(duration * fps);
-
-      for (let i = 0; i <= totalFrames; i++) {
-        const time = i * frameInterval;
-        await captureFrameAt(time);
+      if (video) {
+        video.addEventListener("loadedmetadata", extractFrames);
+        return () => {
+          video.removeEventListener("loadedmetadata", extractFrames);
+        };
       }
-
-      setThumbnails(newThumbnails);
-    };
-
-    const video = videoRef.current;
-    if (video) {
-      video.addEventListener("loadedmetadata", extractFrames);
-      return () => {
-        video.removeEventListener("loadedmetadata", extractFrames);
-      };
     }
-  }, []);
+  }, [videoUrl]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -222,28 +231,6 @@ export const VideoAnnotator = () => {
   //   return () => clearInterval(interval);
   // }, []);
 
-  // Pause handler to trigger annotation
-  const handlePause = () => {
-    setIsPaused(true);
-  };
-
-  const handlePlay = () => {
-    setIsPaused(false);
-  };
-
-  const pauseOrPlay = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.paused) {
-      video.play();
-      handlePlay();
-    } else {
-      video.pause();
-      handlePause();
-    }
-  };
-
   const activateAnotate = (e) => {
     setAnotateable(true);
   };
@@ -251,6 +238,7 @@ export const VideoAnnotator = () => {
   return (
     <>
       {/* preview video */}
+
       <div className="w-full h-full flex-1 bg-gray-500/50 radius overflow-hidden relative">
         {/* play/pause icon overlay */}
 
@@ -267,48 +255,29 @@ export const VideoAnnotator = () => {
             selectedColor={selectedColor}
             setSelectedColor={setSelectedColor}
             deleteAnnotations={deleteAnnotations}
+            setAnnotationData={setAnnotationData}
           />
         )}
 
-        {!anotateable && (
-          <div
-            className="absolute z-[50] top-0 left-0 w-full h-full flex items-center justify-center cursor-pointer z-10"
-            onClick={pauseOrPlay}
-          >
-            {isPaused ? (
-              <div className="w-[100px] h-[100px] flex items-center justify-center bg-white/20 rounded-full">
-                <FaPlay className="text-white text-3xl opacity-100 hover:scale-110 transition" />
-              </div>
-            ) : (
-              <div className="w-[100px] h-[100px] flex items-center justify-center bg-white/20 rounded-full">
-                <FaPause className="text-white text-3xl opacity-100 hover:scale-110 transition" />
-              </div>
-            )}
-          </div>
-        )}
-
-        <video
-          ref={videoRef}
-          src="/videos/sample2.mp4"
-          className="w-full h-full object-cover"
-          autoPlay
-          loop
-          muted
-          onPause={handlePause}
-          onPlay={handlePlay}
-          // controls
+        <VideoPlayer
+          ref={videoRef} // ✅ Pass ref here
+          videoUrl={videoUrl}
+          anotateable={anotateable}
+          isPaused={isPaused}
+          setIsPaused={setIsPaused}
         />
+
         {/* hidden canvas  */}
         <canvas
           ref={canvasRef}
-          width={320}
+          width={1000}
           height={180}
           style={{ display: "none" }}
         />
 
         {/* rendering frame thumbnails  */}
-        <div className="bottom-0 absolute z-[90] w-full h-[80px] flex overflow-x-auto mt-2 gap-2 p-2 bg-[#13121D]">
-          {thumbnails.length > 0 ? (
+        <div className="bottom-0 absolute z-[90] w-full h-[60px] flex overflow-x-auto mt-2 gap-2 p-2 bg-[#13121D]">
+          {
             thumbnails.map((thumb, index) => {
               const isSelected = currentTime === thumb.time;
               // console.log(thumb.time);
@@ -333,11 +302,11 @@ export const VideoAnnotator = () => {
                 />
               );
             })
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Loading />
-            </div>
-          )}
+
+            // <div className="w-full h-full flex items-center justify-center">
+            //   <Loading />
+            // </div>
+          }
         </div>
 
         {/* anotatable controll  */}
@@ -346,7 +315,6 @@ export const VideoAnnotator = () => {
           className="absolute z-[90] top-0 left-0 cursor-pointer p-2 bg-black/50 text-white"
           onClick={() => {
             setAnotateable(!anotateable);
-            // pauseOrPlay();
           }}
         >
           {anotateable ? "🖌️ Annotation Mode ON" : "🎬 View Mode"}

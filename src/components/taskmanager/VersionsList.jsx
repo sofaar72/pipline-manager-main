@@ -6,6 +6,7 @@ import VersionItem from "../golbals/VersionItem";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 import GlobalModal from "../golbals/GlobalModal";
 import CreateVersionForm from "./CreateVersionForm";
+import { useLocation } from "react-router-dom";
 
 const VersionsList = ({ activeVersion, selectVersion }) => {
   const { versionResults, versionLoading } = useVersions();
@@ -39,7 +40,7 @@ const VersionsList = ({ activeVersion, selectVersion }) => {
             return (
               <>
                 <div
-                  className="w-full h-[600px] flex items-center justify-center   text-white max-w-[500px] "
+                  className="w-full h-[700px] flex items-center justify-center   text-white max-w-[500px] "
                   onClick={(e) => e.stopPropagation()}
                 >
                   <CreateVersionForm
@@ -61,16 +62,45 @@ const VersionsList = ({ activeVersion, selectVersion }) => {
           </div>
         ) : Array.isArray(versionResults?.versions) &&
           versionResults.versions.length > 0 ? (
-          versionResults.versions.map((version) => (
-            <VersionItem
-              key={version.id}
-              version={version}
-              activeVersion={activeVersion === version.id}
-              selectVersion={selectVersion}
-            />
-          ))
+          // show version 0
+
+          <>
+            {versionResults.versions.filter(
+              (version) => version.version == 0
+            )[0] && (
+              <VersionItem
+                version={
+                  versionResults.versions.filter(
+                    (version) => version.version == 0
+                  )[0]
+                }
+                activeVersion={
+                  activeVersion ===
+                  versionResults.versions.filter(
+                    (version) => version.version == 0
+                  )[0]?.id
+                }
+                selectVersion={selectVersion}
+              />
+            )}
+
+            {versionResults.versions.map((version) => (
+              <>
+                {version.version !== 0 && (
+                  <VersionItem
+                    key={version.id}
+                    version={version}
+                    activeVersion={activeVersion === version.id}
+                    selectVersion={selectVersion}
+                  />
+                )}
+              </>
+            ))}
+          </>
         ) : (
-          <div className="w-full text-white text-sm">Something went wrong</div>
+          <div className="w-full text-white text-sm flex items-center justify-center">
+            There is no Version created yet!
+          </div>
         )}
       </div>
     </div>

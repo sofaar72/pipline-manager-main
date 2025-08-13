@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 
-const AssigneeUser = ({ assignee, assignees, setAssignees, setOpenAssign }) => {
+const AssigneeUser = ({ assignee, setAssignees }) => {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     if (checked) {
       // ✅ Add if not already in list
       setAssignees((prev) => {
-        if (!prev.find((a) => a.id === assignee.id)) {
+        if (!prev.find((a) => a.first_name === assignee.first_name)) {
           return [...prev, assignee];
         }
         return prev;
       });
     } else {
       // ❌ Remove from list
-      setAssignees((prev) => prev.filter((a) => a.id !== assignee.id));
+      setAssignees((prev) =>
+        prev.filter((a) => a.first_name !== assignee.first_name)
+      );
     }
   }, [checked, assignee, setAssignees]);
 
@@ -42,7 +44,7 @@ const AssigneeUser = ({ assignee, assignees, setAssignees, setOpenAssign }) => {
       </div>
       <img
         className="cursor-pointer border w-full h-full  border-white/80 rounded-full "
-        src="/images/sidebar-avatar.png"
+        src={assignee?.avatar}
         alt=""
       />
     </div>

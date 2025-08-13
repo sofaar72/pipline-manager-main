@@ -5,7 +5,9 @@ import { createProject, getProjects } from "../store/Slices/ProjectsSlice";
 
 export const useProject = () => {
   const dispatch = useDispatch();
-  const { createdProject, projects } = useSelector((state) => state.project);
+  const { createdProject, projects, selectedProject } = useSelector(
+    (state) => state.project
+  );
   const {
     data: createdProjectData,
     success: createdProjectSuccess,
@@ -43,5 +45,6 @@ export const useProject = () => {
     projectsMessage,
     projectsLoading,
     projectsError,
+    selectedProject,
   };
 };

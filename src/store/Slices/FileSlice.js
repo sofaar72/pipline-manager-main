@@ -18,7 +18,7 @@ export const fetchFiles = createAsyncThunk(
 
 export const uploadFileToServer = createAsyncThunk(
   "file/uploadFileToServer",
-  async ({ file }, thunkAPI) => {
+  async ({ file, version }, thunkAPI) => {
     try {
       console.log(file);
 

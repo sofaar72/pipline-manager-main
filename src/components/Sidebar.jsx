@@ -17,16 +17,18 @@ import { IoMdSettings } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
 import SidebarDropdown from "./SidebarDropdown";
 import { useUser } from "../hooks/useUser";
-import { useEntities } from "../hooks/useEntities";
+
 import CdropDown from "./golbals/CDropDown";
 import { useSelector, useDispatch } from "react-redux";
 import { selectProject } from "../store/Slices/ProjectsSlice";
 import { useProject } from "../hooks/useProject";
+import { useEntities } from "../hooks/useEntities";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [toggleTask, setToggleTask] = useState(false);
+  const { setCurrentPage, entityResults, currentPage } = useEntities({});
 
   const project = useSelector((state) => state.project);
 
@@ -44,10 +46,10 @@ const Sidebar = () => {
       navigate("/login");
     });
   };
-  const { entityResults } = useEntities();
 
   const selectProjectItem = (proj) => {
     dispatch(selectProject(proj));
+    setCurrentPage(1);
   };
 
   const { getAllProjects, projectsData } = useProject();
@@ -55,6 +57,10 @@ const Sidebar = () => {
   useEffect(() => {
     getAllProjects();
   }, []);
+
+  useEffect(() => {
+    console.log(currentPage);
+  }, [currentPage]);
 
   return (
     <div
@@ -279,16 +285,16 @@ const Sidebar = () => {
               ]}
             />
             <SidebarDropdown
-              label="Task Manager"
+              label="File Manager"
               links={[
                 {
                   label: "Production",
                   to:
                     entityResults && entityResults.length > 0
-                      ? `/task-manager/production/${entityResults[0]?.id}`
-                      : "/task-manager/production",
+                      ? `/file-manager/production/${entityResults[0]?.id}`
+                      : "/file-manager/production",
                 },
-                { label: "Assets", to: "/task-manager/assets" },
+                { label: "Assets", to: "/file-manager/assets" },
               ]}
             />
             <NavLink

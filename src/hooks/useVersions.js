@@ -6,6 +6,7 @@ import {
   fetchVersionPreview,
 } from "../store/Slices/VersionsSlice";
 import { createVersion } from "../store/Slices/VersionsSlice";
+import { useTasks } from "./useTasks";
 
 export const useVersions = () => {
   const dispatch = useDispatch();
@@ -34,13 +35,22 @@ export const useVersions = () => {
   };
 
   const fetchSingleVersionPreview = (versionId) => {
-    // console.log(versionId);
-    dispatch(fetchVersionPreview({ id: versionId }));
+    if (versionId) {
+      // console.log(versionId);
+      dispatch(fetchVersionPreview({ id: versionId }));
+    }
     setActiveVersion(versionId);
   };
 
-  const createNewVersion = (data) => {
-    dispatch(createVersion(data));
+  const createNewVersion = async (data, closeModal = () => {}) => {
+    dispatch(createVersion(data)).then((res) => {
+      if (res.payload) {
+        // setTimeout(() => {
+        //   // closeModal();
+        //   fetchSingleVersionPreview(res.payload.id);
+        // }, 1000);
+      }
+    });
   };
 
   return {

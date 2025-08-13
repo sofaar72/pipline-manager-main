@@ -64,3 +64,19 @@ export const usecreateProjectSchema = () => {
 
   return { formSchema };
 };
+
+export const useEntityFormSchema = () => {
+  let formSchema = yup.object().shape({
+    entity_name: yup.string().required("This field may not be blank"),
+    project: yup.string().required("This field may not be blank"),
+    type: yup.string().required("This field may not be blank"),
+    location: yup.string().required("This field may not be blank"),
+  });
+
+  // check validity
+  //   formSchema.isValid().then(function (valid) {
+  //     valid; // => true
+  //   });
+
+  return { formSchema };
+};

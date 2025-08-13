@@ -11,6 +11,7 @@ import CDropDown from "../golbals/CDropDown";
 import CdropDownNoBg from "../golbals/CdropDownNoBg";
 import UploadFileForm from "./UploadFileForm";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
+import { useLocation } from "react-router-dom";
 
 const CreateOnlyFile = ({
   bgColor = "form-bg",
@@ -18,6 +19,7 @@ const CreateOnlyFile = ({
   titleSize = "text-[14px]",
   submit,
   setOpen = () => {},
+  version,
 }) => {
   const { dataType } = useEpisodeManagerContext();
   const [selectedTask, setSelectedTask] = useState({});
@@ -49,7 +51,7 @@ const CreateOnlyFile = ({
         {title}
       </h2>
 
-      <UploadFileForm />
+      <UploadFileForm versionId={version?.id} />
     </div>
   );
 };

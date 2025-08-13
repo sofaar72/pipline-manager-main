@@ -40,6 +40,7 @@ const CreateVersionForm = ({
   const [versionFiles, setVersionFiles] = useState([]);
   const initialValues = {
     taskId: taskId || "", // default empty or pre-filled
+    note: "",
     // files: selectedFile ? [selectedFile] : [],
   };
 
@@ -47,10 +48,13 @@ const CreateVersionForm = ({
     const data = {
       task: taskId,
       files: versionFiles,
+      note: taskData.note,
+      // versionId,
     };
+    // console.log(data);
 
     if (versionFiles.length > 0) {
-      createNewVersion(data);
+      createNewVersion(data, setOpen);
       // setOpen(false);
     } else {
       toast.error("Please upload files");
@@ -62,10 +66,6 @@ const CreateVersionForm = ({
   useEffect(() => {
     dispatch(fetchFiles());
   }, []);
-
-  useEffect(() => {
-    console.log(createVersionLoading);
-  }, [createVersionLoading]);
 
   useEffect(() => {
     console.log(versionFiles);
@@ -98,7 +98,15 @@ const CreateVersionForm = ({
                 <span>Task ID :</span>
                 <span>{values.taskId}</span>
               </div>
-
+              <FormInputC
+                name="note"
+                type="text"
+                placeholder="Note"
+                formValue={values.note}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                error={""}
+              />
               <VersionsFileTogglerBox
                 versionFiles={versionFiles}
                 setVersionFiles={setVersionFiles}
@@ -106,7 +114,7 @@ const CreateVersionForm = ({
                 filesLoading={filesLoading}
               />
               <CbuttonOne
-                height="h-[40px]"
+                height="h-[40px] shrink-0"
                 color="var(--primary-color-lowest)"
                 type="submit"
                 loading={createVersionLoading}
