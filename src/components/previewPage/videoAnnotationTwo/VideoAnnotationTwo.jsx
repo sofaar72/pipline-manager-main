@@ -7,7 +7,7 @@ import FrameTimeline from "./FrameTimeline";
 import AnnotatorStage from "./AnnotatorStage";
 import { useStage } from "../../../hooks/annotationHooks/useStage";
 
-const VideoAnnotation = () => {
+const VideoAnnotationTwo = () => {
   const {
     videoRef,
     frames,
@@ -79,9 +79,8 @@ const VideoAnnotation = () => {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-[740px] overflow-hidden radius shrink-0">
-      {/* <SandboxStage /> */}
-      <div className="w-full h-[600px] relative shrink-0">
+    <div className="w-full h-full overflow-hidden radius shrink-0">
+      <div className="w-full h-full relative shrink-0">
         {/* video part  */}
         <div className="absolute top-0 left-0 w-full h-full radius overflow-hidden z-[1] shrink-0">
           <VideoPart
@@ -93,7 +92,7 @@ const VideoAnnotation = () => {
             isLoope={isLoope}
           />
         </div>
-        {previewFrame && (
+        {/* {previewFrame && (
           <div className="absolute  top-[40px] right-[20px] z-[999] pointer-events-none">
             <img
               src={previewFrame}
@@ -101,7 +100,7 @@ const VideoAnnotation = () => {
               className="w-[100px] h-[50px] object-cover border border-white/30 rounded"
             />
           </div>
-        )}
+        )} */}
 
         {/* annotation stages  */}
         <div
@@ -161,4 +160,4 @@ const VideoAnnotation = () => {
   );
 };
 
-export default VideoAnnotation;
+export default VideoAnnotationTwo;

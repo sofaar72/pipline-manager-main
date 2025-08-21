@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useStage(frame) {
+export function useStage({ frame, color }) {
   const [stageSize, setStageSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -12,6 +12,11 @@ export function useStage(frame) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [selection, setSelection] = useState(null);
   const [isSelecting, setIsSelecting] = useState(false);
+
+  const [initialSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,9 +34,21 @@ export function useStage(frame) {
   const setCurrentFrameLines = (updater) => {
     setLines((prev) => {
       const prevFrameLines = prev[frame] || [];
+
+      // Run the updater on the previous frame lines
       const newFrameLines =
         typeof updater === "function" ? updater(prevFrameLines) : updater;
-      return { ...prev, [frame]: newFrameLines };
+
+      // If a new line was added, assign stroke only to that new line
+      const updatedLines = newFrameLines.map((line, i) => {
+        if (!prevFrameLines[i]) {
+          // this is a new line
+          return { ...line, stroke: color };
+        }
+        return line; // keep old one as is
+      });
+
+      return { ...prev, [frame]: updatedLines };
     });
   };
 
@@ -194,6 +211,7 @@ export function useStage(frame) {
 
   return {
     stageSize,
+    allLines: lines,
     lines: currentFrameLines, // so UI still works with `lines`
     setLines: setCurrentFrameLines, // so UI still works with `setLines`
     mode,
@@ -209,5 +227,6 @@ export function useStage(frame) {
     getLineBBox,
     handleDelete,
     deselectId,
+    initialSize,
   };
 }

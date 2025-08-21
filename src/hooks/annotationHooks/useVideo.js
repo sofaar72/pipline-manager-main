@@ -13,6 +13,8 @@ export const useVideo = () => {
   const [selectedFrameIndex, setSelectedFrameIndex] = useState(null);
   const [videoFps, setVideoFps] = useState(25); // default fallback
   const [previewFrame, setPreviewFrame] = useState(null);
+  const [strokeColor, setStrokeColor] = useState("red");
+  const [aspectRatio, setAspectRatio] = useState(null);
 
   const handleDragFrame = (index) => {
     setSelectedFrameIndex(index);
@@ -172,5 +174,9 @@ export const useVideo = () => {
     previewFrame,
     pauseTheVideo,
     toggleFullscreen,
+    setStrokeColor,
+    strokeColor,
+    aspectRatio,
+    setAspectRatio,
   };
 };

@@ -4,7 +4,7 @@ import { useStage } from "../../../hooks/annotationHooks/useStage";
 import Annotations from "./Annotations";
 import SamplePen from "./SamplePen";
 
-export default function SandboxStage({
+export default function AnnotatorStage({
   stageSize,
   lines,
   setSelectedIds,
@@ -20,6 +20,8 @@ export default function SandboxStage({
   mode,
   setMode,
   selectedIds,
+  strokeColor,
+  initialSize,
 }) {
   return (
     <div>
@@ -31,7 +33,9 @@ export default function SandboxStage({
         onMouseUp={handleMouseUp}
         // onContextMenu={(e) => e.evt.preventDefault()}
         style={{
+          // background: "blue",
           cursor: mode === "draw" ? "crosshair" : "default",
+          overflow: "hidden",
           // background: "white",
         }}
       >
@@ -46,6 +50,7 @@ export default function SandboxStage({
             handleDragEnd={handleDragEnd}
             onDelete={handleDelete}
             deselectId={deselectId}
+            strokeColor={strokeColor}
           />
           {/* <SamplePen
             selectedIds={selectedIds}

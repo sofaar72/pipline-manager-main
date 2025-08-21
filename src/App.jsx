@@ -3,6 +3,7 @@ import "./App.css";
 import "./assets/styles/createproject.css";
 import "./assets/styles/selectproject.css";
 import "./assets/styles/ag_grid.css";
+import "./assets/styles/overview.css";
 import AllRoutes from "./Routes/AllRoutes";
 import { EpisodeManagerProvider } from "./assets/context/EpisodeManagerContext";
 import { TusClientProvider } from "use-tus";
