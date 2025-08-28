@@ -1,7 +1,12 @@
 // hooks/useEntities.js
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteFilm, editFilm, fetchFilms } from "../store/Slices/FilmSlice";
+import {
+  deleteFilm,
+  editFilm,
+  fetchFilmEpisode,
+  fetchFilms,
+} from "../store/Slices/FilmSlice";
 import { useTasks } from "./useTasks";
 import { useNavigate } from "react-router-dom";
 import { createFilm } from "../store/Slices/FilmSlice";
@@ -78,6 +83,19 @@ export const useEntities = () => {
     }
   };
 
+  const fetchEpisodes = () => {
+    const project = localStorage.getItem("project_id");
+    if (project) {
+      dispatch(
+        fetchFilmEpisode({
+          project: project,
+          type: "EP",
+          page_size: "100",
+        })
+      );
+    }
+  };
+
   const navigateToDefaultEntity = () => {
     if (results && results.length > 0) {
       navigate(`/file-manager/production/${results[0].id}`);
@@ -149,5 +167,6 @@ export const useEntities = () => {
     editResults,
     editLoading,
     editError,
+    fetchEpisodes,
   };
 };

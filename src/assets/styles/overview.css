@@ -1,6 +1,34 @@
 * {
+  --overview-color-bg: #13121d;
+  --overview-color-one: #242433;
+  --overview-color-two: #333248;
+  --overview-color-three: #666483;
+  --overview-color-four: #8482a5;
+  --overview-color-select: #7d4e43;
+  --overview-color-todo: #3f8bff;
+  --overview-color-progress: #f48404;
+  --overview-color-faild: #f42004;
+  --overview-color-done: #03c99b;
+
   --color-purple-four: #181520;
   --color-purple-three: #2d1c57;
   --color-purple-normal: #6745b8;
   --color-purple-normal-light: #a680ff;
+}
+
+/* TYPLOGRAPHY  */
+.h-xs {
+  font-size: 6px;
+}
+.h-small {
+  font-size: 8px;
+}
+.h-regular {
+  font-size: 10px;
+}
+.h-lg {
+  font-size: 12px;
+}
+.h-xl {
+  font-size: 14px;
 }

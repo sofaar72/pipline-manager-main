@@ -26,7 +26,7 @@ import { useEntities } from "../hooks/useEntities";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [toggleTask, setToggleTask] = useState(false);
   const { setCurrentPage, entityResults, currentPage } = useEntities({});
 
@@ -70,6 +70,15 @@ const Sidebar = () => {
     >
       {/* side collapse  */}
       <div className="w-[68px] h-full bg-[#262437] flex flex-col items-center py-[75px] gap-[25px] px-[13px] absolute top-0 left-0 z-10 h-[121px]">
+        {/* collapse icon  */}
+        <div
+          className={`w-[24px] h-[24px] absolute right-1/2 translate-x-1/2 top-[14px] cursor-pointer transition-2 ${
+            isCollapsed ? "rotate-180" : "rotate-0"
+          }`}
+          onClick={toggleCollapse}
+        >
+          <img className="w-full h-full" src="/icons/Outdent.svg" alt="" />
+        </div>
         {/* image part  */}
         <div className="w-full h-[121px] shrink-0 border-b border-white/20">
           <div className="w-[42px] h-[42px] overflow-hidden p-[2px] rounded-full bg-white ">
@@ -83,38 +92,38 @@ const Sidebar = () => {
         {/* icons  */}
 
         <div className="w-full h-full  flex-1 flex flex-col items-center gap-[25px] text-white ">
-          <div
+          <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            // to={"/dashboard"}
+            to={"/dashboard"}
           >
             <FaHome className="w-full h-full" />
-          </div>
-          <div
+          </NavLink>
+          <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            // to={"/users"}
+            to={"/users"}
           >
             <FaUserGroup className="w-full h-full" />
-          </div>
-          <div
+          </NavLink>
+          <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            // to={"/productivity"}
+            to={"/productivity"}
           >
             <AiFillProduct className="w-full h-full" />
-          </div>
-          <div
+          </NavLink>
+          <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            // to={"/overview"}
+            to={"/overview"}
           >
             <GrOverview className="w-full h-full" />
-          </div>
+          </NavLink>
           <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
@@ -181,15 +190,6 @@ const Sidebar = () => {
       <div
         className={`w-[191px] h-full p-[14px]   py-[75px]  flex flex-col gap-[25px] bg-side  right-0 absolute z- transition-all duration-200 border-l border-white/20`}
       >
-        {/* collapse icon  */}
-        <div
-          className={`w-[24px] h-[24px] absolute -right-[40px] top-[14px] cursor-pointer transition-2 ${
-            isCollapsed ? "rotate-180" : "rotate-0"
-          }`}
-          onClick={toggleCollapse}
-        >
-          <img className="w-full h-full" src="/icons/Outdent.svg" alt="" />
-        </div>
         {/* top part  */}
         <div className="w-full  h-[121px]  text-white flex flex-col gap-y-[10px] justify-between border-b border-white/50">
           <div className="w-full flex">

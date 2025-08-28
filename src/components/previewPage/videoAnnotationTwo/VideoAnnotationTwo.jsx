@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { forwardRef, useEffect } from "react";
 
 import VideoPart from "./VideoPart";
 import { useVideo } from "../../../hooks/annotationHooks/useVideo";
@@ -7,7 +7,7 @@ import FrameTimeline from "./FrameTimeline";
 import AnnotatorStage from "./AnnotatorStage";
 import { useStage } from "../../../hooks/annotationHooks/useStage";
 
-const VideoAnnotationTwo = () => {
+const VideoAnnotationTwo = ({ width, height, aspectRatio }) => {
   const {
     videoRef,
     frames,
@@ -31,7 +31,7 @@ const VideoAnnotationTwo = () => {
   } = useVideo();
 
   const {
-    stageSize,
+    // stageSize,
     lines,
     allLines,
     setSelectedIds,
@@ -81,27 +81,6 @@ const VideoAnnotationTwo = () => {
   return (
     <div className="w-full h-full overflow-hidden radius shrink-0">
       <div className="w-full h-full relative shrink-0">
-        {/* video part  */}
-        <div className="absolute top-0 left-0 w-full h-full radius overflow-hidden z-[1] shrink-0">
-          <VideoPart
-            ref={videoRef}
-            videoUrl={""}
-            previewFrame={previewFrame}
-            isMuted={isMuted}
-            isPlaying={isPlaying}
-            isLoope={isLoope}
-          />
-        </div>
-        {/* {previewFrame && (
-          <div className="absolute  top-[40px] right-[20px] z-[999] pointer-events-none">
-            <img
-              src={previewFrame}
-              alt="selected preview"
-              className="w-[100px] h-[50px] object-cover border border-white/30 rounded"
-            />
-          </div>
-        )} */}
-
         {/* annotation stages  */}
         <div
           id="annotation-container"
@@ -124,14 +103,18 @@ const VideoAnnotationTwo = () => {
             deselectId={deselectId}
             selectedIds={selectedIds}
             strokeColor={strokeColor}
-            stageSize={stageSize}
+            stageSize={{
+              width: width,
+              height: height,
+              aspectRatio: aspectRatio,
+            }}
             initialSize={initialSize}
           />
         </div>
       </div>
 
       {/* video controls  */}
-      <div className="w-full h-[85px] bg-black  overflow-hidden flex flex-col gap-[10px]">
+      {/* <div className="w-full h-[85px] bg-black  overflow-hidden flex flex-col gap-[10px]">
         <FrameTimeline
           frames={frames}
           selectedFrameIndex={selectedFrameIndex}
@@ -155,7 +138,7 @@ const VideoAnnotationTwo = () => {
           strokeColor={strokeColor}
           setStrokeColor={setStrokeColor}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

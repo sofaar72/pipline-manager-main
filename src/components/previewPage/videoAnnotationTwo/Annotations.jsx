@@ -12,6 +12,7 @@ export default function Annotations({
   onDelete,
   deselectId,
   strokeColor,
+  scale,
 }) {
   // Keyboard delete support
   useEffect(() => {
@@ -124,6 +125,8 @@ export default function Annotations({
             tension={0.5}
             lineCap="round"
             lineJoin="round"
+            // scaleX={scale.x}
+            // scaleY={scale.y}
           />
         );
       })}

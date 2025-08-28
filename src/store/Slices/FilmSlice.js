@@ -19,6 +19,23 @@ export const fetchFilms = createAsyncThunk(
     }
   }
 );
+
+export const fetchFilmEpisode = createAsyncThunk(
+  "film/fetchFilmEpisode",
+  async (queryParams, thunkAPI) => {
+    try {
+      // Simulate 2-second delay
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const response = await axiosInstance.get("/film/", {
+        params: queryParams,
+      });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 export const createFilm = createAsyncThunk(
   "film/createFilm",
   async (data, thunkAPI) => {
@@ -84,6 +101,11 @@ const filmSlice = createSlice({
       results: [],
       total: null,
     },
+    episodes: {
+      loading: false,
+      error: false,
+      results: [],
+    },
     loading: false,
     error: null,
     createFilm: {
@@ -119,6 +141,21 @@ const filmSlice = createSlice({
       .addCase(fetchFilms.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      });
+    builder
+      // episode
+      .addCase(fetchFilmEpisode.pending, (state) => {
+        state.episodes.loading = true;
+        state.episodes.error = null;
+      })
+      .addCase(fetchFilmEpisode.fulfilled, (state, action) => {
+        // console.log(action.payload);
+        state.episodes.loading = false;
+        state.episodes = action.payload;
+      })
+      .addCase(fetchFilmEpisode.rejected, (state, action) => {
+        state.episodes.loading = false;
+        state.episodes.error = action.payload;
       });
     builder
       // create film
