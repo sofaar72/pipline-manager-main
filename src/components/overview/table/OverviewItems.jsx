@@ -4,6 +4,8 @@ import GroupTitle from "./GroupTitle";
 
 const OverviewItems = ({
   handleShowPrev,
+  activeTask,
+  setActiveTask,
   selectedId,
   groupId,
   grouped,
@@ -14,12 +16,18 @@ const OverviewItems = ({
   flexRender,
   tableItemsSize,
   tableItems,
+  editMode,
+  taskHandleMouseDown,
+  taskHandleMouseEnter,
+  taskHandleMouseUp,
+  isTaskSelected,
+  setAddressbar,
 }) => {
   return (
     <div className="divide-y divide-gray-800 flex flex-col gap-2">
       {grouped.map((g, gIndex) => (
         <>
-          {console.log(g)}
+          {/* {console.log(g)} */}
           <div key={g.groupName}>
             <GroupTitle
               group={g}
@@ -36,6 +44,8 @@ const OverviewItems = ({
                     <OverviewItem
                       key={i}
                       handleShowPrev={handleShowPrev}
+                      activeTask={activeTask}
+                      setActiveTask={setActiveTask}
                       id={i}
                       groupId={gIndex}
                       isSelected={selectedId == i && groupId == gIndex}
@@ -44,6 +54,12 @@ const OverviewItems = ({
                       flexRender={flexRender}
                       gridTemplateColumns={gridTemplateColumns}
                       tableItemsSize={tableItemsSize}
+                      editMode={editMode}
+                      taskHandleMouseDown={taskHandleMouseDown}
+                      taskHandleMouseEnter={taskHandleMouseEnter}
+                      taskHandleMouseUp={taskHandleMouseUp}
+                      isTaskSelected={isTaskSelected}
+                      setAddressbar={setAddressbar}
                     />
                   );
                 })}

@@ -9,6 +9,7 @@ export const useOverview = () => {
   const dispatch = useDispatch();
   const { getAllProjects } = useProject();
   const { fetchEpisodes } = useEntities();
+  const [addressbar, setAddressbar] = useState("");
 
   // table controls
   const [tableItemsSize, setTableItemsSize] = useState(false);
@@ -89,5 +90,7 @@ export const useOverview = () => {
     setShowAssignees,
     setSelectedEntType,
     selectedEntType,
+    addressbar,
+    setAddressbar,
   };
 };

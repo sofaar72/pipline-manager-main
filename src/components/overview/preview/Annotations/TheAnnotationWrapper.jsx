@@ -26,8 +26,9 @@ const TheAnnotationWrapper = ({ previewWidth }) => {
     drawing,
     toggleDrawing,
     setDrawing,
-    eraising,
-    toggleEraising,
+    selecting,
+    setSelecting,
+    toggleSelecting,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -39,6 +40,9 @@ const TheAnnotationWrapper = ({ previewWidth }) => {
     handleMouseDownDrag,
     handleMouseMoveDrag,
     handleMouseUpDrag,
+    selectionRect,
+    updateShape,
+    deleteSelectedShapes,
   } = useStageControl({
     containerRef: videoRef,
     frames: frames,
@@ -49,6 +53,7 @@ const TheAnnotationWrapper = ({ previewWidth }) => {
   useEffect(() => {
     pauseTheVideo();
     setDrawing(false);
+    setSelecting(false);
     if (previewWidth < 550) {
       changeHeight();
     } else {
@@ -78,6 +83,11 @@ const TheAnnotationWrapper = ({ previewWidth }) => {
           handleMouseUp={handleMouseUp}
           annotations={annotations}
           currentFrameIndex={currentFrameIndex}
+          drawing={drawing}
+          selectionRect={selectionRect}
+          selecting={selecting}
+          updateShape={updateShape}
+          deleteSelectedShapes={deleteSelectedShapes}
         />
       </div>
       {previewWidth >= 550 && (
@@ -103,8 +113,8 @@ const TheAnnotationWrapper = ({ previewWidth }) => {
             // for annotation
             drawing={drawing}
             toggleDrawing={toggleDrawing}
-            eraising={eraising}
-            toggleEraising={toggleEraising}
+            selecting={selecting}
+            toggleSelecting={toggleSelecting}
           />
         </div>
       )}

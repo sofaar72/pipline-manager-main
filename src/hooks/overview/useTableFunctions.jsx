@@ -16,6 +16,8 @@ export const useTableFunctions = ({
   showMeta = true,
   showAssignees = true,
   tableItems = [],
+  editMode,
+  setEditMode,
 }) => {
   const { statusClasses, DEPARTMENTS, SAMPLE_DATA, DEFAULT_WIDTHS } =
     useTableData({ tableItems });
@@ -68,7 +70,10 @@ export const useTableFunctions = ({
         id: "entity",
         header: () => (
           <div className="flex items-center gap-2 w-full">
-            <TheIcon cClass="!border-none !bg-[var(--overview-color-three)] hover:!bg-[var(--overview-color-four)] w-[40px] h-[40px] !rounded-none">
+            <TheIcon
+              cClass="!border-none !bg-[var(--overview-color-three)] hover:!bg-[var(--overview-color-four)] w-[40px] h-[40px] !rounded-none"
+              onClick={() => setEditMode((prev) => !prev)}
+            >
               <FaRegEdit className="w-4 h-4 text-white" />
             </TheIcon>
             <span>Entity Name</span>
@@ -142,29 +147,40 @@ export const useTableFunctions = ({
               !tableItemsSize
                 ? "flex-row items-center justify-between"
                 : "flex-col"
-            } gap-2 px-0 py-[5px] w-full h-full`}
+            } gap-2 px-0 py-[5px] w-full h-full relative ${
+              editMode && "pointer-none"
+            }`}
           >
+            {/* <div className="absolute top-0 left-0 w-full h-full bg- z-[99999]"></div> */}
             <div
-              className={`px-3 py-1 radius w-[100px] h-regular font-[500] flex items-center justify-center text-center text-white ${statusClasses(
+              className={`${
+                editMode && "pointer-none"
+              } px-3 py-1 radius w-[100px] h-regular font-[500] flex items-center justify-center text-center text-white ${statusClasses(
                 val.status
               )}`}
             >
               {val.status}
             </div>
             <div
-              className={`flex transition ${
+              className={`${editMode && "pointer-none"} flex transition ${
                 !tableItemsSize ? "w-1/2" : "w-full"
               } gap-1 relative`}
             >
               {showAssignees && (
                 <>
                   {val.assignees && (
-                    <div className="flex items-center relative">
+                    <div
+                      className={`${
+                        editMode && "pointer-none"
+                      } flex items-center relative`}
+                    >
                       {val.assignees.slice(0, 2).map((assignee, i) => (
                         <img
                           key={i}
                           src={assignee.avatar}
-                          className="w-7 h-7 rounded-full"
+                          className={`w-7 h-7 rounded-full ${
+                            editMode && "pointer-none"
+                          }`}
                           alt={assignee.name}
                         />
                       ))}
@@ -188,7 +204,7 @@ export const useTableFunctions = ({
     // 3. Combine with conditional meta
     const allCols = [...base, ...deptCols];
     return showMeta ? allCols : allCols.filter((col) => col.type !== "meta");
-  }, [tableItemsSize, showMeta, showAssignees, tableItems]);
+  }, [tableItemsSize, showMeta, showAssignees, tableItems, editMode]);
 
   const table = useReactTable({
     data,

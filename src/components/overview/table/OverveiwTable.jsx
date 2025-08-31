@@ -28,16 +28,33 @@ import {
 import TableHeader from "./TableHeader";
 import OverviewItems from "./OverviewItems";
 import { useTableFunctions } from "../../../hooks/overview/useTableFunctions";
+import { useTableTaskSettings } from "../../../hooks/overview/useTableTaskSettings,js";
 
 export default function OverviewTable({
   tableItemsSize,
   handleShowPrev,
+  activeTask,
+  setActiveTask,
   selectedId,
   groupId,
   showMeta,
   showAssignees,
   tableItems,
+  collapseWidth,
+  setAddressbar,
 }) {
+  // TASK SETTINGS HOOK
+  const {
+    editMode,
+    setEditMode,
+    selectedTasks,
+    isDragging,
+    taskHandleMouseDown,
+    taskHandleMouseEnter,
+    taskHandleMouseUp,
+    isTaskSelected,
+  } = useTableTaskSettings();
+
   const {
     data,
     columnWidths,
@@ -58,6 +75,8 @@ export default function OverviewTable({
     showMeta,
     showAssignees,
     tableItems,
+    editMode,
+    setEditMode,
   });
 
   useEffect(() => {
@@ -65,7 +84,9 @@ export default function OverviewTable({
   }, [columnWidths]);
 
   return (
-    <div className="w-full min-h-screen p-6 bg-[#0f0f14] text-white">
+    <div
+      className={`${collapseWidth} min-h-screen p-6 bg-[#0f0f14] text-white`}
+    >
       <div className="flex gap-6">
         <div className="flex-1 rounded-md bg-[#14131a] p-3">
           <div className="overflow-auto rounded-md bg-[#0f0f14] p-2">
@@ -76,10 +97,13 @@ export default function OverviewTable({
               startResize={startResize}
               flexRender={flexRender}
               showMeta={showMeta}
+              editMode={editMode}
             />
 
             <OverviewItems
               handleShowPrev={handleShowPrev}
+              activeTask={activeTask}
+              setActiveTask={setActiveTask}
               selectedId={selectedId}
               groupId={groupId}
               grouped={grouped}
@@ -90,6 +114,12 @@ export default function OverviewTable({
               flexRender={flexRender}
               tableItemsSize={tableItemsSize}
               tableItems={tableItems}
+              editMode={editMode}
+              taskHandleMouseDown={taskHandleMouseDown}
+              taskHandleMouseEnter={taskHandleMouseEnter}
+              taskHandleMouseUp={taskHandleMouseUp}
+              isTaskSelected={isTaskSelected}
+              setAddressbar={setAddressbar}
             />
           </div>
         </div>

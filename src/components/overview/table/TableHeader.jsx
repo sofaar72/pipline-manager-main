@@ -7,10 +7,15 @@ const TableHeader = ({
   startResize,
   flexRender,
   showMeta,
+  editMode,
 }) => {
   return (
     <div
-      className="overflow-hidden grid items-center gap-0 px-0 py-0 h-[40px] radius text-xs text-gray-300 border-b bg-[var(--overview-color-two)]  border-gray-800"
+      className={`overflow-hidden grid items-center gap-0 px-0 py-0 h-[40px] radius text-xs text-gray-300 border-b ${
+        editMode
+          ? "bg-[var(--overview-color-four)]"
+          : "bg-[var(--overview-color-two)]"
+      }  border-gray-800`}
       style={{ gridTemplateColumns }}
     >
       {columns.map((col) => {

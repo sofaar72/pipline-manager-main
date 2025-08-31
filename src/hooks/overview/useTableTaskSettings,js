@@ -1,0 +1,60 @@
+import { useEffect, useState } from "react";
+
+export const useTableTaskSettings = () => {
+  const [editMode, setEditMode] = useState(false); // edit mode toggle
+  const [selectedTasks, setSelectedTasks] = useState([]); // store multiple
+  const [isDragging, setIsDragging] = useState(false);
+  const toggleTask = (cellId, rowId) => {
+    if (["Texturing", "Rigging", "Modeling", "Shading"].includes(cellId)) {
+      const theKey = `${rowId}-${cellId}`;
+      setSelectedTasks((prev) => {
+        if (prev.includes(theKey)) {
+          // deselect if already selected
+          return prev.filter((item) => item !== theKey);
+        }
+        // otherwise select
+        return [...prev, theKey];
+      });
+    }
+  };
+
+  const taskHandleMouseDown = (cellId, rowId) => {
+    if (!editMode) return;
+    setIsDragging(true);
+    toggleTask(cellId, rowId);
+  };
+
+  const taskHandleMouseEnter = (cellId, rowId) => {
+    if (!editMode || !isDragging) return;
+    toggleTask(cellId, rowId);
+  };
+
+  const taskHandleMouseUp = () => {
+    if (!editMode) return;
+    setIsDragging(false);
+  };
+
+  const isTaskSelected = (cellId, rowId) => {
+    return selectedTasks.includes(`${rowId}-${cellId}`);
+  };
+
+  useEffect(() => {
+    console.log(selectedTasks);
+    console.log(isTaskSelected("0", "Modeling"));
+  }, [selectedTasks]);
+
+  useEffect(() => {
+    setSelectedTasks([]);
+  }, [editMode]);
+
+  return {
+    editMode,
+    setEditMode,
+    selectedTasks,
+    isDragging,
+    taskHandleMouseDown,
+    taskHandleMouseEnter,
+    taskHandleMouseUp,
+    isTaskSelected,
+  };
+};

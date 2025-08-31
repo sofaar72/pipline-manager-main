@@ -8,10 +8,12 @@ import { useOverview } from "../hooks/overview/useOverView";
 import GlobalPureModal from "../components/golbals/GlobalPureModal";
 import CreateEntityForm from "../components/taskmanager/CreateEntityForm";
 import PreviewMain from "../components/overview/preview/PreviewMain";
+import { useTableTaskSettings } from "../hooks/overview/useTableTaskSettings,js";
 
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
+  // OVERVIEW HOOK
   const {
     getTheProjects,
     projects,
@@ -33,6 +35,8 @@ const TaskOverviewPage = () => {
     showAssignees,
     setSelectedEntType,
     selectedEntType,
+    addressbar,
+    setAddressbar,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -40,12 +44,35 @@ const TaskOverviewPage = () => {
     groupId: null,
     show: true,
   });
+
+  const [activeTask, setActiveTask] = useState({ collId: "", rowId: "" });
   const [previewWidth, setPreviewWidth] = useState(550); // default width
   const isResizing = useRef(false);
   const stopResizing = () => {
     isResizing.current = false;
   };
 
+  // Start resizing
+  const startResizing = (e) => {
+    e.stopPropagation();
+    isResizing.current = true;
+
+    const resizeMouseMove = (eMove) => {
+      const newWidth = window.innerWidth - eMove.clientX - 20; // 20px padding
+      if (newWidth > 400 && newWidth < 800) {
+        setPreviewWidth(newWidth);
+      }
+    };
+
+    const resizeMouseUp = () => {
+      isResizing.current = false;
+      window.removeEventListener("mousemove", resizeMouseMove);
+      window.removeEventListener("mouseup", resizeMouseUp);
+    };
+
+    window.addEventListener("mousemove", resizeMouseMove);
+    window.addEventListener("mouseup", resizeMouseUp);
+  };
   // get projects
   useEffect(() => {
     getTheProjects();
@@ -105,13 +132,17 @@ const TaskOverviewPage = () => {
 
   const hidePrev = () => {
     setShowPreview({ ...showPreview, id: null, groupId: null, show: true });
+    setActiveTask({ collId: "", rowId: "" });
   };
 
   return (
     <LayoutOne>
       <div className="w-full h-full flex gap-4   p-4 relative radius overflow-hidden">
         {/* OVERVIEW PART */}
-        <div className="flex-1 h-full p-[10px] text-white transition flex flex-col gap-[10px]">
+        <div
+          className={`flex-1
+           h-full p-[10px] text-white transition flex flex-col gap-[10px]`}
+        >
           <OverviewHeader
             projects={projects?.results || []}
             selectProject={selectProject}
@@ -129,12 +160,19 @@ const TaskOverviewPage = () => {
           />
           <OverveiwTable
             handleShowPrev={handleShowPrev}
+            activeTask={activeTask}
+            setActiveTask={setActiveTask}
             selectedId={showPreview.id}
             groupId={showPreview.groupId}
             tableItemsSize={tableItemsSize}
             showMeta={showMeta}
             showAssignees={showAssignees}
             tableItems={films?.results || []}
+            // collapseWidth={
+            //   !showPreview.show ? "w-[800px] overflow-scroll " : "w-full"
+            // }
+            collapseWidth={"w-full"}
+            setAddressbar={setAddressbar}
           />
         </div>
 
@@ -143,51 +181,27 @@ const TaskOverviewPage = () => {
           className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/10 ${
             showPreview.show ? "translate-x-[100%]" : "translate-x-0"
           }`}
-          // onClick={(e) => {
-          //   // Only close if not resizing
-          //   if (!isResizing.current) {
-          //     e.stopPropagation();
-          //     hidePrev();
-          //   }
-          // }}
-          // onMouseDown={() => {
-          //   mouseDownRef.current = true;
-          //   movedRef.current = false;
-          // }}
-          // onMouseMove={() => {
-          //   if (mouseDownRef.current) movedRef.current = true;
-          // }}
-          onMouseUp={(e) => {
-            if (!isResizing.current) {
-              e.stopPropagation();
-              hidePrev();
-            }
-          }}
           onMouseDown={(e) => {
-            e.stopPropagation();
-            stopResizing();
-          }}
-          onMouseLeave={(e) => {
-            e.stopPropagation();
-            stopResizing();
+            if (!isResizing.current) hidePrev();
           }}
         >
           <div
             className={`h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
             style={{ width: previewWidth }}
             ref={wrapperRef}
-            // onMouseUp={(e) => e.stopPropagation()} // prevent backdrop click bubbling
+            onMouseDown={(e) => e.stopPropagation()} // 🔹 stop click inside from propagating
           >
             {/* Drag handle */}
             <div
               className="absolute -left-2 top-0 w-2 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600 z-[100] transition"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                isResizing.current = true;
-              }}
+              onMouseDown={startResizing}
             />
 
-            <PreviewMain previewWidth={width} />
+            <PreviewMain
+              addressbar={addressbar}
+              previewWidth={width}
+              stopResizing={stopResizing}
+            />
           </div>
         </div>
       </div>
@@ -210,25 +224,3 @@ const TaskOverviewPage = () => {
 };
 
 export default TaskOverviewPage;
-
-// <div className="w-full h-full text-white overflow-hidden p-4">
-// <div
-//   className={`${
-//     showPreview.show ? "translate-x-[120%]" : "translate-x-0"
-//   } w-full h-full  bg-[var(--overview-color-two)] radius  transition-transform duration-150 overflow-hidden`}
-// >
-
-//   <div
-//     className={`w-full bg-red-50 transition ${
-//       previewWidth > 500 ? "h-[300px]" : "h-[200px]"
-//     }`}
-//     ref={wrapperRef}
-//   >
-//     <VideoAnnotationTwo
-//       width={width}
-//       height={height}
-//       aspectRatio={aspectRatio}
-//     />
-//   </div>
-// </div>
-// </div>

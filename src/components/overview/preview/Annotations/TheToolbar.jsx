@@ -11,6 +11,7 @@ import { FaPenAlt } from "react-icons/fa";
 import { BsChatText } from "react-icons/bs";
 import { BsEraserFill } from "react-icons/bs";
 import TheIcon from "../../TheIcon";
+import { BiSelection } from "react-icons/bi";
 
 const TheToolbar = ({
   //   tool,
@@ -24,8 +25,8 @@ const TheToolbar = ({
 
   drawing,
   toggleDrawing,
-  eraising,
-  toggleEraising,
+  selecting,
+  toggleSelecting,
   //   toggleFullscreen,
   //   mode,
   //   setMode,
@@ -80,6 +81,16 @@ const TheToolbar = ({
           } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
         >
           <FaPenAlt className="text-sm" />
+        </TheIcon>
+        <TheIcon
+          onClick={() => toggleSelecting()}
+          cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+            selecting
+              ? "!bg-[var(--overview-color-three)]"
+              : "!bg-[var(--overview-color-two)] "
+          } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+        >
+          <BiSelection className="text-sm" />
         </TheIcon>
 
         {/* <button
