@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import {
-  Layer,
   Stage,
-  Circle,
+  Layer,
   Rect,
+  Circle,
   Line,
-  Group,
   Transformer,
+  Arrow,
 } from "react-konva";
+import { ACTIONS } from "./Actions";
 
 const TheAnnotatorStage = ({
   stageSize,
@@ -16,80 +17,86 @@ const TheAnnotatorStage = ({
   handleMouseUp,
   annotations,
   currentFrameIndex,
-  drawing,
   selecting,
   selectionRect,
   updateShape,
   deleteSelectedShapes,
+  stageRef,
+  action,
+  isDraggable,
+  transformerRef,
+  transformActive,
+  handleStageMouseDown,
+  handleStageMouseMove,
+  handleStageMouseUp,
+  isFullScreen,
+  getShapesForFrame,
+  stageToVideoCoords,
+  normalizeRect,
+  denormalizeRect,
+  normalizedToVideoRect,
+  normalizeCircle,
+  denormalizeCircle,
+  normalizedToVideoCircle,
+  normalizeArrow,
+  denormalizeArrow,
+  normalizedToVideoArrow,
+  normalizeLine,
+  denormalizeLine,
+  normalizedToVideoLine,
+  handleTransformEnd,
 }) => {
-  const currentFrame = annotations?.find(
-    (f) => f.frameId === currentFrameIndex
-  );
-  const transformerRef = useRef();
-  const shapeRefs = useRef({}); // store refs per shape
+  const currentFrame = () =>
+    annotations?.find((f) => f.frameId === currentFrameIndex) || { shapes: [] };
+  const shapeRefs = useRef({});
 
-  // Update transformer when selected shapes change
+  // Update transformer nodes when selection changes
   useEffect(() => {
     if (!transformerRef.current) return;
+    const selectedNodes = currentFrame()
+      .shapes.filter((s) => s.selected)
+      .map((s) => shapeRefs.current[s.id])
+      .filter(Boolean);
 
-    if (selecting) {
-      const selectedNodes = [];
-      currentFrame?.shapes.forEach((shape) => {
-        if (shape.selected && shapeRefs.current[shape.id]) {
-          selectedNodes.push(shapeRefs.current[shape.id]);
-        }
-      });
-      transformerRef.current.nodes(selectedNodes);
-    } else {
-      // clear transformer when not selecting
-      transformerRef.current.nodes([]);
-    }
-
+    transformerRef.current.nodes(selectedNodes);
     transformerRef.current.getLayer()?.batchDraw();
-  }, [annotations, currentFrameIndex, selecting]);
+  }, [annotations, currentFrameIndex]);
 
-  // Handle Delete key
+  // Keyboard delete selected shapes
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Delete" || e.key === "Backspace") {
-        deleteSelectedShapes();
-      }
+      if (e.key === "Delete" || e.key === "Backspace") deleteSelectedShapes();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [deleteSelectedShapes]);
 
-  // helper to get bounding box of a line
-  const getLineBounds = (points) => {
-    const xs = [];
-    const ys = [];
-    for (let i = 0; i < points.length; i += 2) {
-      xs.push(points[i] * stageSize.width);
-      ys.push(points[i + 1] * stageSize.height);
-    }
-    return {
-      x: Math.min(...xs),
-      y: Math.min(...ys),
-      width: Math.max(...xs) - Math.min(...xs),
-      height: Math.max(...ys) - Math.min(...ys),
-    };
-  };
-
   return (
-    <div className="w-full h-full top-0 left-0 absolute z-[999]">
+    <div className="w-full h-full absolute top-0 left-0 z-[999]">
       <Stage
+        ref={stageRef}
         width={stageSize.width}
         height={stageSize.height}
         className="bg-green-500/20"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onPointerDown={handleMouseDown}
+        onPointerMove={handleMouseMove}
+        onPointerUp={handleMouseUp}
+        onMouseDown={handleStageMouseDown}
+        onMouseMove={handleStageMouseMove}
+        onMouseUp={handleStageMouseUp}
         style={{
-          cursor: drawing ? "crosshair" : "default",
+          cursor: [
+            ACTIONS.RECTANGLE,
+            ACTIONS.CIRCLE,
+            ACTIONS.ARROW,
+            ACTIONS.LINE,
+          ].includes(action)
+            ? "crosshair"
+            : "default",
         }}
       >
         <Layer>
-          {/* Selection rectangle (marquee) */}
+          {/* Selection marquee */}
           {selectionRect && selecting && (
             <Rect
               x={selectionRect.x}
@@ -102,136 +109,165 @@ const TheAnnotatorStage = ({
             />
           )}
 
-          {currentFrame?.shapes.map((shape, i) => {
-            const isSelected = shape.selected;
+          {/* Shapes */}
+          {currentFrame().shapes.map((shape) => {
+            const shapeId = shape.id;
+            const nodeRef = (n) => (shapeRefs.current[shapeId] = n);
 
             switch (shape.type) {
-              case "circle": {
+              case "rect": {
+                const s = denormalizeRect(shape);
                 return (
-                  <Circle
-                    key={shape.id || i}
-                    ref={(node) => (shapeRefs.current[shape.id] = node)}
-                    x={shape.x * stageSize.width}
-                    y={shape.y * stageSize.height}
-                    radius={shape.radius || 5}
-                    fill="red"
-                    draggable={isSelected}
-                    onDragEnd={(e) =>
-                      updateShape(shape.id, {
-                        x: e.target.x() / stageSize.width,
-                        y: e.target.y() / stageSize.height,
-                      })
-                    }
-                    onTransformEnd={(e) => {
-                      const node = e.target;
-                      const scaleX = node.scaleX();
-                      const newRadius = (shape.radius || 5) * scaleX;
-
-                      node.scaleX(1);
-                      node.scaleY(1);
-
-                      updateShape(shape.id, { radius: newRadius });
+                  <Rect
+                    ref={nodeRef}
+                    key={shapeId}
+                    id={shapeId}
+                    x={s.x}
+                    y={s.y}
+                    width={s.width}
+                    height={s.height}
+                    stroke={shape.stroke}
+                    strokeWidth={2}
+                    fill={shape.fillColor || "transparent"}
+                    draggable={isDraggable}
+                    onClick={transformActive}
+                    onDragEnd={(e) => {
+                      const pos = e.target.position();
+                      const videoPos = stageToVideoCoords(pos);
+                      updateShape(currentFrameIndex, shapeId, (sh) => {
+                        const shVideo = normalizedToVideoRect(sh);
+                        return {
+                          ...sh,
+                          ...normalizeRect({
+                            ...shVideo,
+                            x: videoPos.x,
+                            y: videoPos.y,
+                          }),
+                        };
+                      });
                     }}
+                    onTransformEnd={(e) =>
+                      handleTransformEnd(
+                        currentFrameIndex,
+                        shape.id,
+                        e.target,
+                        shape
+                      )
+                    }
                   />
                 );
               }
 
-              case "rect": {
+              case "circle": {
+                const s = denormalizeCircle(shape);
                 return (
-                  <Rect
-                    key={shape.id || i}
-                    ref={(node) => (shapeRefs.current[shape.id] = node)}
-                    x={shape.x * stageSize.width}
-                    y={shape.y * stageSize.height}
-                    width={shape.width * stageSize.width}
-                    height={shape.height * stageSize.height}
-                    fill="blue"
-                    draggable={isSelected}
-                    onDragEnd={(e) =>
-                      updateShape(shape.id, {
-                        x: e.target.x() / stageSize.width,
-                        y: e.target.y() / stageSize.height,
-                      })
-                    }
-                    onTransformEnd={(e) => {
-                      const node = e.target;
-                      const scaleX = node.scaleX();
-                      const scaleY = node.scaleY();
-
-                      node.scaleX(1);
-                      node.scaleY(1);
-
-                      updateShape(shape.id, {
-                        x: node.x() / stageSize.width,
-                        y: node.y() / stageSize.height,
-                        width:
-                          (shape.width * stageSize.width * scaleX) /
-                          stageSize.width,
-                        height:
-                          (shape.height * stageSize.height * scaleY) /
-                          stageSize.height,
-                      });
+                  <Circle
+                    ref={nodeRef}
+                    key={shapeId}
+                    id={shapeId}
+                    x={s.x}
+                    y={s.y}
+                    radius={s.radius}
+                    stroke={shape.stroke}
+                    strokeWidth={2}
+                    fill={shape.fillColor || "transparent"}
+                    draggable={isDraggable}
+                    onClick={transformActive}
+                    onDragEnd={(e) => {
+                      const pos = e.target.position();
+                      const videoPos = stageToVideoCoords(pos);
+                      updateShape(currentFrameIndex, shapeId, (sh) =>
+                        normalizeCircle({
+                          ...normalizedToVideoCircle(sh),
+                          x: videoPos.x,
+                          y: videoPos.y,
+                        })
+                      );
                     }}
+                    onTransformEnd={(e) =>
+                      handleTransformEnd(
+                        currentFrameIndex,
+                        shape.id,
+                        e.target,
+                        shape
+                      )
+                    }
+                  />
+                );
+              }
+
+              case "arrow": {
+                const s = denormalizeArrow(shape);
+                return (
+                  <Arrow
+                    ref={nodeRef}
+                    key={shapeId}
+                    id={shapeId}
+                    x={s.x}
+                    y={s.y}
+                    points={s.points}
+                    stroke={shape.stroke || shape.fillColor}
+                    strokeWidth={2}
+                    fill={shape.fillColor || "transparent"}
+                    draggable={isDraggable}
+                    onClick={transformActive}
+                    onDragEnd={(e) => {
+                      const pos = e.target.position();
+                      const videoPos = stageToVideoCoords(pos);
+                      updateShape(currentFrameIndex, shapeId, () =>
+                        normalizeArrow({
+                          ...normalizedToVideoArrow(shape),
+                          x: videoPos.x,
+                          y: videoPos.y,
+                        })
+                      );
+                    }}
+                    onTransformEnd={(e) =>
+                      handleTransformEnd(
+                        currentFrameIndex,
+                        shape.id,
+                        e.target,
+                        shape
+                      )
+                    }
                   />
                 );
               }
 
               case "line": {
-                const bounds = getLineBounds(shape?.points);
+                const s = denormalizeLine(shape);
                 return (
-                  <Group
-                    key={i}
-                    ref={(node) => {
-                      if (node) shapeRefs.current[shape.id] = node;
-                    }}
-                    draggable={isSelected && !drawing}
+                  <Line
+                    ref={nodeRef}
+                    key={shapeId}
+                    id={shapeId}
+                    x={s.x}
+                    y={s.y}
+                    points={s.points}
+                    stroke={shape.stroke || shape.fillColor}
+                    strokeWidth={4}
+                    draggable={isDraggable}
+                    onClick={transformActive}
                     onDragEnd={(e) => {
-                      updateShape(shape.id, {
-                        // normalize back to [0..1] space so stageSize resize works
-                        x: e.target.x() / stageSize.width,
-                        y: e.target.y() / stageSize.height,
-                      });
+                      const pos = e.target.position();
+                      const videoPos = stageToVideoCoords(pos);
+                      updateShape(currentFrameIndex, shapeId, () =>
+                        normalizeLine({
+                          ...normalizedToVideoLine(shape),
+                          x: videoPos.x,
+                          y: videoPos.y,
+                        })
+                      );
                     }}
-                  >
-                    {/* Invisible hit area for easier selection (covers bounding box) */}
-                    <Rect
-                      x={bounds.x}
-                      y={bounds.y}
-                      width={bounds.width}
-                      height={bounds.height}
-                      fill="transparent"
-                      strokeEnabled={false}
-                      listening={true} // ✅ allow clicks
-                    />
-
-                    {/* Actual visible line */}
-
-                    <Line
-                      points={shape?.points?.map((p, idx) =>
-                        idx % 2 === 0
-                          ? p * stageSize.width
-                          : p * stageSize.height
-                      )}
-                      stroke="red"
-                      strokeWidth={2}
-                      tension={0}
-                      lineCap="round"
-                      lineJoin="round"
-                      listening={false} // ✅ so clicks go to invisible rect
-                    />
-
-                    {/* Selection outline */}
-                    {/* {isSelected && !drawing && (
-                      <Rect
-                        x={bounds.x}
-                        y={bounds.y}
-                        width={bounds.width}
-                        height={bounds.height}
-                        stroke="cyan"
-                        dash={[4, 4]}
-                      />
-                    )} */}
-                  </Group>
+                    onTransformEnd={(e) =>
+                      handleTransformEnd(
+                        currentFrameIndex,
+                        shape.id,
+                        e.target,
+                        shape
+                      )
+                    }
+                  />
                 );
               }
 
@@ -240,8 +276,7 @@ const TheAnnotatorStage = ({
             }
           })}
 
-          {/* 🔹 Transformer for scaling/rotating selected shapes */}
-          <Transformer ref={transformerRef} rotateEnabled={true} />
+          <Transformer ref={transformerRef} rotateEnabled={false} />
         </Layer>
       </Stage>
     </div>

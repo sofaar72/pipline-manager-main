@@ -6,7 +6,7 @@ const TheVideo = forwardRef(
       <>
         {/* Video */}
         <video
-          className="absolute w-full h-full shrink-0  object-contain bg-[var(--section-bg-color)]/20 overflow-hidden"
+          className={`absolute w-full h-full shrink-0  object-contain bg-[var(--section-bg-color)]/20 overflow-hidden`}
           ref={ref}
           src={videoUrl ? videoUrl : "/videos/sample2.mp4"}
           muted={isMuted}

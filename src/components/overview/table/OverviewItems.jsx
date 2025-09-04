@@ -22,6 +22,9 @@ const OverviewItems = ({
   taskHandleMouseUp,
   isTaskSelected,
   setAddressbar,
+  previewWidth,
+  showPreview,
+  setEntityId,
 }) => {
   return (
     <div className="divide-y divide-gray-800 flex flex-col gap-2">
@@ -33,6 +36,8 @@ const OverviewItems = ({
               group={g}
               collapsedGroups={collapsedGroups}
               setCollapsedGroups={setCollapsedGroups}
+              previewWidth={previewWidth}
+              showPreview={showPreview}
             />
 
             {!collapsedGroups[g.groupName] && (
@@ -60,6 +65,9 @@ const OverviewItems = ({
                       taskHandleMouseUp={taskHandleMouseUp}
                       isTaskSelected={isTaskSelected}
                       setAddressbar={setAddressbar}
+                      previewWidth={previewWidth}
+                      theShowPreview={showPreview}
+                      setEntityId={setEntityId}
                     />
                   );
                 })}

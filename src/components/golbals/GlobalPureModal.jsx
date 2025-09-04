@@ -11,7 +11,7 @@ const GlobalPureModal = ({
     <Dialog
       open={open}
       onClose={() => setOpen(false)}
-      className="relative z-[999999999999] "
+      className="relative z-[999999999999] bg-[var(--primary-color-dark)]/75 transition"
     >
       <DialogBackdrop
         transition

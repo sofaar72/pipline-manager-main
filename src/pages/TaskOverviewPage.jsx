@@ -13,6 +13,7 @@ import { useTableTaskSettings } from "../hooks/overview/useTableTaskSettings,js"
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
+
   // OVERVIEW HOOK
   const {
     getTheProjects,
@@ -37,17 +38,23 @@ const TaskOverviewPage = () => {
     selectedEntType,
     addressbar,
     setAddressbar,
+    searchItem,
+    setSearchItem,
+    entityId,
+    setEntityId,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
     id: null,
     groupId: null,
+    taskID: null,
     show: true,
   });
 
   const [activeTask, setActiveTask] = useState({ collId: "", rowId: "" });
-  const [previewWidth, setPreviewWidth] = useState(550); // default width
+  const [previewWidth, setPreviewWidth] = useState(600); // default width
   const isResizing = useRef(false);
+
   const stopResizing = () => {
     isResizing.current = false;
   };
@@ -59,7 +66,7 @@ const TaskOverviewPage = () => {
 
     const resizeMouseMove = (eMove) => {
       const newWidth = window.innerWidth - eMove.clientX - 20; // 20px padding
-      if (newWidth > 400 && newWidth < 800) {
+      if (newWidth > 600 && newWidth < 1000) {
         setPreviewWidth(newWidth);
       }
     };
@@ -73,20 +80,35 @@ const TaskOverviewPage = () => {
     window.addEventListener("mousemove", resizeMouseMove);
     window.addEventListener("mouseup", resizeMouseUp);
   };
-  // get projects
+
+  // Initial data loading - get projects first
   useEffect(() => {
     getTheProjects();
-    getEpisodes();
   }, []);
 
-  // get episodes
+  // Get episodes when selectedProject changes
   useEffect(() => {
-    getEpisodes();
+    if (selectedProject) {
+      getEpisodes();
+      // Also get entities when project is selected
+      getTheEntities(selectedProject, selectedEntType);
+    }
   }, [selectedProject]);
-  // get entity
+
+  // Get entities when selectedEntType changes (but only if we have a selected project)
   useEffect(() => {
-    getTheEntities(selectedProject, selectedEntType);
+    if (selectedProject) {
+      getTheEntities(selectedProject, selectedEntType);
+    }
+    setSearchItem("");
   }, [selectedEntType]);
+
+  // Additional effect to ensure entities are loaded if we have both project and type
+  useEffect(() => {
+    if (selectedProject && selectedEntType && (!films || !films.results)) {
+      getTheEntities(selectedProject, selectedEntType);
+    }
+  }, [selectedProject, selectedEntType]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -106,42 +128,92 @@ const TaskOverviewPage = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   console.log(width);
-  //   console.log(height);
-  //   console.log(aspectRatio);
-  // }, [width]);
-
-  // useEffect(() => {
-  //   console.log(tableItemsSize);
-  // }, [tableItemsSize]);
-
   const selectProject = (id) => {
     selectTheProject(id);
   };
 
-  const handleShowPrev = (e, id, groupId) => {
+  const handleShowPrev = (e, id, groupId, taskId) => {
     e.stopPropagation();
-    setShowPreview({
-      ...showPreview,
-      id: showPreview.show ? id : null,
-      groupId: showPreview.show ? groupId : null,
-      show: !showPreview.show,
+
+    setShowPreview((prev) => {
+      if (taskId === prev.taskID) {
+        // same task clicked → toggle
+        setActiveTask({ collId: "", rowId: "" });
+        return {
+          id: null,
+          groupId: null,
+          taskId: null,
+          show: true,
+        };
+      }
+
+      // new task clicked → open preview
+      return { id, groupId, taskID: taskId, show: false };
     });
   };
 
   const hidePrev = () => {
-    setShowPreview({ ...showPreview, id: null, groupId: null, show: true });
+    setShowPreview({
+      ...showPreview,
+      id: null,
+      groupId: null,
+      taskID: null,
+      show: true,
+    });
     setActiveTask({ collId: "", rowId: "" });
   };
 
+  useEffect(() => {
+    if (!showPreview.show) {
+      setShowMeta(false);
+    } else {
+      setShowMeta(true);
+    }
+  }, [showPreview.show]);
+
+  // Debug logging (remove in production)
+  useEffect(() => {
+    console.log("Debug - selectedProject:", selectedProject);
+    console.log("Debug - selectedEntType:", selectedEntType);
+    console.log("Debug - films:", films);
+  }, [selectedProject, selectedEntType, films]);
+
+  const searchEntity = (e) => {
+    const search = e.target.value;
+    setSearchItem(search);
+  };
+
+  useEffect(() => {
+    getTheEntities(selectedProject, selectedEntType, searchItem);
+  }, [searchItem]);
+
+  // CLose preview by clicking outside
+  // useEffect(() => {
+  //   const handleClickOutside = (e) => {
+  //     // if preview is hidden, do nothing
+  //     if (showPreview.show) return;
+
+  //     if (
+  //       wrapperRef.current &&
+  //       !wrapperRef.current.contains(e.target) &&
+  //       !isResizing.current
+  //     ) {
+  //       hidePrev();
+  //     }
+  //   };
+
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [wrapperRef, isResizing, showPreview.show]);
+
   return (
     <LayoutOne>
-      <div className="w-full h-full flex gap-4   p-4 relative radius overflow-hidden">
+      <div className="w-full h-full flex gap-4 p-4 relative radius overflow-hidden">
         {/* OVERVIEW PART */}
         <div
-          className={`flex-1
-           h-full p-[10px] text-white transition flex flex-col gap-[10px]`}
+          className={`flex-1 h-full p-[10px] text-white transition flex flex-col gap-[10px]`}
         >
           <OverviewHeader
             projects={projects?.results || []}
@@ -157,30 +229,47 @@ const TaskOverviewPage = () => {
             showAssignees={showAssignees}
             setSelectedEntType={setSelectedEntType}
             selectedEntType={selectedEntType}
+            showPreview={showPreview.show}
+            previewWidth={previewWidth}
+            searchEntity={searchEntity}
+            searchItem={searchItem}
           />
-          <OverveiwTable
-            handleShowPrev={handleShowPrev}
-            activeTask={activeTask}
-            setActiveTask={setActiveTask}
-            selectedId={showPreview.id}
-            groupId={showPreview.groupId}
-            tableItemsSize={tableItemsSize}
-            showMeta={showMeta}
-            showAssignees={showAssignees}
-            tableItems={films?.results || []}
-            // collapseWidth={
-            //   !showPreview.show ? "w-[800px] overflow-scroll " : "w-full"
-            // }
-            collapseWidth={"w-full"}
-            setAddressbar={setAddressbar}
-          />
+
+          {/* Show loading state when no films data */}
+          {!films ? (
+            <div className="flex-1 flex items-center justify-center text-white">
+              Loading...
+            </div>
+          ) : !films.results || films.results.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center text-white">
+              No entities found. Please select a project or check your data.
+            </div>
+          ) : (
+            <OverveiwTable
+              handleShowPrev={handleShowPrev}
+              activeTask={activeTask}
+              setActiveTask={setActiveTask}
+              selectedId={showPreview.id}
+              groupId={showPreview.groupId}
+              tableItemsSize={tableItemsSize}
+              showMeta={showMeta}
+              showAssignees={showAssignees}
+              tableItems={films.results}
+              collapseWidth={"w-full"}
+              setAddressbar={setAddressbar}
+              showPreview={showPreview.show}
+              previewWidth={previewWidth}
+              setEntityId={setEntityId}
+            />
+          )}
         </div>
 
         {/* PREVIEW PART */}
         <div
-          className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/10 ${
+          className={`w-full h-full top-0 right-0 z-[999] absolute ${
             showPreview.show ? "translate-x-[100%]" : "translate-x-0"
           }`}
+          style={{ width: previewWidth }}
           onMouseDown={(e) => {
             if (!isResizing.current) hidePrev();
           }}
@@ -189,7 +278,7 @@ const TaskOverviewPage = () => {
             className={`h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
             style={{ width: previewWidth }}
             ref={wrapperRef}
-            onMouseDown={(e) => e.stopPropagation()} // 🔹 stop click inside from propagating
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {/* Drag handle */}
             <div
@@ -201,13 +290,16 @@ const TaskOverviewPage = () => {
               addressbar={addressbar}
               previewWidth={width}
               stopResizing={stopResizing}
+              isResizing={isResizing}
+              hidePrev={hidePrev}
+              entityId={entityId}
             />
           </div>
         </div>
       </div>
 
-      {/* modals  */}
-      {/* CREATE ENTITY  */}
+      {/* modals */}
+      {/* CREATE ENTITY */}
       <GlobalPureModal open={createEntityModal} setOpen={setCreateEntityModal}>
         <div
           className="w-full max-w-[500px] h-[600px]"

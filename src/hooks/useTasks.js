@@ -8,7 +8,7 @@ import {
 } from "../store/Slices/TaskSlice";
 import { useVersions } from "./useVersions";
 
-export const useTasks = ({ dataType = "production" }) => {
+export const useTasks = ({ dataType = "production" } = {}) => {
   const [activeTask, setActiveTask] = useState(null);
   const { fetchAllVersions } = useVersions();
   const dispatch = useDispatch();

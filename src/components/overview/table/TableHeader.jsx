@@ -8,6 +8,8 @@ const TableHeader = ({
   flexRender,
   showMeta,
   editMode,
+  showPreview,
+  previewWidth,
 }) => {
   return (
     <div
@@ -16,7 +18,10 @@ const TableHeader = ({
           ? "bg-[var(--overview-color-four)]"
           : "bg-[var(--overview-color-two)]"
       }  border-gray-800`}
-      style={{ gridTemplateColumns }}
+      style={{
+        gridTemplateColumns,
+        width: showPreview ? "100%" : `calc(100% - ${previewWidth}px) `,
+      }}
     >
       {columns.map((col) => {
         return (
@@ -33,6 +38,8 @@ const TableHeader = ({
       ${
         (col.id === "Modeling" ||
           col.id === "Rigging" ||
+          col.id === "animate" ||
+          col.id === "light" ||
           col.id === "Texturing" ||
           col.id === "Shading") &&
         "px-2 !justify-center border-l border-r border-white/20"

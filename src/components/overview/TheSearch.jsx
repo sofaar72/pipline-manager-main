@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IoSearchSharp } from "react-icons/io5";
 import { IoMdSave } from "react-icons/io";
 
-const TheSearch = ({ placeHolder = "", onChange = () => {} }) => {
+const TheSearch = ({ placeHolder = "", onChange = () => {}, value }) => {
   const [saved, setSaved] = useState([]);
   const [showSaved, setShowSaved] = useState(false);
 
@@ -19,6 +19,7 @@ const TheSearch = ({ placeHolder = "", onChange = () => {} }) => {
         className="w-full h-full"
         placeholder={placeHolder}
         onChange={onChange}
+        value={value}
       />
       <div className="absolute left-[5px] top-1/2 -translate-y-[50%] ">
         <IoSearchSharp className="text-lg text-white/70" />

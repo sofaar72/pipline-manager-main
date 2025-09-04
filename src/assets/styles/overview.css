@@ -32,3 +32,8 @@
 .h-xl {
   font-size: 14px;
 }
+
+/* inputs  */
+.the_input {
+  border: 2px solid var(--overview-color-three) !important;
+}

@@ -7,12 +7,17 @@ import { toast } from "react-toastify";
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (userData, thunkAPI) => {
+    console.log(userData);
     try {
       // Simulate 2-second delay
       await new Promise((resolve) => setTimeout(resolve, 200));
-      const response = await axiosInstance.post("/auth/login/", {
-        ...userData,
-      });
+      const response = await axiosInstance.post(
+        "/auth/login/",
+        //   {
+        //   ...userData,
+        // }
+        { username: userData.email, password: userData.password }
+      );
       return response.data;
     } catch (error) {
       console.log(error.response?.data);

@@ -1,21 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { FaEraser, FaPlay } from "react-icons/fa6";
+import {
+  FaChevronDown,
+  FaChevronLeft,
+  FaChevronRight,
+  FaEraser,
+  FaPlay,
+} from "react-icons/fa6";
 import { FaPause } from "react-icons/fa6";
 import { IoMdRefresh } from "react-icons/io";
-import { MdAirlineStops } from "react-icons/md";
+import {
+  MdAirlineStops,
+  MdOutlineRectangle,
+  MdRectangle,
+} from "react-icons/md";
 import { IoMusicalNote, IoVolumeMediumSharp } from "react-icons/io5";
 import { IoVolumeMute } from "react-icons/io5";
 import { MdCompare } from "react-icons/md";
 import { MdFullscreen } from "react-icons/md";
-import { FaPenAlt } from "react-icons/fa";
+import { FaCircle, FaMousePointer, FaPenAlt } from "react-icons/fa";
 import { BsChatText } from "react-icons/bs";
 import { BsEraserFill } from "react-icons/bs";
+import { FaLongArrowAltRight } from "react-icons/fa";
 import TheIcon from "../../TheIcon";
 import { BiSelection } from "react-icons/bi";
+import { ACTIONS } from "./Actions";
+import TheButton from "../../TheButton";
+import { RiFullscreenLine } from "react-icons/ri";
 
 const TheToolbar = ({
-  //   tool,
-  //   setTool,
   isLoope,
   isMuted,
   isPlaying,
@@ -23,28 +35,20 @@ const TheToolbar = ({
   muteOrNot,
   loopOrNot,
 
-  drawing,
-  toggleDrawing,
   selecting,
-  toggleSelecting,
-  //   toggleFullscreen,
-  //   mode,
-  //   setMode,
-  //   strokeColor,
-  //   setStrokeColor,
-  //   setSelectedIds,
+  // new
+  action,
+  setAction,
+  fillColor,
+  setFillColor,
+  isFullScreen,
+  toggleFullscreen,
 }) => {
-  //   const colors = ["red", "blue", "green", "white"];
-  //   const [openColor, setOpenColor] = useState(false);
-
-  //   const setTheStroke = (color) => {
-  //     setStrokeColor(color);
-  //     setOpenColor(!openColor);
-  //   };
+  const [openShapes, setOpenShapes] = useState(false);
 
   useEffect(() => {
-    console.log(drawing);
-  }, [drawing]);
+    console.log(isFullScreen);
+  }, [isFullScreen]);
 
   return (
     <div className="w-full h-[25px] shrink-0 bg-[#1D1B37] flex justify-between gap-2 text-white">
@@ -71,125 +75,101 @@ const TheToolbar = ({
       </div>
       {/* annotate handlers  */}
       <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
+        <TheIcon
+          onClick={() => setOpenShapes(!openShapes)}
+          cClass={`!w-[30px] !h-full !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none !border-none
+            ${
+              action === ACTIONS.RECTANGLE ||
+              action === ACTIONS.CIRCLE ||
+              action === ACTIONS.ARROW
+                ? "!bg-[var(--overview-color-three)]"
+                : "!bg-[var(--overview-color-two)] "
+            } 
+            `}
+        >
+          {openShapes ? <FaChevronRight /> : <FaChevronLeft />}
+        </TheIcon>
+
+        <div
+          className={`${
+            openShapes ? "w-[90px]" : "w-0"
+          } h-full flex  z-10 transition overflow-hidden`}
+        >
+          <TheIcon
+            onClick={() => setAction(ACTIONS.RECTANGLE)}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+              action === ACTIONS.RECTANGLE
+                ? "!bg-[var(--overview-color-three)]"
+                : "!bg-[var(--overview-color-two)] "
+            } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            <MdRectangle className="text-sm" />
+          </TheIcon>
+          <TheIcon
+            onClick={() => setAction(ACTIONS.CIRCLE)}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+              action === ACTIONS.CIRCLE
+                ? "!bg-[var(--overview-color-three)]"
+                : "!bg-[var(--overview-color-two)] "
+            } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            <FaCircle className="text-sm" />
+          </TheIcon>
+          <TheIcon
+            onClick={() => setAction(ACTIONS.ARROW)}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+              action === ACTIONS.ARROW
+                ? "!bg-[var(--overview-color-three)]"
+                : "!bg-[var(--overview-color-two)] "
+            } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            <FaLongArrowAltRight className="text-sm" />
+          </TheIcon>
+        </div>
+
         {/* draw  */}
         <TheIcon
-          onClick={() => toggleDrawing()}
+          onClick={() => setAction(ACTIONS.LINE)}
           cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-            drawing
+            action === ACTIONS.LINE
               ? "!bg-[var(--overview-color-three)]"
               : "!bg-[var(--overview-color-two)] "
           } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
         >
           <FaPenAlt className="text-sm" />
         </TheIcon>
+
         <TheIcon
-          onClick={() => toggleSelecting()}
+          onClick={() => setAction(ACTIONS.SELECT)}
           cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-            selecting
+            action === ACTIONS.SELECT
               ? "!bg-[var(--overview-color-three)]"
               : "!bg-[var(--overview-color-two)] "
           } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
         >
-          <BiSelection className="text-sm" />
+          <FaMousePointer className="text-sm" />
         </TheIcon>
 
-        {/* <button
-          onClick={() => {
-            const newMode = mode === "draw" ? "drag" : "draw";
-            setMode(newMode);
-            if (newMode === "draw") {
-              setSelectedIds([]);
-            }
-          }}
-          className="p-2 flex items-center justify-center text-white bg-[#7341E6]/20 w-[40px] h-full cursor-pointer hover:bg-[#7341E6]/30 transition"
-        >
-          {mode === "draw" ? <FaPenAlt /> : <FaEraser />}
-        </button> */}
-      </div>
+        <TheButton cClass="!h-full !rounded-none !w-[35px] !p-0 ">
+          <input
+            className="w-full px-1 cursor-pointer"
+            type="color"
+            value={fillColor}
+            onChange={(e) => setFillColor(e.target.value)}
+          />
+        </TheButton>
 
-      {/* other tools  */}
-      {/* <div className="w-fit  flex items-center gap-0 text-sm">
-
-        <div
-          className={`${
-            openColor ? "w-[100px] opacity-100" : "w-0 opacity-0"
-          }  h-full  bg-[var(--modeling)]/50 transition flex gap-2 items-center justify-between p-2 overflow-hidden`}
-        >
-          {colors.map((color) => {
-            return (
-              <>
-                {color === "red" && (
-                  <div
-                    className="w-[20px] h-[20px] bg-red-500 rounded-full overflow-hidden shrink-0 cursor-pointer"
-                    onClick={() => setTheStroke("red")}
-                  ></div>
-                )}
-                {color === "blue" && (
-                  <div
-                    className="w-[20px] h-[20px] bg-blue-500 rounded-full overflow-hidden shrink-0 cursor-pointer"
-                    onClick={() => setTheStroke("blue")}
-                  ></div>
-                )}
-                {color === "green" && (
-                  <div
-                    className="w-[20px] h-[20px] bg-green-500 rounded-full overflow-hidden shrink-0 cursor-pointer"
-                    onClick={() => setTheStroke("green")}
-                  ></div>
-                )}
-                {color === "white" && (
-                  <div
-                    className="w-[20px] h-[20px] bg-white-500 rounded-full overflow-hidden shrink-0 cursor-pointer"
-                    onClick={() => setTheStroke("white")}
-                  ></div>
-                )}
-              </>
-            );
-          })}
-        </div>
-        <button
-          onClick={() => {
-            setOpenColor(!openColor);
-          }}
-          className="p-2 flex items-center justify-center text-white bg-[#7341E6]/20 w-[40px] h-full cursor-pointer hover:bg-[#7341E6]/30 transition"
-        >
-          <div className="w-[20px] h-[20px]">
-            {strokeColor === "red" && (
-              <div className="w-full h-full bg-red-500 rounded-full overflow-hidden"></div>
-            )}
-            {strokeColor === "blue" && (
-              <div className="w-full h-full bg-blue-500 rounded-full overflow-hidden"></div>
-            )}
-            {strokeColor === "green" && (
-              <div className="w-full h-full bg-green-500 rounded-full overflow-hidden"></div>
-            )}
-            {strokeColor === "white" && (
-              <div className="w-full h-full bg-white-500 rounded-full overflow-hidden"></div>
-            )}
-          </div>
-        </button>
-
-      
-
-        <button
+        <TheIcon
           onClick={() => toggleFullscreen()}
-          className="p-2 flex items-center justify-center text-white bg-[#7341E6]/20 w-[40px] h-full cursor-pointer hover:bg-[#7341E6]/30 transition"
+          cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+            isFullScreen
+              ? "!bg-[var(--overview-color-three)]"
+              : "!bg-[var(--overview-color-two)] "
+          } hover:!bg-[var(--overview-color-three)] !rounded-none`}
         >
-          <MdFullscreen />
-        </button>
-
-        <button
-        onClick={() => setTool("pen")}
-        style={{ fontWeight: tool === "pen" ? "bold" : "normal" }}
-      >
-        Pen
-      </button>
-      <button
-        onClick={() => setTool("rect")}
-        style={{ fontWeight: tool === "rect" ? "bold" : "normal" }}
-      >
-        Rect
-      </button>
-      </div> */}
+          <RiFullscreenLine />
+        </TheIcon>
+      </div>
     </div>
   );
 };

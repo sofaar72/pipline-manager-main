@@ -19,27 +19,47 @@ const OverviewItem = ({
   taskHandleMouseUp,
   isTaskSelected,
   setAddressbar,
+  previewWidth,
+  theShowPreview,
+  setEntityId,
 }) => {
   // const [activeTask, setActiveTask] = useState("");
 
-  const showPreview = (e, cellId = "", rowId = "", entName) => {
+  const showPreview = (e, cellId = "", rowId = "", entName, taskId, entId) => {
+    e.stopPropagation();
     if (!cellId || !rowId || editMode) return;
 
-    if (["Texturing", "Rigging", "Modeling", "Shading"].includes(cellId)) {
+    setEntityId(entId);
+
+    if (
+      [
+        "Texturing",
+        "Rigging",
+        "Modeling",
+        "Shading",
+        "animate",
+        "light",
+      ].includes(cellId)
+    ) {
       setAddressbar(entName + "/" + (cellId + "-" + rowId));
       setActiveTask({ collId: cellId, rowId: rowId }); // mark this task active
-      handleShowPrev(e, id, groupId);
+      // console.log(groupId, id, taskId);
+      handleShowPrev(e, id, groupId, taskId);
     }
   };
 
-  useEffect(() => {
-    console.log("Active task:", activeTask);
-  }, [activeTask]);
+  // useEffect(() => {
+  //   console.log("Active task:", activeTask);
+  // }, [activeTask]);
+
+  // useEffect(() => {
+  //   console.log(theShowPreview);
+  // }, [theShowPreview]);
 
   return (
     <div
       key={item.id}
-      className={`grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg  ${
+      className={` grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg  ${
         !tableItemsSize ? "h-[40px]" : "h-[120px]"
       } shrink-0 radius overflow-hidden cursor-pointer
         ${
@@ -47,7 +67,11 @@ const OverviewItem = ({
             ? "bg-[var(--overview-color-select)]"
             : "bg-[var(--overview-color-two)]"
         }   ${editMode && "!bg-[var(--overview-color-four)]"}`}
-      style={{ gridTemplateColumns, userSelect: editMode ? "none" : "auto" }}
+      style={{
+        gridTemplateColumns,
+        userSelect: editMode ? "none" : "auto",
+        width: theShowPreview ? "100%" : `calc(100% - ${previewWidth}px) `,
+      }}
       onMouseUp={taskHandleMouseUp}
     >
       {row.getVisibleCells().map((cell) => {
@@ -65,7 +89,9 @@ const OverviewItem = ({
             activeTask.rowId === cell.row.id)
             ? "bg-[var(--overview-color-progress)]" // highlight active
             : "";
-
+        {
+          // console.log(cell?.row?.original);
+        }
         return (
           <div
             key={cell.id}
@@ -78,7 +104,9 @@ const OverviewItem = ({
                 e,
                 cell?.column.id,
                 cell?.row.id,
-                cell?.row?.original?.name
+                cell?.row?.original?.name,
+                cell.id,
+                cell?.row?.original?.id
               )
             }
             onMouseDown={() =>

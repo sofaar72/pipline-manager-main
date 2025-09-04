@@ -13,6 +13,7 @@ import { createFilm } from "../store/Slices/FilmSlice";
 
 export const useEntities = () => {
   const [selectedEntityType, setSelectedEntityType] = useState("All");
+  const [entityId, setEntityId] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -168,5 +169,7 @@ export const useEntities = () => {
     editLoading,
     editError,
     fetchEpisodes,
+    entityId,
+    setEntityId,
   };
 };

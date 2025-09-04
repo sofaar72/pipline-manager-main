@@ -2,7 +2,13 @@ import React from "react";
 import { IoMdArrowDropdown } from "react-icons/io";
 
 const GroupTitle = (props) => {
-  const { setCollapsedGroups, collapsedGroups, group } = props;
+  const {
+    setCollapsedGroups,
+    collapsedGroups,
+    group,
+    previewWidth,
+    showPreview,
+  } = props;
 
   const toggleTable = (e) => {
     e.stopPropagation();
@@ -12,10 +18,15 @@ const GroupTitle = (props) => {
     }));
   };
   return (
-    <div className="shrink-0 w-full h-[60px] radius   flex items-center gap-2 justify-between">
+    <div
+      className="shrink-0 w-full h-[60px] radius   flex items-center gap-2 justify-between "
+      style={{
+        width: showPreview ? "100%" : `calc(100% - ${previewWidth}px) `,
+      }}
+    >
       {/* icon  */}
       <div
-        className={`shrink-0 w-[40px] h-[40px] bg-[var(--overview-color-todo)]/80 transition hover:bg-[var(--overview-color-todo)] flex items-center justify-center radius transition cursor-pointer`}
+        className={`shrink-0 w-[25px] h-[25px] bg-[var(--overview-color-todo)]/80 transition hover:bg-[var(--overview-color-todo)] flex items-center justify-center radius cursor-pointer text-xl `}
         onClick={toggleTable}
       >
         {collapsedGroups[group.groupName] ? "+" : "-"}

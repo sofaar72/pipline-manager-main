@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from "react";
+
 export const useTableData = ({ tableItems = [] }) => {
   /**
    * Helper to map status -> Tailwind classes
@@ -32,6 +34,7 @@ export const useTableData = ({ tableItems = [] }) => {
     group: i < 6 ? "Group A" : "Group B",
     departments: DEPARTMENTS.reduce((acc, d, idx) => {
       const statuses = ["Todo", "In Progress", "Blocked", "Done"];
+      // console.log(acc);
       acc[d] = {
         status: statuses[(i + idx) % statuses.length],
         assignees: [
@@ -56,6 +59,68 @@ export const useTableData = ({ tableItems = [] }) => {
     }, {}),
   }));
 
+  // REAL DATA
+  const [dynamicDepartments, setDynamicDepartments] = useState([]);
+
+  useEffect(() => {
+    if (!tableItems || !tableItems.length) return;
+
+    // 1. Collect all unique task types
+    const depts = [];
+    tableItems.forEach((item) => {
+      (item.tasks || []).forEach((task) => {
+        if (task.type && !depts.includes(task.type)) {
+          depts.push(task.type);
+        }
+      });
+    });
+
+    setDynamicDepartments(depts);
+  }, [tableItems]);
+
+  const REAL_DATA = useMemo(() => {
+    return tableItems.map((item) => {
+      const departmentsObj = {};
+
+      (item.tasks || []).forEach((task) => {
+        departmentsObj[task.type] = {
+          status: task.status?.name || "Todo",
+          assignees: (task.assignee || []).map((id) => ({
+            id,
+            name: `User ${id}`,
+            avatar: `https://i.pravatar.cc/40?img=${id % 70}`,
+          })),
+        };
+      });
+
+      // Make sure all dynamicDepartments exist
+      dynamicDepartments.forEach((dept) => {
+        if (!departmentsObj[dept]) {
+          departmentsObj[dept] = { status: "", assignees: [] };
+        }
+      });
+
+      return {
+        id: item.id,
+        name: item.name,
+        thumbnail: item.thumbnail || "",
+        episode: item.parent || "",
+        group: item.parent || "Ungrouped",
+        departments: departmentsObj,
+        duration: item.duration || "",
+        location: item.location || "",
+        other: "",
+      };
+    });
+  }, [tableItems, dynamicDepartments]);
+
+  // useEffect(() => {
+  //   console.log(REAL_DATA);
+  // }, [REAL_DATA]);
+  // useEffect(() => {
+  //   console.log(SAMPLE_DATA);
+  // }, [REAL_DATA]);
+
   // Default widths
   const DEFAULT_WIDTHS = {
     entity: 200,
@@ -66,11 +131,14 @@ export const useTableData = ({ tableItems = [] }) => {
   };
 
   DEPARTMENTS.forEach((d) => (DEFAULT_WIDTHS[d] = 200));
+  dynamicDepartments.forEach((d) => (DEFAULT_WIDTHS[d] = 200));
 
   return {
     statusClasses,
     DEPARTMENTS,
     SAMPLE_DATA,
+    dynamicDepartments,
+    REAL_DATA,
     DEFAULT_WIDTHS,
   };
 };

@@ -3,7 +3,7 @@ import React from "react";
 import CheckBoxItem from "../../../golbals/CheckBoxItem";
 import TheButton from "../../TheButton";
 
-const FilesHeader = () => {
+const FilesHeader = ({ setOpen }) => {
   return (
     <div className="w-full flex items- justify-between bg-[var(--overview-color-two)] text-white h-[25px]">
       <CheckBoxItem label="All" />
@@ -16,7 +16,11 @@ const FilesHeader = () => {
         </div>
         <TheButton
           cClass="flex items-center justify-between gap-2 h-regular !p-2 !bg-[var(--overview-color-three)] hover:!bg-[var(--overview-color-four)] !h-full"
-          onClick={() => {}}
+          onClick={(e) => {
+            e.preventDefault();
+
+            setOpen(true);
+          }}
         >
           <span>Add</span>
           <span>+</span>

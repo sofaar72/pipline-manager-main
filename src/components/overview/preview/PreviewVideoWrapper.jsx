@@ -6,8 +6,16 @@ import TheIcon from "../TheIcon";
 import { FaPlus } from "react-icons/fa";
 import VideoPreview from "./Annotations/TheVideo";
 import TheAnnotationWrapper from "./Annotations/TheAnnotationWrapper";
+import GlobalPureModal from "../../golbals/GlobalPureModal";
+import CreateVersionForm from "../CreateVersionForm";
 
-const PreviewVideoWrapper = ({ switcher, setSwitcher, previewWidth }) => {
+const PreviewVideoWrapper = ({
+  switcher,
+  setSwitcher,
+  previewWidth,
+  isResizing,
+}) => {
+  const [open, setOpen] = useState(false);
   return (
     <div
       className={`w-full ${
@@ -29,7 +37,12 @@ const PreviewVideoWrapper = ({ switcher, setSwitcher, previewWidth }) => {
             width={"w-[100px]"}
           />
 
-          <TheIcon cClass=" !border-none" onClick={() => {}}>
+          <TheIcon
+            cClass=" !border-none"
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
             <FaPlus />
           </TheIcon>
         </div>
@@ -58,7 +71,16 @@ const PreviewVideoWrapper = ({ switcher, setSwitcher, previewWidth }) => {
       </div>
 
       {/* the video and annotations stage  */}
-      <TheAnnotationWrapper previewWidth={previewWidth} />
+
+      <TheAnnotationWrapper
+        previewWidth={previewWidth}
+        isResizing={isResizing}
+      />
+
+      {/* add version modal  */}
+      <GlobalPureModal open={open} setOpen={setOpen}>
+        <CreateVersionForm />
+      </GlobalPureModal>
     </div>
   );
 };

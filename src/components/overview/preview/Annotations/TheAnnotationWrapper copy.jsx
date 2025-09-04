@@ -5,32 +5,33 @@ import TheFrames from "./TheFrames";
 import TheAnnotatorStage from "./TheAnnotatorStage";
 import { useStageControl } from "./useStageControl";
 import TheToolbar from "./TheToolbar";
-import { ACTIONS } from "./Actions";
 
-const TheAnnotationWrapper = ({ previewWidth, isResizing }) => {
+const TheAnnotationWrapper = ({ previewWidth }) => {
   const {
     videoRef,
     height,
     changeHeight,
     frames,
     isPlaying,
-    pauseTheVideo,
-    isMuted,
-    isLoope,
+    setIsPlaying,
     pauseOrPlay,
+    pauseTheVideo,
     muteOrNot,
+    isMuted,
     loopOrNot,
+    isLoope,
   } = useVideoControl();
-
   const {
     stageSize,
     selecting,
     setSelecting,
+
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
     annotations,
     currentFrameIndex,
+    setCurrentFrameIndex,
     handleSelectFrame,
     frameBoxRef,
     handleMouseDownDrag,
@@ -39,11 +40,14 @@ const TheAnnotationWrapper = ({ previewWidth, isResizing }) => {
     selectionRect,
     updateShape,
     deleteSelectedShapes,
+
+    // news
     stageRef,
     action,
     setAction,
     fillColor,
     setFillColor,
+    rectangles,
     isDraggable,
     transformerRef,
     transformActive,
@@ -53,49 +57,39 @@ const TheAnnotationWrapper = ({ previewWidth, isResizing }) => {
     toggleFullscreen,
     isFullScreen,
     getShapesForFrame,
+    denormalizeShape,
+    denormalizeRect,
     stageToVideoCoords,
     normalizeRect,
-    denormalizeRect,
     normalizedToVideoRect,
-    normalizeCircle,
-    denormalizeCircle,
-    normalizedToVideoCircle,
-    normalizeArrow,
-    denormalizeArrow,
-    normalizedToVideoArrow,
-    normalizeLine,
-    denormalizeLine,
-    normalizedToVideoLine,
-    handleTransformEnd,
-    isPainting,
   } = useStageControl({
     containerRef: videoRef,
-    frames,
+    frames: frames,
     isplaying: isPlaying,
     isloope: isLoope,
   });
 
   useEffect(() => {
-    setAction(ACTIONS.SELECT);
-  }, [isPlaying]);
-
-  useEffect(() => {
-    setAction(ACTIONS.SELECT);
     pauseTheVideo();
-    setSelecting(false);
 
-    if (previewWidth < 550) changeHeight();
-    else changeHeight(280);
+    setSelecting(false);
+    if (previewWidth < 550) {
+      changeHeight();
+    } else {
+      changeHeight(280);
+    }
   }, [previewWidth]);
 
-  const containerClass = isFullScreen
-    ? "fixed top-0 left-0 w-full h-full z-[999999] flex flex-col gap-0 justify-between bg-blue-500 overflow-hidden"
-    : "w-full flex-1 flex flex-col gap-0 justify-between bg-blue-500 relative overflow-hidden";
+  const defaultClass =
+    "w-full flex-1 flex flex-col gap-0 justify-between radius shrink-0 bg-blue-500 relative overflow-hidden";
+
+  const fullScreenClass =
+    "fixed top-0 left-0 w-full h-full z-[9999999999999999999999999999999]  flex flex-col gap-0 justify-between radius shrink-0 bg-blue-500  overflow-hidden";
 
   return (
-    <div className={containerClass}>
+    <div className={isFullScreen ? fullScreenClass : defaultClass}>
       <div
-        className="w-full flex-1 relative overflow-hidden bg-black"
+        className={`w-full flex-1 shrink-0  relative overflow-hidden bg-black`}
         style={{ height: `${height}px` }}
       >
         <TheVideo
@@ -116,7 +110,9 @@ const TheAnnotationWrapper = ({ previewWidth, isResizing }) => {
           selecting={selecting}
           updateShape={updateShape}
           deleteSelectedShapes={deleteSelectedShapes}
+          // new
           stageRef={stageRef}
+          rectangles={rectangles}
           fillColor={fillColor}
           action={action}
           isDraggable={isDraggable}
@@ -127,25 +123,15 @@ const TheAnnotationWrapper = ({ previewWidth, isResizing }) => {
           handleStageMouseUp={handleStageMouseUp}
           isFullScreen={isFullScreen}
           getShapesForFrame={getShapesForFrame}
+          denormalizeShape={denormalizeShape}
+          denormalizeRect={denormalizeRect}
           stageToVideoCoords={stageToVideoCoords}
           normalizeRect={normalizeRect}
-          denormalizeRect={denormalizeRect}
           normalizedToVideoRect={normalizedToVideoRect}
-          normalizeCircle={normalizeCircle}
-          denormalizeCircle={denormalizeCircle}
-          normalizedToVideoCircle={normalizedToVideoCircle}
-          normalizeArrow={normalizeArrow}
-          denormalizeArrow={denormalizeArrow}
-          normalizedToVideoArrow={normalizedToVideoArrow}
-          normalizeLine={normalizeLine}
-          denormalizeLine={denormalizeLine}
-          normalizedToVideoLine={normalizedToVideoLine}
-          handleTransformEnd={handleTransformEnd}
         />
       </div>
-
       {previewWidth >= 550 && (
-        <div className="w-full h-[40px] flex flex-col bg-[var(--overview-color-one)]">
+        <div className="w-full h-[40px] flex flex-col gap-0  shrink-0 bg-[var(--overview-color-one)]">
           <TheFrames
             frames={frames}
             currentFrameIndex={currentFrameIndex}
@@ -164,7 +150,10 @@ const TheAnnotationWrapper = ({ previewWidth, isResizing }) => {
             pauseOrPlay={pauseOrPlay}
             muteOrNot={muteOrNot}
             loopOrNot={loopOrNot}
+            // for annotation
+
             selecting={selecting}
+            // news
             action={action}
             setAction={setAction}
             fillColor={fillColor}

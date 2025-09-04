@@ -42,6 +42,10 @@ export default function OverviewTable({
   tableItems,
   collapseWidth,
   setAddressbar,
+  showPreview,
+  previewWidth,
+  selectedProject,
+  setEntityId,
 }) {
   // TASK SETTINGS HOOK
   const {
@@ -71,6 +75,7 @@ export default function OverviewTable({
     startResize,
     getColumnMinWidth,
   } = useTableFunctions({
+    selectedProject,
     tableItemsSize,
     showMeta,
     showAssignees,
@@ -85,11 +90,11 @@ export default function OverviewTable({
 
   return (
     <div
-      className={`${collapseWidth} min-h-screen p-6 bg-[#0f0f14] text-white`}
+      className={`${collapseWidth} h-fit p-0 bg-[var(--overview-color-bg)] text-white`}
     >
       <div className="flex gap-6">
-        <div className="flex-1 rounded-md bg-[#14131a] p-3">
-          <div className="overflow-auto rounded-md bg-[#0f0f14] p-2">
+        <div className="flex-1 rounded-md bg-[#14131a] py-8">
+          <div className="overflow-auto rounded-md bg-[#0f0f14] p-0">
             <TableHeader
               gridTemplateColumns={gridTemplateColumns}
               columns={columns}
@@ -98,6 +103,8 @@ export default function OverviewTable({
               flexRender={flexRender}
               showMeta={showMeta}
               editMode={editMode}
+              showPreview={showPreview}
+              previewWidth={previewWidth}
             />
 
             <OverviewItems
@@ -120,6 +127,9 @@ export default function OverviewTable({
               taskHandleMouseUp={taskHandleMouseUp}
               isTaskSelected={isTaskSelected}
               setAddressbar={setAddressbar}
+              showPreview={showPreview}
+              previewWidth={previewWidth}
+              setEntityId={setEntityId}
             />
           </div>
         </div>

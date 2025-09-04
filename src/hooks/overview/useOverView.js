@@ -2,14 +2,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useProject } from "../useProject";
 import { useEntities } from "../useEntities";
 import { selectProject } from "../../store/Slices/ProjectsSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchFilms } from "../../store/Slices/FilmSlice";
 
 export const useOverview = () => {
   const dispatch = useDispatch();
   const { getAllProjects } = useProject();
-  const { fetchEpisodes } = useEntities();
+  const { fetchEpisodes, entityResults, entityId, setEntityId } = useEntities();
   const [addressbar, setAddressbar] = useState("");
+  const [searchItem, setSearchItem] = useState("");
 
   // table controls
   const [tableItemsSize, setTableItemsSize] = useState(false);
@@ -46,9 +47,10 @@ export const useOverview = () => {
   ) => {
     const projectId = project ? project : localStorage.getItem("project_id");
     if (projectId) {
+      console.log(project);
       dispatch(
         fetchFilms({
-          project: project,
+          project: project.id,
           type:
             type === "Episodes"
               ? "EP"
@@ -92,5 +94,9 @@ export const useOverview = () => {
     selectedEntType,
     addressbar,
     setAddressbar,
+    searchItem,
+    setSearchItem,
+    entityId,
+    setEntityId,
   };
 };

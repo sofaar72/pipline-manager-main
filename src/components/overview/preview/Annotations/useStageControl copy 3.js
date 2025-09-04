@@ -24,9 +24,6 @@ export const useStageControl = ({
   const [selecting, setSelecting] = useState(false);
   const selectionStart = useRef({ x: 0, y: 0 });
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [undoStack, setUndoStack] = useState([]);
-  const [redoStack, setRedoStack] = useState([]);
-  const maxHistory = 5;
 
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
@@ -36,8 +33,8 @@ export const useStageControl = ({
 
   useEffect(() => {
     if (containerRef) {
-      console.log(containerRef.current?.videoWidth);
-      console.log(containerRef.current?.videoHeight);
+      console.log(containerRef.current.videoWidth);
+      console.log(containerRef.current.videoHeight);
     }
   }, [isFullScreen]);
 
@@ -83,7 +80,7 @@ export const useStageControl = ({
     };
   };
 
-  // get a normalized from video-px
+  // get a normalized rect from video-px rect
   const normalizeRect = (shape) => {
     const { x, y, width, height } = shape;
     const { vw, vh } = getVideoNaturalSize();
@@ -96,39 +93,7 @@ export const useStageControl = ({
     };
   };
 
-  const normalizeCircle = (circle) => {
-    const { x, y, radius } = circle;
-    const { vw, vh } = getVideoNaturalSize(); // video natural width/height
-    return {
-      ...circle,
-      x: x / vw,
-      y: y / vh,
-      radius: radius / ((vw + vh) / 2), // normalize radius relative to average dimension
-    };
-  };
-
-  const normalizeArrow = (arrow) => {
-    const { x, y, points } = arrow;
-    const { vw, vh } = getVideoNaturalSize();
-    return {
-      ...arrow,
-      x: x / vw,
-      y: y / vh,
-      points: points.map((p, i) => (i % 2 === 0 ? p / vw : p / vh)),
-    };
-  };
-
-  const normalizeLine = (line) => {
-    const { x, y, points } = line;
-    const { vw, vh } = getVideoNaturalSize();
-    return {
-      ...line,
-      x: x / vw,
-      y: y / vh,
-      points: points.map((p, i) => (i % 2 === 0 ? p / vw : p / vh)),
-    };
-  };
-
+  // get stage-px rect from normalized rect (for rendering)
   const denormalizeRect = (normRect) => {
     const { vw, vh, scale, offsetX, offsetY } = getVideoTransform();
     const vx = normRect.x * vw;
@@ -143,49 +108,7 @@ export const useStageControl = ({
     };
   };
 
-  const denormalizeCircle = (normCircle) => {
-    const { vw, vh, scale, offsetX, offsetY } = getVideoTransform();
-    const x = normCircle.x * vw * scale + offsetX;
-    const y = normCircle.y * vh * scale + offsetY;
-    const radius = normCircle.radius * ((vw + vh) / 2) * scale; // scale radius
-    return {
-      ...normCircle,
-      x,
-      y,
-      radius,
-    };
-  };
-
-  const denormalizeArrow = (normArrow) => {
-    const { vw, vh, scale, offsetX, offsetY } = getVideoTransform();
-    const x = normArrow.x * vw * scale + offsetX;
-    const y = normArrow.y * vh * scale + offsetY;
-    const points = normArrow.points.map((p, i) =>
-      i % 2 === 0 ? p * vw * scale : p * vh * scale
-    );
-    return {
-      ...normArrow,
-      x,
-      y,
-      points,
-    };
-  };
-
-  const denormalizeLine = (normLine) => {
-    const { vw, vh, scale, offsetX, offsetY } = getVideoTransform();
-    const x = normLine.x * vw * scale + offsetX;
-    const y = normLine.y * vh * scale + offsetY;
-    const points = normLine.points.map((p, i) =>
-      i % 2 === 0 ? p * vw * scale : p * vh * scale
-    );
-    return {
-      ...normLine,
-      x,
-      y,
-      points,
-    };
-  };
-
+  // helper: convert normalized stored rect -> video px rect (useful for updates)
   const normalizedToVideoRect = (normRect) => {
     const { vw, vh } = getVideoNaturalSize();
     return {
@@ -196,36 +119,6 @@ export const useStageControl = ({
     };
   };
 
-  const normalizedToVideoCircle = (normCircle) => {
-    const { vw, vh } = getVideoNaturalSize(); // natural video size
-    return {
-      ...normCircle,
-      x: normCircle.x * vw,
-      y: normCircle.y * vh,
-      radius: normCircle.radius * ((vw + vh) / 2), // scale radius to video pixels
-    };
-  };
-
-  const normalizedToVideoArrow = (normArrow) => {
-    const { vw, vh } = getVideoNaturalSize();
-    return {
-      ...normArrow,
-      x: normArrow.x * vw,
-      y: normArrow.y * vh,
-      points: normArrow.points.map((p, i) => (i % 2 === 0 ? p * vw : p * vh)),
-    };
-  };
-
-  const normalizedToVideoLine = (normLine) => {
-    const { vw, vh } = getVideoNaturalSize();
-    return {
-      ...normLine,
-      x: normLine.x * vw,
-      y: normLine.y * vh,
-      points: normLine.points.map((p, i) => (i % 2 === 0 ? p * vw : p * vh)),
-    };
-  };
-
   // helper: make rect from two video points (ensures positive width/height)
   const makeVideoRectFromPoints = (x1, y1, x2, y2) => {
     const x = Math.min(x1, x2);
@@ -233,87 +126,6 @@ export const useStageControl = ({
     const width = Math.abs(x2 - x1);
     const height = Math.abs(y2 - y1);
     return { x, y, width, height };
-  };
-
-  const handleTransformEnd = (frameIndex, shapeId, node, shape) => {
-    if (!node) return;
-
-    const scaleX = node.scaleX();
-    const scaleY = node.scaleY();
-    const pos = { x: node.x(), y: node.y() };
-    const videoPos = stageToVideoCoords(pos);
-
-    let updatedShape;
-
-    switch (shape.type) {
-      case "rect": {
-        const widthVideo = (node.width() * node.scaleX()) / scale;
-        const heightVideo = (node.height() * node.scaleY()) / scale;
-        const xVideo = (stageX - offsetX) / scale;
-        const yVideo = (stageY - offsetY) / scale;
-
-        node.scaleX(1);
-        node.scaleY(1);
-
-        updateShape(frameIndex, shapeId, () =>
-          normalizeRect({
-            ...shape,
-            x: xVideo,
-            y: yVideo,
-            width: widthVideo,
-            height: heightVideo,
-          })
-        );
-        break;
-      }
-
-      case "circle": {
-        const shVideo = normalizedToVideoCircle(shape); // in video px
-        const scale = Math.max(scaleX, scaleY); // node scale
-        updatedShape = normalizeCircle({
-          ...shVideo,
-          x: videoPos.x,
-          y: videoPos.y,
-          radius: shVideo.radius * scale, // remove extra getVideoTransform().scale
-        });
-        break;
-      }
-
-      case "arrow":
-      case "line": {
-        const shVideo =
-          shape.type === "arrow"
-            ? normalizedToVideoArrow(shape)
-            : normalizedToVideoLine(shape);
-        const newPoints = shVideo.points.map((p, i) =>
-          i % 2 === 0 ? p * scaleX : p * scaleY
-        );
-        updatedShape =
-          shape.type === "arrow"
-            ? normalizeArrow({
-                ...shVideo,
-                x: videoPos.x,
-                y: videoPos.y,
-                points: newPoints,
-              })
-            : normalizeLine({
-                ...shVideo,
-                x: videoPos.x,
-                y: videoPos.y,
-                points: newPoints,
-              });
-        break;
-      }
-
-      default:
-        return;
-    }
-
-    pushUndo(); // save state after transformation
-    updateShape(frameIndex, shapeId, () => updatedShape);
-    // reset node scale
-    node.scaleX(1);
-    node.scaleY(1);
   };
 
   // ---------------- VIDEO CONTROLS ----------------
@@ -340,12 +152,6 @@ export const useStageControl = ({
       });
     }
   }, [frames]);
-
-  // Force re-render when fullscreen changes to update all coordinate transforms
-  useEffect(() => {
-    // This will cause all shapes to recalculate their positions
-    setAnnotations((prev) => [...prev]);
-  }, [isFullScreen, stageSize]);
 
   // ---------------- STAGE SIZE ----------------
   useEffect(() => {
@@ -436,14 +242,12 @@ export const useStageControl = ({
 
   // ---------------- ANNOTATION ----------------
   const addShapeToFrame = (frameIndex, shape) => {
-    updateAnnotations((prev) => {
-      pushUndo(); // save before change
-      return prev.map((f, i) =>
+    setAnnotations((prev) =>
+      prev.map((f, i) =>
         i === frameIndex ? { ...f, shapes: [...f.shapes, shape] } : f
-      );
-    });
+      )
+    );
   };
-
   const getShapesForFrame = (frameIndex) => {
     if (!annotations || !Array.isArray(annotations)) return [];
     if (!annotations[frameIndex]) return [];
@@ -460,34 +264,32 @@ export const useStageControl = ({
           width: den.width,
           height: den.height,
         };
+      // return {
+      //   x: shape.x,
+      //   y: shape.y,
+      //   width: shape.width,
+      //   height: shape.height,
+      // };
       case "circle":
-        const denCircle = denormalizeCircle(shape);
         return {
-          x: denCircle.x - denCircle.radius,
-          y: denCircle.y - denCircle.radius,
-          width: denCircle.radius * 2,
-          height: denCircle.radius * 2,
+          x: shape.x - shape.radius,
+          y: shape.y - shape.radius,
+          width: shape.radius * 2,
+          height: shape.radius * 2,
         };
       case "arrow":
       case "line": {
-        const denArrow =
-          shape.type === "arrow"
-            ? denormalizeArrow(shape)
-            : denormalizeLine(shape);
-        const xs = [];
-        const ys = [];
-        for (let i = 0; i < denArrow.points.length; i += 2) {
-          xs.push(denArrow.points[i]);
-          ys.push(denArrow.points[i + 1]);
-        }
+        const xs = shape.points.filter((_, i) => i % 2 === 0);
+        const ys = shape.points.filter((_, i) => i % 2 !== 0);
+
         const minX = Math.min(...xs);
         const maxX = Math.max(...xs);
         const minY = Math.min(...ys);
         const maxY = Math.max(...ys);
 
         return {
-          x: denArrow.x + minX,
-          y: denArrow.y + minY,
+          x: (shape.x || 0) + minX,
+          y: (shape.y || 0) + minY,
           width: maxX - minX,
           height: maxY - minY,
         };
@@ -513,6 +315,70 @@ export const useStageControl = ({
     );
   };
 
+  const normalizeShape = (shape) => {
+    switch (shape.type) {
+      case "rect":
+        return {
+          ...shape,
+          x: shape.x / stageSize.width,
+          y: shape.y / stageSize.height,
+          width: shape.width / stageSize.width,
+          height: shape.height / stageSize.height,
+        };
+      case "circle":
+        return {
+          ...shape,
+          x: shape.x / stageSize.width,
+          y: shape.y / stageSize.height,
+          radius: shape.radius / stageSize.width, // assuming square scaling
+        };
+      case "line":
+      case "arrow":
+        return {
+          ...shape,
+          x: (shape.x || 0) / stageSize.width,
+          y: (shape.y || 0) / stageSize.height,
+          points: shape.points.map((p, i) =>
+            i % 2 === 0 ? p / stageSize.width : p / stageSize.height
+          ),
+        };
+      default:
+        return shape;
+    }
+  };
+
+  const denormalizeShape = (shape) => {
+    switch (shape.type) {
+      case "rect":
+        return {
+          ...shape,
+          x: shape.x * stageSize.width,
+          y: shape.y * stageSize.height,
+          width: shape.width * stageSize.width,
+          height: shape.height * stageSize.height,
+        };
+      case "circle":
+        return {
+          ...shape,
+          x: shape.x * stageSize.width,
+          y: shape.y * stageSize.height,
+          radius: shape.radius * stageSize.width,
+        };
+      case "line":
+      case "arrow":
+        return {
+          ...shape,
+          x: (shape.x || 0) * stageSize.width,
+          y: (shape.y || 0) * stageSize.height,
+          points: shape.points.map((p, i) =>
+            i % 2 === 0 ? p * stageSize.width : p * stageSize.height
+          ),
+        };
+      default:
+        return shape;
+    }
+  };
+
   const handleMouseDown = (e) => {
     if (action === ACTIONS.SELECT) return;
     const stage = stageRef?.current;
@@ -531,63 +397,73 @@ export const useStageControl = ({
 
     switch (action) {
       case ACTIONS.RECTANGLE:
+        // const recShape = {
+        //   id,
+        //   x,
+        //   y,
+        //   height: 20,
+        //   width: 20,
+        //   fillColor,
+        //   stroke: "#000",
+        //   type: "rect",
+        //   selected: false,
+        // };
         const recShape = {
           id,
           x: videoPos.x,
           y: videoPos.y,
           width: initialWVideo,
           height: initialHVideo,
-          // fillColor,
-          stroke: fillColor,
-          // stroke: "#000",
+          fillColor,
+          stroke: "#000",
           type: "rect",
           selected: false,
         };
 
+        // addShapeToFrame(currentFrameIndex, recShape);
+        // addShapeToFrame(currentFrameIndex, normalizeShape(recShape));
         addShapeToFrame(currentFrameIndex, normalizeRect(recShape));
 
         break;
-      case ACTIONS.CIRCLE: {
+      case ACTIONS.CIRCLE:
         const circleShape = {
           id,
-          x: videoPos.x,
-          y: videoPos.y,
-          radius: initialWVideo, // use initial size as radius
-          // fillColor,
-          stroke: fillColor,
+          x,
+          y,
+          radius: 20,
+          fillColor,
+          stroke: "#000",
           type: "circle",
           selected: false,
         };
-        addShapeToFrame(currentFrameIndex, normalizeCircle(circleShape));
+        // addShapeToFrame(currentFrameIndex, circleShape);
+        addShapeToFrame(currentFrameIndex, normalizeShape(circleShape));
+
         break;
-      }
       case ACTIONS.ARROW:
         const arrowShape = {
           id,
-          x: videoPos.x,
-          y: videoPos.y,
-          points: [0, 0, 20, 20],
-          // fillColor,
-          stroke: fillColor,
-          // stroke: "#000",
+          points: [x, y, x + 20, y + 20],
+          fillColor,
+          stroke: "#000",
           type: "arrow",
           selected: false,
         };
-        addShapeToFrame(currentFrameIndex, normalizeArrow(arrowShape));
+        // addShapeToFrame(currentFrameIndex, arrowShape);
+        addShapeToFrame(currentFrameIndex, normalizeShape(arrowShape));
+
         break;
       case ACTIONS.LINE:
         const lineShape = {
           id,
-          x: videoPos.x,
-          y: videoPos.y,
-          points: [0, 0],
-          // fillColor,
-          stroke: fillColor,
-          // stroke: "#000",
+          points: [x, y],
+          fillColor,
           type: "line",
           selected: false,
         };
-        addShapeToFrame(currentFrameIndex, normalizeLine(lineShape));
+        // addShapeToFrame(currentFrameIndex, lineShape);
+        addShapeToFrame(currentFrameIndex, normalizeShape(lineShape));
+
         break;
     }
   };
@@ -597,11 +473,17 @@ export const useStageControl = ({
     const stage = stageRef?.current;
     if (!stage) return;
     const { x, y } = stage.getPointerPosition();
-    const videoPos = stageToVideoCoords({ x, y });
 
     switch (action) {
       case ACTIONS.RECTANGLE:
+        // updateShape(currentFrameIndex, currentShapeId.current, (rectangle) => ({
+        //   ...rectangle,
+        //   width: x - rectangle.x,
+        //   height: y - rectangle.y,
+        // }));
+
         updateShape(currentFrameIndex, currentShapeId.current, (rectangle) => {
+          const videoPos = stageToVideoCoords({ x, y });
           const rectVideo = normalizedToVideoRect(rectangle);
           const newVideoRect = makeVideoRectFromPoints(
             rectVideo.x,
@@ -614,49 +496,58 @@ export const useStageControl = ({
         });
         break;
       case ACTIONS.CIRCLE:
-        updateShape(currentFrameIndex, currentShapeId.current, (circle) => {
-          const circleVideo = normalizedToVideoCircle(circle);
-          const radius = Math.sqrt(
-            Math.pow(videoPos.x - circleVideo.x, 2) +
-              Math.pow(videoPos.y - circleVideo.y, 2)
-          );
-          return normalizeCircle({ ...circleVideo, radius });
-        });
+        updateShape(currentFrameIndex, currentShapeId.current, (circle) => ({
+          ...circle,
+          radius: ((y - circle.y) ** 2 + (x - circle.x) ** 2) ** 0.5,
+        }));
         break;
       case ACTIONS.ARROW:
-        updateShape(currentFrameIndex, currentShapeId.current, (arrow) => {
-          const arrowVideo = normalizedToVideoArrow(arrow);
-          const newPoints = [
-            0,
-            0,
-            videoPos.x - arrowVideo.x,
-            videoPos.y - arrowVideo.y,
-          ];
-          return normalizeArrow({ ...arrowVideo, points: newPoints });
-        });
+        updateShape(currentFrameIndex, currentShapeId.current, (arrow) => ({
+          ...arrow,
+          points: [arrow.points[0], arrow.points[1], x, y],
+        }));
         break;
       case ACTIONS.LINE:
-        updateShape(currentFrameIndex, currentShapeId.current, (line) => {
-          const lineVideo = normalizedToVideoLine(line);
-          const newPoints = [
-            ...lineVideo.points,
-            videoPos.x - lineVideo.x,
-            videoPos.y - lineVideo.y,
-          ];
-          return normalizeLine({ ...lineVideo, points: newPoints });
-        });
+        updateShape(currentFrameIndex, currentShapeId.current, (line) => ({
+          ...line,
+          points: [...line.points, x, y],
+        }));
         break;
     }
   };
 
   const handleMouseUp = () => {
     isPainting.current = false;
+
+    // if (action === ACTIONS.SELECT) {
+    //   const rect = {
+    //     x: Math.min(selectionRect.x, selectionRect.x + selectionRect.width),
+    //     y: Math.min(selectionRect.y, selectionRect.y + selectionRect.height),
+    //     width: Math.abs(selectionRect.width),
+    //     height: Math.abs(selectionRect.height),
+    //   };
+
+    //   setAnnotations((prev) =>
+    //     prev.map((frame, i) =>
+    //       i === currentFrameIndex
+    //         ? {
+    //             ...frame,
+    //             shapes: frame.shapes.map((shape) => ({
+    //               ...shape,
+    //               selected: isShapeInside(shape, rect),
+    //             })),
+    //           }
+    //         : frame
+    //     )
+    //   );
+
+    //   setSelectionRect(null);
+    // }
   };
 
   // ---------------- SELECTING ----------------
 
   const deleteSelectedShapes = () => {
-    pushUndo(); // save before deletion
     setAnnotations((prev) =>
       prev.map((frame) =>
         frame.frameId === currentFrameIndex
@@ -672,19 +563,7 @@ export const useStageControl = ({
   };
 
   const updateShape = (frameIndex, shapeId, updater) => {
-    // setAnnotations((prev) =>
-    //   prev.map((frame, i) =>
-    //     i === frameIndex
-    //       ? {
-    //           ...frame,
-    //           shapes: frame.shapes.map((shape) =>
-    //             shape.id === shapeId ? updater(shape) : shape
-    //           ),
-    //         }
-    //       : frame
-    //   )
-    // );
-    updateAnnotations((prev) =>
+    setAnnotations((prev) =>
       prev.map((frame, i) =>
         i === frameIndex
           ? {
@@ -742,6 +621,22 @@ export const useStageControl = ({
     selectionStart.current = { x, y };
     setSelectionRect({ x, y, width: 0, height: 0 });
 
+    // stage.on("pointermove", (ev) => {
+    //   const { x: nx, y: ny } = stage.getPointerPosition();
+    //   setSelectionRect((prev) => ({
+    //     x: prev.x,
+    //     y: prev.y,
+    //     width: nx - prev.x,
+    //     height: ny - prev.y,
+    //   }));
+    // });
+
+    // stage.on("pointerup", () => {
+    //   stage.off("pointermove");
+    //   stage.off("pointerup");
+    //   handleMouseUp();
+    // });
+
     if (e.target === e.target.getStage()) {
       if (transformerRef.current) {
         transformerRef.current.nodes([]); // deselect all
@@ -794,57 +689,6 @@ export const useStageControl = ({
     }
   };
 
-  // UNDO AND REDO
-  const pushUndo = () => {
-    setUndoStack((stack) => {
-      const newStack = [...stack, annotations];
-      if (newStack.length > maxHistory) newStack.shift(); // keep last 5
-      return newStack;
-    });
-    setRedoStack([]); // clear redo on new action
-  };
-
-  const updateAnnotations = (updater) => {
-    setAnnotations((prev) => {
-      pushUndo(prev); // save before updating
-      return updater(prev);
-    });
-  };
-
-  const undo = () => {
-    setUndoStack((prevUndo) => {
-      if (prevUndo.length === 0) return prevUndo;
-      const last = prevUndo[prevUndo.length - 1];
-      setRedoStack((prevRedo) => [...prevRedo, annotations]);
-      setAnnotations(last);
-      return prevUndo.slice(0, -1);
-    });
-  };
-
-  const redo = () => {
-    setRedoStack((prevRedo) => {
-      if (prevRedo.length === 0) return prevRedo;
-      const last = prevRedo[prevRedo.length - 1];
-      setUndoStack((prevUndo) => [...prevUndo, annotations]);
-      setAnnotations(last);
-      return prevRedo.slice(0, -1);
-    });
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
-        e.preventDefault();
-        undo();
-      } else if ((e.ctrlKey || e.metaKey) && e.key === "y") {
-        e.preventDefault();
-        redo();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [annotations, undoStack, redoStack]);
-
   return {
     stageSize,
     selecting,
@@ -882,21 +726,10 @@ export const useStageControl = ({
     toggleFullscreen,
     isFullScreen,
     getShapesForFrame,
-    getVideoTransform,
+    denormalizeShape,
+    denormalizeRect,
     stageToVideoCoords,
     normalizeRect,
-    denormalizeRect,
     normalizedToVideoRect,
-    normalizeCircle,
-    denormalizeCircle,
-    normalizedToVideoCircle,
-    normalizeArrow,
-    denormalizeArrow,
-    normalizedToVideoArrow,
-    normalizeLine,
-    denormalizeLine,
-    normalizedToVideoLine,
-    handleTransformEnd,
-    isPainting,
   };
 };

@@ -30,6 +30,10 @@ const OverviewHeader = ({
   setShowAssignees,
   setSelectedEntType,
   selectedEntType,
+  showPreview,
+  previewWidth,
+  searchEntity,
+  searchItem,
 }) => {
   const [entType, setEntType] = useState({ id: 3, name: "All" });
 
@@ -41,7 +45,12 @@ const OverviewHeader = ({
   };
 
   return (
-    <div className="w-full h-[50px] radius px-[10px] py-[5px] bg-[var(--overview-color-one)] flex items-center gap-2 justify-between">
+    <div
+      className={`h-[50px] radius px-[10px] py-[5px] bg-[var(--overview-color-one)] flex items-center gap-2 justify-between`}
+      style={{
+        width: showPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
+      }}
+    >
       {/* TODO PROJECTS ENTITIES EPISODE SELECT  */}
       <div className="w-[155px] shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
         <TheDropDown
@@ -76,34 +85,42 @@ const OverviewHeader = ({
       </div>
 
       {/* TODO CREATE Entity  */}
-      <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
-        <TheButton
-          cClass="flex items-center justify-between gap-2 h-regular"
-          onClick={openCreateEntity}
-        >
-          <span>Create Entity</span>
-          <span>+</span>
-        </TheButton>
-      </div>
+      {showPreview && (
+        <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+          <TheButton
+            cClass="flex items-center justify-between gap-2 h-regular"
+            onClick={openCreateEntity}
+          >
+            <span>Create Entity</span>
+            <span>+</span>
+          </TheButton>
+        </div>
+      )}
 
       {/* TODO SERCH AND FILTERS  */}
-      <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
-        {/* Assign to me  */}
-        <TheIcon onClick={() => {}}>
-          <IoIosCheckboxOutline />
-        </TheIcon>
-        {/* Search  */}
-        <TheSearch placeHolder="Search.." />
-        {/* advance filter  */}
-        <TheIcon onClick={() => {}}>
-          <FaFilter />
-        </TheIcon>
-        {/* small filter  */}
-        <TheIcon onClick={() => {}}>
-          <HiFilter />
-        </TheIcon>
-        <TheSavedFiltersDropDown width={"w-[160px]"} />
-      </div>
+      {showPreview && (
+        <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+          {/* Assign to me  */}
+          <TheIcon onClick={() => {}}>
+            <IoIosCheckboxOutline />
+          </TheIcon>
+          {/* Search  */}
+          <TheSearch
+            placeHolder="Search.."
+            onChange={searchEntity}
+            value={searchItem}
+          />
+          {/* advance filter  */}
+          <TheIcon onClick={() => {}}>
+            <FaFilter />
+          </TheIcon>
+          {/* small filter  */}
+          <TheIcon onClick={() => {}}>
+            <HiFilter />
+          </TheIcon>
+          <TheSavedFiltersDropDown width={"w-[160px]"} />
+        </div>
+      )}
       {/* TODO WIDGETS AND CREATE   ENTITY  */}
       <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
         <TheIcon
