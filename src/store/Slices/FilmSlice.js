@@ -48,10 +48,11 @@ export const createFilm = createAsyncThunk(
       }
       return response.data;
     } catch (error) {
-      if (error.response.data.name) {
-        toast.error(`"Name Error" ${error.response.data.name[0]}`);
-      } else if (error.response.data.type) {
-        toast.error(`"Type Error" ${error.response.data.type[0]}`);
+      console.log(error.message);
+      if (error.message) {
+        toast.error(`"Name Error" ${error.message}`);
+        // } else if (error.response.data.type) {
+        //   toast.error(`"Type Error" ${error.response.data.type[0]}`);
       }
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
     }

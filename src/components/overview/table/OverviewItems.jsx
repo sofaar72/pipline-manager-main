@@ -25,12 +25,16 @@ const OverviewItems = ({
   previewWidth,
   showPreview,
   setEntityId,
+  setTaskType,
+  setSelectedTasks,
+  selectedMultipleTasks,
+  selectSingleTask, // Add this prop
+  addToSelection, // Add this prop
 }) => {
   return (
-    <div className="divide-y divide-gray-800 flex flex-col gap-2">
-      {grouped.map((g, gIndex) => (
-        <>
-          {/* {console.log(g)} */}
+    <div className="w-full h-full flex-1 ">
+      <div className="w-full h-full flex flex-col gap-0  overflow-auto pr-[10px] pb-[20px]">
+        {grouped.map((g, gIndex) => (
           <div key={g.groupName}>
             <GroupTitle
               group={g}
@@ -68,33 +72,20 @@ const OverviewItems = ({
                       previewWidth={previewWidth}
                       theShowPreview={showPreview}
                       setEntityId={setEntityId}
+                      setTaskType={setTaskType}
+                      setSelectedTasks={setSelectedTasks}
+                      selectedMultipleTasks={selectedMultipleTasks}
+                      selectSingleTask={selectSingleTask} // Pass the new function
+                      addToSelection={addToSelection} // Pass the new function
+                      allRows={g?.items} // This allows range selection within the group
                     />
                   );
                 })}
-                {/* {tableItems?.map((item, i) => {
-                  // const row = rowById.get(item.id);
-                  // if (!row) return null;
-                  return (
-                    
-                    <OverviewItem
-                      key={i}
-                      handleShowPrev={handleShowPrev}
-                      id={i}
-                      groupId={gIndex}
-                      isSelected={selectedId == i && groupId == gIndex}
-                      item={item}
-                      row={row}
-                      flexRender={flexRender}
-                      gridTemplateColumns={gridTemplateColumns}
-                      tableItemsSize={tableItemsSize}
-                    />
-                  );
-                })} */}
               </div>
             )}
           </div>
-        </>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

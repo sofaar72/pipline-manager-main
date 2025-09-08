@@ -83,7 +83,9 @@ export const useTableData = ({ tableItems = [] }) => {
       const departmentsObj = {};
 
       (item.tasks || []).forEach((task) => {
+        // console.log(task);
         departmentsObj[task.type] = {
+          // taskId: task.id,
           status: task.status?.name || "Todo",
           assignees: (task.assignee || []).map((id) => ({
             id,

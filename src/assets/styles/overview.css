@@ -37,3 +37,7 @@
 .the_input {
   border: 2px solid var(--overview-color-three) !important;
 }
+
+textarea {
+  outline: none;
+}

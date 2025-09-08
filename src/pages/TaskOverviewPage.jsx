@@ -6,13 +6,25 @@ import OverveiwTable from "../components/overview/table/OverveiwTable";
 import { useElementAspect } from "../hooks/annotationHooks/useElementAspect";
 import { useOverview } from "../hooks/overview/useOverView";
 import GlobalPureModal from "../components/golbals/GlobalPureModal";
-import CreateEntityForm from "../components/taskmanager/CreateEntityForm";
+import CreateEntityForm from "../components/overview/CreateEntityForm";
 import PreviewMain from "../components/overview/preview/PreviewMain";
 import { useTableTaskSettings } from "../hooks/overview/useTableTaskSettings,js";
+import { useTasks } from "../hooks/useTasks";
+import { useVersions } from "../hooks/useVersions";
+import { useComments } from "../hooks/useComments";
 
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
+  const { fetchAllTasks, taskResults, taskLoading, taskError } = useTasks();
+  const {
+    fetchAllVersions,
+    versionResults,
+    versionLoading,
+    fetchSingleVersionPreview,
+    versionPreviewData,
+    versionPreviewLoading,
+  } = useVersions();
 
   // OVERVIEW HOOK
   const {
@@ -42,6 +54,10 @@ const TaskOverviewPage = () => {
     setSearchItem,
     entityId,
     setEntityId,
+    taskType,
+    setTaskType,
+    versionId,
+    setVersionId,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -169,7 +185,7 @@ const TaskOverviewPage = () => {
     } else {
       setShowMeta(true);
     }
-  }, [showPreview.show]);
+  }, [showPreview?.show]);
 
   // Debug logging (remove in production)
   useEffect(() => {
@@ -207,6 +223,16 @@ const TaskOverviewPage = () => {
   //     document.removeEventListener("mousedown", handleClickOutside);
   //   };
   // }, [wrapperRef, isResizing, showPreview.show]);
+
+  // FETCH TASKS
+  useEffect(() => {
+    if (addressbar) {
+      fetchAllTasks(entityId, taskType);
+    }
+  }, [addressbar]);
+  // useEffect(() => {
+  //   console.log(entityId);
+  // }, [entityId]);
 
   return (
     <LayoutOne>
@@ -260,22 +286,23 @@ const TaskOverviewPage = () => {
               showPreview={showPreview.show}
               previewWidth={previewWidth}
               setEntityId={setEntityId}
+              setTaskType={setTaskType}
             />
           )}
         </div>
 
         {/* PREVIEW PART */}
         <div
-          className={`w-full h-full top-0 right-0 z-[999] absolute ${
+          className={`w-full h-full top-0 right-0 z-[999] absolute  ${
             showPreview.show ? "translate-x-[100%]" : "translate-x-0"
           }`}
-          style={{ width: previewWidth }}
+          // style={{ width: previewWidth }}
           onMouseDown={(e) => {
             if (!isResizing.current) hidePrev();
           }}
         >
           <div
-            className={`h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
+            className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
             style={{ width: previewWidth }}
             ref={wrapperRef}
             onMouseDown={(e) => e.stopPropagation()}
@@ -292,7 +319,16 @@ const TaskOverviewPage = () => {
               stopResizing={stopResizing}
               isResizing={isResizing}
               hidePrev={hidePrev}
-              entityId={entityId}
+              taskResults={taskResults}
+              loading={taskLoading}
+              fetchAllVersions={fetchAllVersions}
+              versionLoading={versionLoading}
+              setVersionId={setVersionId}
+              versionId={versionId}
+              versionResults={versionResults}
+              fetchVersionPreview={fetchSingleVersionPreview}
+              versionPreviewData={versionPreviewData}
+              versionPreviewLoading={versionPreviewLoading}
             />
           </div>
         </div>
@@ -302,12 +338,14 @@ const TaskOverviewPage = () => {
       {/* CREATE ENTITY */}
       <GlobalPureModal open={createEntityModal} setOpen={setCreateEntityModal}>
         <div
-          className="w-full max-w-[500px] h-[600px]"
+          className="w-full max-w-[700px] h-fit"
           onClick={(e) => e.stopPropagation()}
         >
           <CreateEntityForm
             title={"Create Entity"}
             setCreateModal={setCreateEntityModal}
+            selectedProject={selectedProject}
+            fetchData={getTheEntities}
           />
         </div>
       </GlobalPureModal>

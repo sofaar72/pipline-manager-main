@@ -23,7 +23,7 @@ const TheFrames = ({
         // const isBeforeOrSelected = i <= selectedFrameIndex;
         const isSelected = i === currentFrameIndex;
         const hasAnnotation =
-          annotations.find((frame) => frame.frameId === i)?.shapes.length > 0;
+          annotations?.find((frame) => frame.frameId === i)?.shapes.length > 0;
         const isBeforeSelected = i < currentFrameIndex;
 
         let background = "";

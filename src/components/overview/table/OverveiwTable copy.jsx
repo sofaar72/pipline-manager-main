@@ -46,7 +46,6 @@ export default function OverviewTable({
   previewWidth,
   selectedProject,
   setEntityId,
-  setTaskType,
 }) {
   // TASK SETTINGS HOOK
   const {
@@ -60,8 +59,6 @@ export default function OverviewTable({
     setSelectedTasks,
     selectedTasks,
     selectedMultipleTasks,
-    selectSingleTask, // Get the new function
-    addToSelection, // Get the new function
     clearSelection,
     selectAllTasks,
   } = useTableTaskSettings();
@@ -102,15 +99,13 @@ export default function OverviewTable({
         clearSelection();
       } else if (e.ctrlKey && e.key === "a") {
         e.preventDefault();
-        // Get all items from all groups for select all
-        const allItems = grouped.flatMap((g) => g.items || []);
-        selectAllTasks(allItems);
+        selectAllTasks(tableItems);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [clearSelection, selectAllTasks, grouped]);
+  }, [clearSelection, selectAllTasks, tableItems]);
 
   return (
     <div
@@ -154,54 +149,10 @@ export default function OverviewTable({
                 showPreview={showPreview}
                 previewWidth={previewWidth}
                 setEntityId={setEntityId}
-                setTaskType={setTaskType}
                 setSelectedTasks={setSelectedTasks}
                 selectedMultipleTasks={selectedMultipleTasks}
-                selectSingleTask={selectSingleTask} // Pass the new function
-                addToSelection={addToSelection} // Pass the new function
               />
             </div>
-
-            {/* Optional: Selection status indicator */}
-            {selectedTasks.length > 0 && (
-              <div className="px-4 py-2 bg-[var(--overview-color-two)] border-t border-[var(--overview-color-three)]/30">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">
-                    {selectedTasks.length} task
-                    {selectedTasks.length > 1 ? "s" : ""} selected
-                    {selectedTasks.length === 1 && (
-                      <span className="text-blue-400 ml-1">
-                        (preview shown)
-                      </span>
-                    )}
-                    {selectedTasks.length > 1 && (
-                      <span className="text-orange-400 ml-1">
-                        (multiple selection)
-                      </span>
-                    )}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        const allItems = grouped.flatMap((g) => g.items || []);
-                        selectAllTasks(allItems);
-                      }}
-                      className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-                      title="Select All Tasks"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      onClick={clearSelection}
-                      className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-                      title="Clear Selection"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

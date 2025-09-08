@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import PreviewAddress from "./PreviewAddress";
+import PreviewTopBar from "./PreviewTopBar";
 import PreviewVideoWrapper from "./PreviewVideoWrapper";
 import PreviewFilesAndComments from "./PreviewFilesAndComments";
 import { useTasks } from "../../../hooks/useTasks";
+import PreviewNoTask from "./PreviewNoTask";
+import PreviewLoading from "./PreviewLoading";
+import { useComments } from "../../../hooks/useComments";
 
 const PreviewMain = ({
   addressbar,
@@ -10,21 +14,40 @@ const PreviewMain = ({
   stopResizing,
   isResizing,
   hidePrev,
-  entityId,
+  taskResults,
+  loading,
+  fetchAllVersions,
+  versionLoading,
+  versionResults,
+  fetchVersionPreview,
+  versionPreviewData,
+  versionPreviewLoading,
+  versionId,
+  setVersionId,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
+  const { getAllComments, comments, loading: commentsLoading } = useComments();
 
-  const { fetchAllTasks, taskResults } = useTasks();
-  // FETCH TASKS
-  useEffect(() => {
-    if (addressbar) {
-      fetchAllTasks(entityId);
-    }
-  }, [addressbar]);
   // FETCH VERSIONS OF THE TASK
-  // useEffect(() => {
+  useEffect(() => {
+    if (taskResults.length > 0) {
+      fetchAllVersions(taskResults[0]?.id);
+      setVersionId();
+    }
+  }, [taskResults]);
 
-  // }, [taskResults]);
+  // FETCH SINGLE VERSION
+  useEffect(() => {
+    if (versionResults && versionId) {
+      // console.log(versionId);
+      fetchVersionPreview(versionId.id);
+      getAllComments(versionId.id);
+    }
+  }, [versionResults, versionId]);
+
+  if (loading) {
+    return <PreviewLoading />;
+  }
 
   return (
     <div
@@ -34,14 +57,32 @@ const PreviewMain = ({
         // stopResizing();
       }}
     >
-      <PreviewAddress addressbar={addressbar} hidePrev={hidePrev} />
-      <PreviewVideoWrapper
-        switcher={switcher}
-        setSwitcher={setSwitcher}
-        previewWidth={previewWidth}
-        isResizing={isResizing}
-      />
-      <PreviewFilesAndComments switcher={switcher} setSwitcher={setSwitcher} />
+      {taskResults.length > 0 ? (
+        <>
+          <PreviewTopBar hidePrev={hidePrev} />
+          <PreviewAddress addressbar={addressbar} />
+          <PreviewVideoWrapper
+            switcher={switcher}
+            setSwitcher={setSwitcher}
+            previewWidth={previewWidth}
+            isResizing={isResizing}
+            versionId={versionId}
+            setVersionId={setVersionId}
+            versionLoading={versionLoading}
+            versionResults={versionResults}
+            versionPreviewData={versionPreviewData}
+            versionPreviewLoading={versionPreviewLoading}
+          />
+          <PreviewFilesAndComments
+            switcher={switcher}
+            setSwitcher={setSwitcher}
+            versionPreviewData={versionPreviewData}
+            comments={comments}
+          />
+        </>
+      ) : (
+        <PreviewNoTask />
+      )}
     </div>
   );
 };

@@ -53,12 +53,13 @@ export const useTableFunctions = ({
         id: "entity",
         header: () => (
           <div className="flex items-center gap-2 w-full">
-            <TheIcon
+            <div className="w-[40px] h-[40px]"></div>
+            {/* <TheIcon
               cClass="!border-none !bg-[var(--overview-color-three)] hover:!bg-[var(--overview-color-four)] w-[40px] h-[40px] !rounded-none"
               onClick={() => setEditMode((prev) => !prev)}
             >
               <FaRegEdit className="w-4 h-4 text-white" />
-            </TheIcon>
+            </TheIcon> */}
             <span>Entity Name</span>
           </div>
         ),
@@ -120,6 +121,7 @@ export const useTableFunctions = ({
       header: dept,
       cell: ({ row }) => {
         const val = row?.original?.departments?.[dept];
+
         if (!val) {
           return (
             <div className="flex items-center justify-center text-gray-400">

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 export const fetchTasks = createAsyncThunk(
   "task/fetchTasks",
   async ({ id, queryParams }, thunkAPI) => {
+    // console.log(queryParams);
     try {
       // console.log(id);
       await new Promise((resolve) => setTimeout(resolve, 200));

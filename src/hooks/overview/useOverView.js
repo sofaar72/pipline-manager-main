@@ -11,6 +11,8 @@ export const useOverview = () => {
   const { fetchEpisodes, entityResults, entityId, setEntityId } = useEntities();
   const [addressbar, setAddressbar] = useState("");
   const [searchItem, setSearchItem] = useState("");
+  const [taskType, setTaskType] = useState("");
+  const [versionId, setVersionId] = useState(null);
 
   // table controls
   const [tableItemsSize, setTableItemsSize] = useState(false);
@@ -43,7 +45,7 @@ export const useOverview = () => {
     type = "All",
     search = "",
     page = 1,
-    pageSize = 10
+    pageSize = 20
   ) => {
     const projectId = project ? project : localStorage.getItem("project_id");
     if (projectId) {
@@ -98,5 +100,9 @@ export const useOverview = () => {
     setSearchItem,
     entityId,
     setEntityId,
+    taskType,
+    setTaskType,
+    versionId,
+    setVersionId,
   };
 };

@@ -43,12 +43,19 @@ const TheToolbar = ({
   setFillColor,
   isFullScreen,
   toggleFullscreen,
+  previewWidth,
 }) => {
   const [openShapes, setOpenShapes] = useState(false);
 
   useEffect(() => {
     console.log(isFullScreen);
   }, [isFullScreen]);
+
+  useEffect(() => {
+    if (previewWidth >= 550) {
+      setAction(null);
+    }
+  }, [previewWidth]);
 
   return (
     <div className="w-full h-[25px] shrink-0 bg-[#1D1B37] flex justify-between gap-2 text-white">
@@ -74,10 +81,11 @@ const TheToolbar = ({
         </TheIcon>
       </div>
       {/* annotate handlers  */}
-      <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
-        <TheIcon
-          onClick={() => setOpenShapes(!openShapes)}
-          cClass={`!w-[30px] !h-full !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none !border-none
+      {previewWidth >= 550 && (
+        <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
+          <TheIcon
+            onClick={() => setOpenShapes(!openShapes)}
+            cClass={`!w-[30px] !h-full !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none !border-none
             ${
               action === ACTIONS.RECTANGLE ||
               action === ACTIONS.CIRCLE ||
@@ -86,90 +94,91 @@ const TheToolbar = ({
                 : "!bg-[var(--overview-color-two)] "
             } 
             `}
-        >
-          {openShapes ? <FaChevronRight /> : <FaChevronLeft />}
-        </TheIcon>
+          >
+            {openShapes ? <FaChevronRight /> : <FaChevronLeft />}
+          </TheIcon>
 
-        <div
-          className={`${
-            openShapes ? "w-[90px]" : "w-0"
-          } h-full flex  z-10 transition overflow-hidden`}
-        >
+          <div
+            className={`${
+              openShapes ? "w-[90px]" : "w-0"
+            } h-full flex  z-10 transition overflow-hidden`}
+          >
+            <TheIcon
+              onClick={() => setAction(ACTIONS.RECTANGLE)}
+              cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+                action === ACTIONS.RECTANGLE
+                  ? "!bg-[var(--overview-color-three)]"
+                  : "!bg-[var(--overview-color-two)] "
+              } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            >
+              <MdRectangle className="text-sm" />
+            </TheIcon>
+            <TheIcon
+              onClick={() => setAction(ACTIONS.CIRCLE)}
+              cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+                action === ACTIONS.CIRCLE
+                  ? "!bg-[var(--overview-color-three)]"
+                  : "!bg-[var(--overview-color-two)] "
+              } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            >
+              <FaCircle className="text-sm" />
+            </TheIcon>
+            <TheIcon
+              onClick={() => setAction(ACTIONS.ARROW)}
+              cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+                action === ACTIONS.ARROW
+                  ? "!bg-[var(--overview-color-three)]"
+                  : "!bg-[var(--overview-color-two)] "
+              } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            >
+              <FaLongArrowAltRight className="text-sm" />
+            </TheIcon>
+          </div>
+
+          {/* draw  */}
           <TheIcon
-            onClick={() => setAction(ACTIONS.RECTANGLE)}
+            onClick={() => setAction(ACTIONS.LINE)}
             cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-              action === ACTIONS.RECTANGLE
+              action === ACTIONS.LINE
                 ? "!bg-[var(--overview-color-three)]"
                 : "!bg-[var(--overview-color-two)] "
             } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
           >
-            <MdRectangle className="text-sm" />
+            <FaPenAlt className="text-sm" />
           </TheIcon>
+
           <TheIcon
-            onClick={() => setAction(ACTIONS.CIRCLE)}
+            onClick={() => setAction(ACTIONS.SELECT)}
             cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-              action === ACTIONS.CIRCLE
+              action === ACTIONS.SELECT
                 ? "!bg-[var(--overview-color-three)]"
                 : "!bg-[var(--overview-color-two)] "
             } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
           >
-            <FaCircle className="text-sm" />
+            <FaMousePointer className="text-sm" />
           </TheIcon>
+
+          <TheButton cClass="!h-full !rounded-none !w-[35px] !p-0 ">
+            <input
+              className="w-full px-1 cursor-pointer"
+              type="color"
+              value={fillColor}
+              onChange={(e) => setFillColor(e.target.value)}
+            />
+          </TheButton>
+
           <TheIcon
-            onClick={() => setAction(ACTIONS.ARROW)}
+            onClick={() => toggleFullscreen()}
             cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-              action === ACTIONS.ARROW
+              isFullScreen
                 ? "!bg-[var(--overview-color-three)]"
                 : "!bg-[var(--overview-color-two)] "
-            } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            } hover:!bg-[var(--overview-color-three)] !rounded-none`}
           >
-            <FaLongArrowAltRight className="text-sm" />
+            <RiFullscreenLine />
           </TheIcon>
         </div>
-
-        {/* draw  */}
-        <TheIcon
-          onClick={() => setAction(ACTIONS.LINE)}
-          cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-            action === ACTIONS.LINE
-              ? "!bg-[var(--overview-color-three)]"
-              : "!bg-[var(--overview-color-two)] "
-          } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
-        >
-          <FaPenAlt className="text-sm" />
-        </TheIcon>
-
-        <TheIcon
-          onClick={() => setAction(ACTIONS.SELECT)}
-          cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-            action === ACTIONS.SELECT
-              ? "!bg-[var(--overview-color-three)]"
-              : "!bg-[var(--overview-color-two)] "
-          } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
-        >
-          <FaMousePointer className="text-sm" />
-        </TheIcon>
-
-        <TheButton cClass="!h-full !rounded-none !w-[35px] !p-0 ">
-          <input
-            className="w-full px-1 cursor-pointer"
-            type="color"
-            value={fillColor}
-            onChange={(e) => setFillColor(e.target.value)}
-          />
-        </TheButton>
-
-        <TheIcon
-          onClick={() => toggleFullscreen()}
-          cClass={`!w-[30px] !h-full shrink-0 !border-none ${
-            isFullScreen
-              ? "!bg-[var(--overview-color-three)]"
-              : "!bg-[var(--overview-color-two)] "
-          } hover:!bg-[var(--overview-color-three)] !rounded-none`}
-        >
-          <RiFullscreenLine />
-        </TheIcon>
-      </div>
+      )}
     </div>
   );
 };

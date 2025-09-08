@@ -2,13 +2,14 @@ import React, { forwardRef } from "react";
 
 const TheVideo = forwardRef(
   ({ videoUrl = "", previewWidth, isMuted, isLoope }, ref) => {
+    console.log(videoUrl);
     return (
       <>
         {/* Video */}
         <video
           className={`absolute w-full h-full shrink-0  object-contain bg-[var(--section-bg-color)]/20 overflow-hidden`}
           ref={ref}
-          src={videoUrl ? videoUrl : "/videos/sample2.mp4"}
+          src={videoUrl ? videoUrl : ""}
           muted={isMuted}
           loop={isLoope}
           // onPause={handlePause}

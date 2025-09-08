@@ -89,7 +89,7 @@ const UsersDataTable = ({ items, loading = false }) => {
       filter: true,
       //   width: 134.57,
       headerClass: "ag-header-center",
-      // cellRenderer: (params) => params?.value?.toUpperCase(),
+      cellRenderer: (params) => params?.value?.name.toUpperCase(),
     },
     {
       headerName: "Actions",

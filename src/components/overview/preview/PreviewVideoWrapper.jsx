@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TheButton from "../TheButton";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import TheDropDown from "../TheDropDown";
@@ -8,14 +8,39 @@ import VideoPreview from "./Annotations/TheVideo";
 import TheAnnotationWrapper from "./Annotations/TheAnnotationWrapper";
 import GlobalPureModal from "../../golbals/GlobalPureModal";
 import CreateVersionForm from "../CreateVersionForm";
+import Loading from "../../golbals/Loading";
 
 const PreviewVideoWrapper = ({
   switcher,
   setSwitcher,
   previewWidth,
   isResizing,
+  versionResults,
+  versionLoading,
+  setVersionId,
+  versionId,
+  versionPreviewData,
+  versionPreviewLoading,
 }) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (versionResults) {
+      if (versionResults?.versions?.length > 0) {
+        console.log(versionResults.versions[0].id);
+        setVersionId({
+          id: versionResults?.versions[0]?.id,
+          name: versionResults?.versions[0]?.version,
+        });
+      }
+      // console.log(versionResults?.versions[0]?.id);
+    }
+  }, [versionResults]);
+
+  useEffect(() => {
+    console.log(versionPreviewData);
+  }, [versionPreviewData]);
+
   return (
     <div
       className={`w-full ${
@@ -26,16 +51,26 @@ const PreviewVideoWrapper = ({
       <div className=" w-full h-[40px] flex items-center gap-2 justify-between">
         {/* variations  */}
         <div className="flex items-center gap-1">
-          <TheDropDown
-            cClass="!bg-[var(--overview-color-three)]"
-            init={"Versions"}
-            items={[
-              { id: 1, name: "one" },
-              { id: 2, name: "two" },
-              { id: 3, name: "three" },
-            ]}
-            width={"w-[100px]"}
-          />
+          {!versionLoading && (
+            <TheDropDown
+              cClass="!bg-[var(--overview-color-three)]"
+              init={
+                versionResults && versionResults?.versions
+                  ? "Ver" + " " + versionResults?.versions[0]?.version
+                  : "Ver 0"
+              }
+              items={
+                versionResults?.versions?.map((version) => {
+                  return {
+                    id: version.id,
+                    name: "Ver" + " " + version.version,
+                  };
+                }) || []
+              }
+              width={"w-[100px]"}
+              funcAfter={setVersionId}
+            />
+          )}
 
           <TheIcon
             cClass=" !border-none"
@@ -71,11 +106,17 @@ const PreviewVideoWrapper = ({
       </div>
 
       {/* the video and annotations stage  */}
-
-      <TheAnnotationWrapper
-        previewWidth={previewWidth}
-        isResizing={isResizing}
-      />
+      {versionPreviewLoading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <Loading />
+        </div>
+      ) : (
+        <TheAnnotationWrapper
+          previewWidth={previewWidth}
+          isResizing={isResizing}
+          versionPreviewData={versionPreviewData}
+        />
+      )}
 
       {/* add version modal  */}
       <GlobalPureModal open={open} setOpen={setOpen}>

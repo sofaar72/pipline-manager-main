@@ -25,9 +25,11 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     error: createTaskError,
   } = createStatus || {};
 
-  const fetchAllTasks = (entityId) => {
+  const fetchAllTasks = (entityId, taskType) => {
     if (dataType === "production") {
-      dispatch(fetchTasks({ id: entityId }));
+      dispatch(
+        fetchTasks({ id: entityId, queryParams: { task_type: taskType } })
+      );
     } else {
       dispatch(fetchAssetsTasks({ id: entityId, queryParams: {} }));
     }
@@ -70,6 +72,7 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     createTaskError,
     activeTask,
     fetchTaskVersion,
+    fetchAllVersions,
     fetchAllTasks,
     addTask,
     fetchAllAssetsTasks,

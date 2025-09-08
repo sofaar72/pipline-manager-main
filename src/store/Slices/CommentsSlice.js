@@ -44,6 +44,20 @@ export const sendAnnotations = createAsyncThunk(
   }
 );
 
+export const getAnnotations = createAsyncThunk(
+  "annotation/getAnnotations",
+  async ({ media_id }, thunkAPI) => {
+    console.log(media_id);
+    try {
+      const response = await axiosInstance.get(`/annotations/${media_id}/`);
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 // Step 2: Slice
 const CommentsSlice = createSlice({
   name: "comments",
@@ -58,6 +72,8 @@ const CommentsSlice = createSlice({
     annotations: [],
     annotationLoading: false,
     annotationError: false,
+    getAnnotationLoading: false,
+    getAnnotationError: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -99,6 +115,20 @@ const CommentsSlice = createSlice({
     builder.addCase(sendAnnotations.rejected, (state, action) => {
       state.annotationLoading = false;
       state.annotationError = action.payload;
+    });
+    // get annotations
+    builder.addCase(getAnnotations.pending, (state) => {
+      state.getAnnotationLoading = true;
+      state.getAnnotationError = null;
+    });
+    builder.addCase(getAnnotations.fulfilled, (state, action) => {
+      state.getAnnotationLoading = false;
+
+      state.annotations = action.payload[0].annotations;
+    });
+    builder.addCase(getAnnotations.rejected, (state, action) => {
+      state.getAnnotationLoading = false;
+      state.getAnnotationError = action.payload;
     });
   },
 });

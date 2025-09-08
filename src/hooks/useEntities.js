@@ -106,15 +106,24 @@ export const useEntities = () => {
   const selectEntityType = (type) => {
     setSelectedEntityType(type);
   };
-  const createFilmEntity = async (data, closeModal = () => {}) => {
+  const createFilmEntity = async (
+    data,
+    closeModal = () => {},
+    fetchAfter = null
+  ) => {
     dispatch(createFilm(data)).then((res) => {
-      if (res.payload) {
+      console.log(res);
+      if (res.payload && !res.payload.error) {
         setCurrentPage(1); // this will auto-trigger fetchEntities via useEffect
 
         setTimeout(
           () => {
             closeModal(false);
-            fetchEntities();
+            if (fetchAfter) {
+              fetchAfter();
+            } else {
+              fetchEntities();
+            }
           },
 
           1000

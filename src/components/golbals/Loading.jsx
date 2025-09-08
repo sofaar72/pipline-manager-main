@@ -1,13 +1,13 @@
 import React from "react";
 
-const Loading = ({ size }) => {
+const Loading = ({ size, color = "fill-[var(--primary-color-lower)]" }) => {
   return (
     <div role="status">
       <svg
         aria-hidden="true"
         className={`${
           size || "w-10 h-10"
-        } text-gray-200 animate-spin dark:text-gray-600 fill-[var(--primary-color-lower)]`}
+        } text-gray-200 animate-spin dark:text-gray-600 ${color}`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

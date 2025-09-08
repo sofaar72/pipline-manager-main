@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import CbuttonTwo from "../golbals/Buttons/CbuttonTwo";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -6,11 +6,20 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 const TheDropDown = ({
   width,
   init = "test",
+  value, // Add this prop for controlled component
   items = [],
   cClass = "",
+
   funcAfter = () => {},
 }) => {
-  const [selected, setSelected] = useState(init);
+  const [selected, setSelected] = useState(value || init);
+
+  // Update local state when value prop changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setSelected(value);
+    }
+  }, [value]);
 
   const selectHandler = (e, item) => {
     // e.preventDefault();
@@ -35,7 +44,7 @@ const TheDropDown = ({
         />
       </MenuButton>
 
-      <MenuItems className="overflow-hidden absolute left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col">
+      <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col">
         {items.map((item) => (
           <MenuItem key={item.name}>
             {({ active }) => (

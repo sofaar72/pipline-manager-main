@@ -14,6 +14,7 @@ const OverviewItem = ({
   activeTask,
   setActiveTask,
   editMode,
+  setEditMode,
   taskHandleMouseDown,
   taskHandleMouseEnter,
   taskHandleMouseUp,
@@ -22,63 +23,115 @@ const OverviewItem = ({
   previewWidth,
   theShowPreview,
   setEntityId,
+  setSelectedTasks,
+  selectedMultipleTasks,
+  allRows = [], // Add this prop to pass all rows data for range selection
+  setTaskType,
 }) => {
-  // const [activeTask, setActiveTask] = useState("");
+  const validCells = [
+    "Texturing",
+    "Rigging",
+    "Modeling",
+    "Shading",
+    "animate",
+    "light",
+  ];
 
-  const showPreview = (e, cellId = "", rowId = "", entName, taskId, entId) => {
+  const showPreview = (
+    e,
+    cellId = "",
+    rowId = "",
+    entName,
+    taskId,
+    entId,
+    taskType
+  ) => {
+    console.log(taskType);
     e.stopPropagation();
+    setSelectedTasks([]);
     if (!cellId || !rowId || editMode) return;
 
     setEntityId(entId);
+    setTaskType(taskType);
 
-    if (
-      [
-        "Texturing",
-        "Rigging",
-        "Modeling",
-        "Shading",
-        "animate",
-        "light",
-      ].includes(cellId)
-    ) {
+    if (validCells.includes(cellId)) {
       setAddressbar(entName + "/" + (cellId + "-" + rowId));
-      setActiveTask({ collId: cellId, rowId: rowId }); // mark this task active
-      // console.log(groupId, id, taskId);
+      setActiveTask({ collId: cellId, rowId: rowId });
       handleShowPrev(e, id, groupId, taskId);
     }
   };
 
-  // useEffect(() => {
-  //   console.log("Active task:", activeTask);
-  // }, [activeTask]);
+  const handleCellClick = (e, cell) => {
+    console.log(cell);
+    const {
+      column: { id: cellId },
+      row: { id: rowId, original },
+    } = cell;
 
-  // useEffect(() => {
-  //   console.log(theShowPreview);
-  // }, [theShowPreview]);
+    if (!validCells.includes(cellId) || editMode) return;
+
+    setEntityId(original?.id);
+
+    if (e.shiftKey) {
+      // Shift+Click for range selection
+      e.preventDefault();
+      e.stopPropagation();
+
+      selectedMultipleTasks(
+        cellId,
+        rowId,
+        original?.departments || [],
+        allRows,
+        true // isShiftClick flag
+      );
+    } else if (e.ctrlKey || e.metaKey) {
+      // Ctrl+Click for individual toggle (optional feature)
+      e.preventDefault();
+      e.stopPropagation();
+
+      selectedMultipleTasks(
+        cellId,
+        rowId,
+        original?.departments || [],
+        allRows,
+        false
+      );
+    } else {
+      // Normal click - show preview
+      showPreview(
+        e,
+        cellId,
+        rowId,
+        original?.name,
+        cell.id,
+        original?.id,
+        cell?.column?.columnDef.header
+      );
+    }
+  };
 
   return (
     <div
       key={item.id}
-      className={` grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg  ${
+      className={`grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg ${
         !tableItemsSize ? "h-[40px]" : "h-[120px]"
-      } shrink-0 radius overflow-hidden cursor-pointer
-        ${
-          isSelected
-            ? "bg-[var(--overview-color-select)]"
-            : "bg-[var(--overview-color-two)]"
-        }   ${editMode && "!bg-[var(--overview-color-four)]"}`}
+      } shrink-0 radius overflow-hidden cursor-pointer ${
+        isSelected
+          ? "bg-[var(--overview-color-select)]"
+          : "bg-[var(--overview-color-two)]"
+      } ${editMode && "!bg-[var(--overview-color-four)]"}`}
       style={{
         gridTemplateColumns,
         userSelect: editMode ? "none" : "auto",
-        width: theShowPreview ? "100%" : `calc(100% - ${previewWidth}px) `,
+        width: theShowPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
       }}
       onMouseUp={taskHandleMouseUp}
     >
       {row.getVisibleCells().map((cell) => {
+        const isValidTaskCell = validCells.includes(cell?.column.id);
+
         const hoverEffect =
-          ["Texturing", "Rigging", "Modeling", "Shading"].includes(
-            cell?.column.id
-          ) && !editMode
+          isValidTaskCell && !editMode
             ? "hover:bg-[var(--overview-color-progress)]"
             : "";
 
@@ -87,34 +140,24 @@ const OverviewItem = ({
           selected ||
           (activeTask.collId === cell.column.id &&
             activeTask.rowId === cell.row.id)
-            ? "bg-[var(--overview-color-progress)]" // highlight active
+            ? "bg-[var(--overview-color-progress)]"
             : "";
-        {
-          // console.log(cell?.row?.original);
-        }
+
         return (
           <div
             key={cell.id}
             className={`px-0 ${hoverEffect} ${isActive} ${
               cell.column.id !== "entity" &&
-              "h-full flex items-center justify-center border-l border-r border-[var(--overview-color-three)]/50 px-2 "
-            }`}
-            onClick={(e) =>
-              showPreview(
-                e,
-                cell?.column.id,
-                cell?.row.id,
-                cell?.row?.original?.name,
-                cell.id,
-                cell?.row?.original?.id
-              )
-            }
-            onMouseDown={() =>
-              taskHandleMouseDown(cell?.column.id, cell?.row.id)
-            }
-            onMouseEnter={() =>
-              taskHandleMouseEnter(cell?.column.id, cell?.row.id)
-            }
+              "h-full flex items-center justify-center border-l border-r border-[var(--overview-color-three)]/50 px-2"
+            } ${isValidTaskCell ? "select-none" : ""}`} // Prevent text selection on task cells
+            onClick={(e) => handleCellClick(e, cell)}
+            onContextMenu={(e) => {
+              // Optional: Right-click context menu
+              if (isValidTaskCell) {
+                e.preventDefault();
+                // You can add context menu logic here
+              }
+            }}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </div>

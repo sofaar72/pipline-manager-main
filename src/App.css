@@ -143,7 +143,7 @@ a.active {
 }
 
 .form-bg {
-  @apply bg-[var(--primary-form-bg)];
+  @apply bg-[var(--overview-color-two)];
 }
 .max-w-side {
   @apply max-w-[260px];

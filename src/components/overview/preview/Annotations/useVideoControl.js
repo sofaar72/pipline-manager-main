@@ -4,13 +4,19 @@ export const useVideoControl = () => {
   const videoRef = useRef(null);
   const [height, setHeight] = useState(280);
   const [frames, setFrames] = useState([]);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoope, setIsLoope] = useState(false);
+  const [prevVideoData, setPrevVideoData] = useState({
+    duration: 10,
+    url: "",
+    media_id: "",
+  });
 
   useEffect(() => {
     extractFrames();
-  }, []);
+  }, [prevVideoData]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -25,7 +31,10 @@ export const useVideoControl = () => {
 
   // extract the video frames
   const extractFrames = () => {
-    const staticFrames = Array.from({ length: 62 }, (_, index) => index + 1);
+    const staticFrames = Array.from(
+      { length: prevVideoData.duration },
+      (_, index) => index + 1
+    );
     setFrames(staticFrames);
   };
 
@@ -72,6 +81,8 @@ export const useVideoControl = () => {
     isMuted,
     loopOrNot,
     isLoope,
+    prevVideoData,
+    setPrevVideoData,
     // isFullscreen,
     // setIsFullscreen,
     // setIsMuted,

@@ -1,32 +1,164 @@
 import { useEffect, useState } from "react";
 
 export const useTableTaskSettings = () => {
-  const [editMode, setEditMode] = useState(false); // edit mode toggle
-  const [selectedTasks, setSelectedTasks] = useState([]); // store multiple
+  const [editMode, setEditMode] = useState(false);
+  const [selectedTasks, setSelectedTasks] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  const toggleTask = (cellId, rowId) => {
-    if (["Texturing", "Rigging", "Modeling", "Shading"].includes(cellId)) {
+  const [lastSelectedCell, setLastSelectedCell] = useState(null); // Store last clicked cell for range selection
+
+  const validCells = [
+    "Texturing",
+    "Rigging",
+    "Modeling",
+    "Shading",
+    "animate",
+    "light",
+  ];
+
+  const toggleTask = (cellId, rowId, departments) => {
+    if (!validCells.includes(cellId)) return;
+
+    const theKey = `${rowId}-${cellId}`;
+    setSelectedTasks((prev) => {
+      if (prev.some((item) => item.key === theKey)) {
+        // Deselect if already selected
+        return prev.filter((item) => item.key !== theKey);
+      }
+      // Otherwise select
+      return [...prev, { key: theKey, tasks: departments }];
+    });
+  };
+
+  // Helper function to get all cells in a rectangular range
+  const getCellsInRange = (startCell, endCell, allRows) => {
+    if (!startCell || !endCell) return [];
+
+    const startRowIndex = parseInt(startCell.rowId);
+    const endRowIndex = parseInt(endCell.rowId);
+    const startColIndex = validCells.indexOf(startCell.cellId);
+    const endColIndex = validCells.indexOf(endCell.cellId);
+
+    // Ensure we have valid column indices
+    if (startColIndex === -1 || endColIndex === -1) return [];
+
+    const minRow = Math.min(startRowIndex, endRowIndex);
+    const maxRow = Math.max(startRowIndex, endRowIndex);
+    const minCol = Math.min(startColIndex, endColIndex);
+    const maxCol = Math.max(startColIndex, endColIndex);
+
+    const cellsInRange = [];
+
+    // Generate all combinations within the range
+    for (let rowIndex = minRow; rowIndex <= maxRow; rowIndex++) {
+      for (let colIndex = minCol; colIndex <= maxCol; colIndex++) {
+        const cellId = validCells[colIndex];
+        const rowId = rowIndex.toString();
+
+        // Find the row data to get departments
+        const rowData = allRows.find((row) => row.id.toString() === rowId);
+        const departments = rowData?.departments || [];
+
+        cellsInRange.push({
+          key: `${rowId}-${cellId}`,
+          cellId,
+          rowId,
+          tasks: departments,
+        });
+      }
+    }
+
+    return cellsInRange;
+  };
+
+  // FOR SINGLE CLICK - SELECT ONE AND SHOW PREVIEW
+  const selectSingleTask = (cellId, rowId, departments) => {
+    if (!validCells.includes(cellId)) return false;
+
+    const theKey = `${rowId}-${cellId}`;
+    // Clear all selections and select only this one
+    setSelectedTasks([{ key: theKey, tasks: departments }]);
+    setLastSelectedCell({ cellId, rowId });
+    return true; // Return true to indicate preview should be shown
+  };
+
+  // FOR SHIFT+CLICK - TOGGLE SELECTION (RANGE OR SINGLE)
+  const addToSelection = (cellId, rowId, departments, allRows = []) => {
+    if (!validCells.includes(cellId)) return false;
+
+    const currentCell = { cellId, rowId };
+
+    if (lastSelectedCell) {
+      // Range selection with Shift+Click
+      const cellsInRange = getCellsInRange(
+        lastSelectedCell,
+        currentCell,
+        allRows
+      );
+
+      setSelectedTasks((prev) => {
+        // Create a set of existing keys for faster lookup
+        const existingKeys = new Set(prev.map((item) => item.key));
+
+        // Check if ALL cells in range are already selected
+        const allInRangeSelected = cellsInRange.every((cell) =>
+          existingKeys.has(cell.key)
+        );
+
+        if (allInRangeSelected) {
+          // If all cells in range are selected, deselect them
+          const rangeKeys = new Set(cellsInRange.map((cell) => cell.key));
+          return prev.filter((item) => !rangeKeys.has(item.key));
+        } else {
+          // If some or none are selected, select all in range
+          const newSelections = cellsInRange.filter(
+            (cell) => !existingKeys.has(cell.key)
+          );
+          return [...prev, ...newSelections];
+        }
+      });
+    } else {
+      // First shift+click - toggle this single cell
       const theKey = `${rowId}-${cellId}`;
       setSelectedTasks((prev) => {
-        if (prev.includes(theKey)) {
-          // deselect if already selected
-          return prev.filter((item) => item !== theKey);
+        const existingIndex = prev.findIndex((item) => item.key === theKey);
+        if (existingIndex !== -1) {
+          // Cell is selected, deselect it
+          return prev.filter((item) => item.key !== theKey);
+        } else {
+          // Cell is not selected, select it
+          return [...prev, { key: theKey, tasks: departments }];
         }
-        // otherwise select
-        return [...prev, theKey];
       });
+      setLastSelectedCell(currentCell);
+    }
+    return false; // Return false to indicate no preview should be shown
+  };
+
+  // FOR SHIFT+CLICK RANGE SELECTION (Legacy - keeping for backward compatibility)
+  const selectedMultipleTasks = (
+    cellId,
+    rowId,
+    departments,
+    allRows = [],
+    isShiftClick = false
+  ) => {
+    if (isShiftClick) {
+      return addToSelection(cellId, rowId, departments, allRows);
+    } else {
+      return selectSingleTask(cellId, rowId, departments);
     }
   };
 
+  // FOR EDIT MODE (deprecated but keeping for compatibility)
   const taskHandleMouseDown = (cellId, rowId) => {
     if (!editMode) return;
     setIsDragging(true);
-    toggleTask(cellId, rowId);
+    toggleTask(cellId, rowId, []);
   };
 
   const taskHandleMouseEnter = (cellId, rowId) => {
     if (!editMode || !isDragging) return;
-    toggleTask(cellId, rowId);
+    toggleTask(cellId, rowId, []);
   };
 
   const taskHandleMouseUp = () => {
@@ -35,26 +167,54 @@ export const useTableTaskSettings = () => {
   };
 
   const isTaskSelected = (cellId, rowId) => {
-    return selectedTasks.includes(`${rowId}-${cellId}`);
+    const theKey = `${rowId}-${cellId}`;
+    return selectedTasks.some((item) => item.key === theKey);
+  };
+
+  // Clear all selections
+  const clearSelection = () => {
+    setSelectedTasks([]);
+    setLastSelectedCell(null);
+  };
+
+  // Select all valid tasks in given rows
+  const selectAllTasks = (allRows) => {
+    const allTasks = [];
+    allRows.forEach((row) => {
+      validCells.forEach((cellId) => {
+        allTasks.push({
+          key: `${row.id}-${cellId}`,
+          tasks: row.departments || [],
+        });
+      });
+    });
+    setSelectedTasks(allTasks);
   };
 
   useEffect(() => {
-    console.log(selectedTasks);
-    console.log(isTaskSelected("0", "Modeling"));
+    console.log("Selected tasks:", selectedTasks);
   }, [selectedTasks]);
 
   useEffect(() => {
     setSelectedTasks([]);
+    setLastSelectedCell(null);
   }, [editMode]);
 
   return {
     editMode,
     setEditMode,
-    selectedTasks,
     isDragging,
     taskHandleMouseDown,
     taskHandleMouseEnter,
     taskHandleMouseUp,
     isTaskSelected,
+    selectedTasks,
+    setSelectedTasks,
+    selectedMultipleTasks,
+    selectSingleTask,
+    addToSelection,
+    clearSelection,
+    selectAllTasks,
+    lastSelectedCell,
   };
 };

@@ -62,6 +62,7 @@ export const useVersions = () => {
     versionPreviewError,
     fetchAllVersions,
     fetchSingleVersionPreview,
+    fetchVersionPreview,
     activeVersion,
     createNewVersion,
     createVersionLoading,

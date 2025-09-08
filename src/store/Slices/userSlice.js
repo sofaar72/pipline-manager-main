@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (userData, thunkAPI) => {
-    console.log(userData);
     try {
       // Simulate 2-second delay
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -18,7 +17,39 @@ export const loginUser = createAsyncThunk(
         // }
         { username: userData.email, password: userData.password }
       );
-      return response.data;
+
+      if (response.status === 200) {
+        // Store authentication tokens
+        // if (response.data.access && response.data.refresh) {
+        //   localStorage.setItem("access_token", response.data.access);
+        //   localStorage.setItem("refresh_token", response.data.refresh);
+        // }
+
+        // Handle role data with improved logic
+        if (response.data.user?.role) {
+          const roleData = response.data.user.role;
+
+          if (typeof roleData === "object") {
+            // Store complete role object
+            localStorage.setItem("role", JSON.stringify(roleData));
+            localStorage.setItem("role_id", roleData.id);
+            localStorage.setItem("role_name", roleData.name);
+          } else if (typeof roleData === "string") {
+            // Store role as string
+            localStorage.setItem("role", roleData);
+            localStorage.setItem("role_name", roleData);
+          }
+        }
+
+        // Store additional user info
+        // if (response.data.user) {
+        //   localStorage.setItem("user_id", response.data.user.id);
+        //   localStorage.setItem("username", response.data.user.username);
+        //   localStorage.setItem("user_data", JSON.stringify(response.data.user));
+        // }
+
+        return response.data;
+      }
     } catch (error) {
       console.log(error.response?.data);
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -45,6 +76,7 @@ export const registerUser = createAsyncThunk(
       if (error.response?.data.email) {
         toast.error(error.response?.data.email[0]);
       }
+
       if (error.response?.data.password) {
         toast.error(error.response?.data.password[0]);
       }
@@ -68,6 +100,7 @@ export const logoutUser = createAsyncThunk(
       if (response.status === 200) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("role");
         toast.success("User is logged out");
       }
       return response.data;

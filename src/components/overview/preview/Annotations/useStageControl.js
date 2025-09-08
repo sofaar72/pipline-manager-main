@@ -1,11 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import { ACTIONS } from "./Actions";
 import { v4 as uuidv4 } from "uuid";
+import { useComments } from "../../../../hooks/useComments";
 
 export const useStageControl = ({
   containerRef = null,
   frames = [],
   isplaying = null,
+  media_id = null,
   // isloope = null,
 }) => {
   const frameBoxRef = useRef(null);
@@ -40,6 +42,14 @@ export const useStageControl = ({
       console.log(containerRef.current?.videoHeight);
     }
   }, [isFullScreen]);
+
+  // SEND ANNOTAIONS EVERY 3 SECONDs
+  const {
+    sendAllAnnotations,
+    fetchAllAnnotations,
+    annotations: annotationResults,
+    getAnnotationLoading,
+  } = useComments();
 
   // ---------- helpers: video size / transform ----------
   const getVideoNaturalSize = () => {
@@ -341,6 +351,31 @@ export const useStageControl = ({
     }
   }, [frames]);
 
+  useEffect(() => {
+    if (!annotationResults || annotationResults.length === 0) return;
+
+    setAnnotations((prev) => {
+      // If first load (no local annotations), just take server’s
+      if (!prev || prev.length === 0) {
+        return annotationResults;
+      }
+
+      // Merge: frame by frame
+      return prev.map((frame, i) => {
+        const serverFrame = annotationResults.find(
+          (f) => f.frameId === frame.frameId
+        );
+        if (!serverFrame) return frame;
+
+        // If local has shapes → keep them, otherwise use server’s
+        if (frame.shapes && frame.shapes.length > 0) {
+          return frame; // keep local edits
+        }
+        return serverFrame;
+      });
+    });
+  }, [annotationResults]);
+
   // Force re-render when fullscreen changes to update all coordinate transforms
   useEffect(() => {
     // This will cause all shapes to recalculate their positions
@@ -380,16 +415,26 @@ export const useStageControl = ({
     if (!frames.length) return;
 
     const handleArrowKeys = (e) => {
-      if (e.key === "ArrowRight") {
-        handleSelectFrame(currentFrameIndex + 1);
-      } else if (e.key === "ArrowLeft") {
-        handleSelectFrame(currentFrameIndex - 1);
-      }
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+
+      setCurrentFrameIndex((prev) => {
+        const totalFrames = frames.length;
+        const clamped = (idx) => Math.max(0, Math.min(idx, totalFrames - 1));
+        const delta = e.key === "ArrowRight" ? 1 : -1;
+        const next = clamped(prev + delta);
+
+        // keep video and slider in sync
+        if (containerRef?.current && containerRef.current.duration) {
+          const timePerFrame = containerRef.current.duration / totalFrames;
+          containerRef.current.currentTime = next * timePerFrame;
+        }
+        return next;
+      });
     };
 
     window.addEventListener("keydown", handleArrowKeys);
     return () => window.removeEventListener("keydown", handleArrowKeys);
-  }, [frames, currentFrameIndex]);
+  }, [frames, containerRef]);
 
   // ---------------- VIDEO PLAYBACK ----------------
   useEffect(() => {
@@ -398,16 +443,17 @@ export const useStageControl = ({
     const video = containerRef.current;
     const updateSliderFromVideo = () => {
       const totalFrames = frames.length;
-      const timePerFrame = video.duration / totalFrames;
-      const newFrameIndex = Math.floor(video.currentTime / timePerFrame);
-      if (newFrameIndex !== currentFrameIndex) {
-        setCurrentFrameIndex(newFrameIndex);
-      }
+      const timePerFrame = video.duration / totalFrames || 1;
+      let newFrameIndex = Math.round(video.currentTime / timePerFrame);
+      newFrameIndex = Math.max(0, Math.min(totalFrames - 1, newFrameIndex));
+      setCurrentFrameIndex((prev) =>
+        prev === newFrameIndex ? prev : newFrameIndex
+      );
     };
 
     video.addEventListener("timeupdate", updateSliderFromVideo);
     return () => video.removeEventListener("timeupdate", updateSliderFromVideo);
-  }, [frames, containerRef, currentFrameIndex]);
+  }, [frames, containerRef]);
 
   // ---------------- FRAME SLIDER DRAG ----------------
   const getFrameFromX = (x) => {
@@ -438,7 +484,7 @@ export const useStageControl = ({
   const addShapeToFrame = (frameIndex, shape) => {
     updateAnnotations((prev) => {
       pushUndo(); // save before change
-      return prev.map((f, i) =>
+      return prev?.map((f, i) =>
         i === frameIndex ? { ...f, shapes: [...f.shapes, shape] } : f
       );
     });
@@ -499,7 +545,7 @@ export const useStageControl = ({
 
   const updateShapesSelection = (frameIndex, selectedIds) => {
     setAnnotations((prev) =>
-      prev.map((frame, i) =>
+      prev?.map((frame, i) =>
         i === frameIndex
           ? {
               ...frame,
@@ -685,7 +731,7 @@ export const useStageControl = ({
     //   )
     // );
     updateAnnotations((prev) =>
-      prev.map((frame, i) =>
+      prev?.map((frame, i) =>
         i === frameIndex
           ? {
               ...frame,
@@ -795,18 +841,26 @@ export const useStageControl = ({
   };
 
   // UNDO AND REDO
-  const pushUndo = () => {
-    setUndoStack((stack) => {
-      const newStack = [...stack, annotations];
-      if (newStack.length > maxHistory) newStack.shift(); // keep last 5
-      return newStack;
-    });
-    setRedoStack([]); // clear redo on new action
+  const clone = (obj) => {
+    if (typeof structuredClone === "function") {
+      return structuredClone(obj);
+    }
+    return JSON.parse(JSON.stringify(obj));
   };
 
+  const pushUndo = (snapshot) => {
+    const snap = snapshot === undefined ? clone(annotations) : clone(snapshot);
+    setUndoStack((stack) => {
+      const newStack = [...stack, snap];
+      if (newStack.length > maxHistory) newStack.shift();
+      return newStack;
+    });
+    // new edit invalidates redo
+    setRedoStack([]);
+  };
   const updateAnnotations = (updater) => {
     setAnnotations((prev) => {
-      pushUndo(prev); // save before updating
+      pushUndo(prev); // snapshot of previous state
       return updater(prev);
     });
   };
@@ -815,22 +869,22 @@ export const useStageControl = ({
     setUndoStack((prevUndo) => {
       if (prevUndo.length === 0) return prevUndo;
       const last = prevUndo[prevUndo.length - 1];
-      setRedoStack((prevRedo) => [...prevRedo, annotations]);
-      setAnnotations(last);
-      return prevUndo.slice(0, -1);
+      const newUndo = prevUndo.slice(0, -1);
+      setRedoStack((prevRedo) => [...prevRedo, clone(annotations)]);
+      setAnnotations(clone(last));
+      return newUndo;
     });
   };
-
   const redo = () => {
     setRedoStack((prevRedo) => {
       if (prevRedo.length === 0) return prevRedo;
       const last = prevRedo[prevRedo.length - 1];
-      setUndoStack((prevUndo) => [...prevUndo, annotations]);
-      setAnnotations(last);
-      return prevRedo.slice(0, -1);
+      const newRedo = prevRedo.slice(0, -1);
+      setUndoStack((prevUndo) => [...prevUndo, clone(annotations)]);
+      setAnnotations(clone(last));
+      return newRedo;
     });
   };
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "z") {
@@ -898,5 +952,9 @@ export const useStageControl = ({
     normalizedToVideoLine,
     handleTransformEnd,
     isPainting,
+    fetchAllAnnotations,
+    sendAllAnnotations,
+    annotationResults,
+    getAnnotationLoading,
   };
 };

@@ -13,7 +13,7 @@ import { ToastContainer } from "react-toastify";
 
 const CreateEntityForm = ({
   title = "Create Entity",
-  titleSize = "text-[14px]",
+  titleSize = "h-xl",
   setCreateModal = () => {},
 }) => {
   const { createFilmEntity, createLoading } = useEntities();
@@ -65,12 +65,10 @@ const CreateEntityForm = ({
   };
 
   return (
-    <div className="w-full h-full  form-bg radius px-[10px] py-[40px] flex flex-col items-center justify-between gap-4">
-      <h2
-        className={` text-center ${titleSize} uppercase font-[600] text-white`}
-      >
-        {title}
-      </h2>
+    <div className="w-full h-full  form-bg radius px-[10px] py-[20px] flex flex-col  justify-between gap-4 text-white">
+      <h2 className={`flex ${titleSize} uppercase font-[600] `}>{title}</h2>
+      {/* dvider  */}
+      <div className="w-full h-[1px] bg-white/20"></div>
 
       <Formik
         initialValues={{ ...initialValues }}
@@ -88,10 +86,13 @@ const CreateEntityForm = ({
         }) => (
           <>
             <form
-              className="w-full flex-1 flex flex-col gap-[20px] px-4 overflow-hidden "
+              className="w-full flex-1 flex flex-col gap-[20px] px-0 overflow-hidden "
               onSubmit={handleSubmit}
               encType="multipart/form-data"
             >
+              <label className="h-regular" htmlFor="name">
+                Entity Name
+              </label>
               <FormInputC
                 name="name"
                 type="text"

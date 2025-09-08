@@ -276,7 +276,9 @@ const TheAnnotatorStage = ({
             }
           })}
 
-          <Transformer ref={transformerRef} rotateEnabled={false} />
+          {action === ACTIONS.SELECT && (
+            <Transformer ref={transformerRef} rotateEnabled={false} />
+          )}
         </Layer>
       </Stage>
     </div>
