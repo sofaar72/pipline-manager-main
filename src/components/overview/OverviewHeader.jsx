@@ -37,7 +37,7 @@ const OverviewHeader = ({
 }) => {
   const [entType, setEntType] = useState({ id: 3, name: "All" });
 
-  console.log(selectedEntType);
+  // console.log(selectedEntType);
 
   const setType = (type) => {
     setSelectedEntType(type.name);
@@ -61,7 +61,7 @@ const OverviewHeader = ({
           funcAfter={selectProject}
         />
         <TheDropDown
-          init={"All"}
+          init={selectedEntType}
           items={
             EntTypes.map((ent, i) => {
               return {

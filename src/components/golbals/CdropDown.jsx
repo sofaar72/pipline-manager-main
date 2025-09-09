@@ -18,7 +18,7 @@ export default function CdropDown({
 
   const onChangeSelect = (e, opt) => {
     // e.preventDefault();
-    console.log(opt);
+
     setSelected(opt.name ? opt.name : opt);
     if (type === "typeTwo") {
       select(opt);

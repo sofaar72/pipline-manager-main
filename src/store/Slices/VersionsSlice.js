@@ -60,7 +60,11 @@ const versionSlice = createSlice({
     versionPreview: { data: {}, loading: false, error: null },
     createVersionData: { data: {}, loading: false, error: null },
   },
-  reducers: {},
+  reducers: {
+    resetVersionPreview: (state) => {
+      state.versionPreview = { data: {}, loading: false, error: null };
+    },
+  },
   extraReducers: (builder) => {
     // Fetch task versions
     builder
@@ -110,4 +114,5 @@ const versionSlice = createSlice({
   },
 });
 
+export const { resetVersionPreview } = versionSlice.actions;
 export default versionSlice.reducer;

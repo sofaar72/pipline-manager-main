@@ -36,14 +36,14 @@ export const MultiFileUploader = ({ files, url }) => {
           filetype: file.type,
         },
         onError: function (error) {
-          console.log("Failed because: " + error);
+          // console.log("Failed because: " + error);
         },
         onProgress: function (bytesUploaded, bytesTotal) {
           var percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          console.log(bytesUploaded, bytesTotal, percentage + "%");
+          // console.log(bytesUploaded, bytesTotal, percentage + "%");
         },
         onSuccess: function () {
-          console.log("Download %s from %s", upload.file.name, upload.url);
+          // console.log("Download %s from %s", upload.file.name, upload.url);
         },
       });
       // Check if there are any previous uploads to continue.

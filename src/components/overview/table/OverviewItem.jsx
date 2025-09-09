@@ -23,16 +23,17 @@ const OverviewItem = ({
   previewWidth,
   theShowPreview,
   setEntityId,
+  setTaskId,
   setSelectedTasks,
   selectedMultipleTasks,
   allRows = [], // Add this prop to pass all rows data for range selection
   setTaskType,
 }) => {
   const validCells = [
-    "Texturing",
-    "Rigging",
-    "Modeling",
-    "Shading",
+    "texturing",
+    "rigging",
+    "modeling",
+    "shading",
     "animate",
     "light",
   ];
@@ -46,7 +47,7 @@ const OverviewItem = ({
     entId,
     taskType
   ) => {
-    console.log(taskType);
+    // console.log(taskId);
     e.stopPropagation();
     setSelectedTasks([]);
     if (!cellId || !rowId || editMode) return;
@@ -69,6 +70,7 @@ const OverviewItem = ({
     } = cell;
 
     if (!validCells.includes(cellId) || editMode) return;
+    // console.log(original);
 
     setEntityId(original?.id);
 

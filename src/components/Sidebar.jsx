@@ -55,12 +55,8 @@ const Sidebar = () => {
   const { getAllProjects, projectsData } = useProject();
 
   useEffect(() => {
-    getAllProjects();
+    // getAllProjects();
   }, []);
-
-  useEffect(() => {
-    console.log(currentPage);
-  }, [currentPage]);
 
   return (
     <div

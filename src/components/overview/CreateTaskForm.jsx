@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Formik } from "formik";
 import CbuttonOne from "../golbals/Buttons/CbuttonOne";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
@@ -15,44 +15,41 @@ import TheButton from "./TheButton";
 import TheDropDown from "./TheDropDown";
 import { entities as EntTypes } from "../../fakeContents/Entities";
 import { useEntities } from "../../hooks/useEntities";
+import { useVariations } from "../../hooks/useVariations";
+import { useTasks } from "../../hooks/useTasks";
+import { useUser } from "../../hooks/useUser";
 
-const CreateEntityForm = ({
-  header = "Create Entity",
+const CreateTaskForm = ({
+  header = "Create Task",
   setCreateModal = () => {},
   selectedProject = { id: null, name: "" },
   fetchData = () => {},
+  id = null,
 }) => {
-  const { createFilmEntity, createLoading } = useEntities();
-  const { fromSchema } = useEntityFormSchema();
-
-  const initialValues = {
-    name: "",
-    project: {
-      id: selectedProject.id,
-      name: selectedProject.name,
-    },
-    type: {
-      id: "EP",
-      name: "Episode",
-    },
-    description: "test",
-    // episode: {
-    //   id: selectedEpisode.id,
-    //   name: selectedEpisode.name,
-    // },
-    // metadata: "",
-    // location: "",
-    // start_frame: "",
-    // end_frame: "",
-  };
+  const { typeResults, typeLoading, typeError, fetchAllTypes } = useTypes();
+  const { getUsers, userResults, userLoading } = useUser();
+  // const {
+  //   variationResults,
+  //   variationLoading,
+  //   variationError,
+  //   fetchAllVariation,
+  // } = useVariations();
+  const { addTask, createTaskLoading } = useTasks();
+  const [checked, setChecked] = useState(false);
+  const [taskTypes, setTaskTypes] = useState([]);
+  const [assignees, setAssignees] = useState([]);
 
   const submitForm = (values) => {
-    // console.log("Form values:", values);
+    // console.log(id);
+    const assineesArray = values.assignees.map((assignee) => assignee.id);
     const newData = {
-      ...values,
-      project: values.project.id,
+      assignee: assineesArray,
       type: values.type.id,
+      parent_type: "PRD",
+      status: 540,
+      parent: id,
     };
+    // console.log("Form values:", newData);
     // Remove empty, null, or undefined values
     const cleanedData = Object.fromEntries(
       Object.entries(newData).filter(
@@ -64,11 +61,42 @@ const CreateEntityForm = ({
       )
     );
 
-    const fetchEntities = () => {
-      fetchData(selectedProject, values.type);
-    };
-    createFilmEntity(cleanedData, setCreateModal, fetchEntities);
+    addTask(cleanedData, setCreateModal);
   };
+
+  // fetch Types
+  useEffect(() => {
+    fetchAllTypes();
+    getUsers();
+  }, []);
+  // set types
+  useEffect(() => {
+    if (typeResults?.results?.length > 0) {
+      const mapped = typeResults.results.map((result) => ({
+        id: result.id,
+        name: result.name,
+      }));
+
+      setTaskTypes(mapped);
+    }
+  }, [typeResults]);
+
+  // set users
+  useEffect(() => {
+    if (userResults?.length > 0) {
+      const mapped = userResults.map((user) => ({
+        id: user.id,
+        name: user.first_name + user.last_name,
+        avatar: user.avatar,
+      }));
+
+      setAssignees(mapped);
+    }
+  }, [userResults]);
+
+  // useEffect(() => {
+  //   console.log(taskTypes);
+  // }, [taskTypes]);
 
   return (
     <>
@@ -82,8 +110,11 @@ const CreateEntityForm = ({
           {header}
         </div>
         <Formik
-          initialValues={{ ...initialValues }}
-          validationSchema={fromSchema}
+          initialValues={{
+            type: taskTypes[0]?.name || { id: null, name: "Select Type" },
+            assignees: [],
+          }}
+          enableReinitialize
           onSubmit={submitForm}
         >
           {({
@@ -103,6 +134,17 @@ const CreateEntityForm = ({
                 name: selectedType.name,
               });
             };
+
+            const handleAssigneeChange = (selectedAssignees) => {
+              setFieldValue(
+                "assignees",
+                selectedAssignees.map((a) => ({
+                  id: a.id,
+                  name: a.name,
+                }))
+              );
+            };
+
             return (
               <>
                 <form
@@ -111,49 +153,37 @@ const CreateEntityForm = ({
                   encType="multipart/form-data"
                 >
                   {/* inputs  */}
-                  <div className="w-full flex flex-1 flex-col gap-4 mb-40">
-                    {/* entity name  */}
-                    <CustomInput
-                      name="name"
-                      label="Entity Name"
-                      onChange={handleChange}
-                      type="text"
-                      inputClass="w-full !h-[40px]"
-                      value={values.name}
-                      // handleBlur={handleBlur}
-                      // error={touched.entity_name && errors.entity_name}
-                    />
-                    {/* entity description  */}
-                    <CustomInput
-                      name="description"
-                      label="Description"
-                      onChange={handleChange}
-                      type="description"
-                      inputClass="w-full"
-                      placeholder="Description ..."
-                      value={values.description}
-                    />
+                  <div className="w-full flex flex-1  gap-4 mb-40">
                     <div className="w-fit">
                       <TheDropDown
                         init={values.type.name}
                         items={
-                          EntTypes.filter((ent) => ent !== "All").map(
-                            (ent, i) => {
-                              let prefix = "";
-
-                              if (ent === "Episode") prefix = "EP";
-                              else if (ent === "Shot") prefix = "SH";
-                              else if (ent === "Sequence") prefix = "SQ";
-
-                              return {
-                                id: prefix,
-                                name: ent,
-                              };
-                            }
-                          ) || []
+                          taskTypes?.map((type, i) => {
+                            return {
+                              id: type.id,
+                              name: type.name,
+                            };
+                          }) || []
                         }
-                        width={"w-[120px]"}
+                        width={"w-[200px]"}
                         funcAfter={handleTypeChange}
+                      />
+                    </div>
+                    <div className="w-fit">
+                      <TheDropDown
+                        init={"Assigne to"}
+                        items={
+                          assignees?.map((assignee, i) => {
+                            return {
+                              id: assignee.id,
+                              name: assignee.name,
+                              avatar: assignee.avatar,
+                            };
+                          }) || []
+                        }
+                        width={"w-[200px]"}
+                        funcAfter={handleAssigneeChange}
+                        type="visual"
                       />
                     </div>
                   </div>
@@ -163,7 +193,7 @@ const CreateEntityForm = ({
                     <TheButton
                       cClass="w-fit !flex !items-center !justify-between gap-2 h-regular !bg-[var(--overview-color-done)]"
                       // onClick={() => {}}
-                      loading={createLoading}
+                      loading={createTaskLoading}
                       type="submit"
                     >
                       <span>Create</span>
@@ -189,4 +219,4 @@ const CreateEntityForm = ({
   );
 };
 
-export default CreateEntityForm;
+export default CreateTaskForm;

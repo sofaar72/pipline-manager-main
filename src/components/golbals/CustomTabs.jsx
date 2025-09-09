@@ -99,7 +99,7 @@ const CustomTabs = ({
                     nextEl: nextRef.current,
                   }}
                   onSlideChange={(swiper) => {
-                    console.log("Current slide index:", swiper);
+                    // console.log("Current slide index:", swiper);
                   }}
                   // modules={[FreeMode, Mousewheel, Scrollbar]}
                   className="swiper flex h-full  flex-1 gap-1 items-center  p-0 "

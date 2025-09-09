@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import CbuttonTwo from "../golbals/Buttons/CbuttonTwo";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { IoCheckbox } from "react-icons/io5";
+import { MdCheckBoxOutlineBlank } from "react-icons/md";
+import TheIcon from "./TheIcon";
 
 const TheDropDown = ({
   width,
@@ -9,10 +12,11 @@ const TheDropDown = ({
   value, // Add this prop for controlled component
   items = [],
   cClass = "",
-
+  type = "default",
   funcAfter = () => {},
 }) => {
   const [selected, setSelected] = useState(value || init);
+  const [checked, setChecked] = useState([]);
 
   // Update local state when value prop changes
   useEffect(() => {
@@ -26,6 +30,37 @@ const TheDropDown = ({
     setSelected(item.name);
     funcAfter(item);
   };
+
+  const checkHandler = (item) => {
+    setChecked((prev = []) => {
+      // Prevent duplicates
+      if (prev.some((p) => p.id === item.id)) {
+        return prev.map((p) =>
+          p.id === item.id ? { ...p, checked: !p.checked } : p
+        );
+      }
+
+      // Otherwise add new
+      return [
+        ...prev,
+        {
+          id: item.id,
+          checked: true,
+        },
+      ];
+    });
+  };
+
+  useEffect(() => {
+    if (type !== "visual") return;
+    if (!checked || checked.length === 0) return;
+
+    const selectedItems = items.filter((item) =>
+      checked.some((c) => c.id === item.id && c.checked)
+    );
+
+    funcAfter(selectedItems);
+  }, [checked, type, items, funcAfter]);
 
   return (
     <Menu as="div" className="relative inline-block text-left shrink-0">
@@ -44,24 +79,69 @@ const TheDropDown = ({
         />
       </MenuButton>
 
-      <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col">
-        {items.map((item) => (
-          <MenuItem key={item.name}>
-            {({ active }) => (
-              <button
-                onClick={(e) => selectHandler(e, item)}
-                className={`block w-full text-left px-4 py-2 text-sm h-regular cursor-pointer ${
-                  active ? "bg-[var(--overview-color-two)]" : ""
-                }`}
-              >
-                {item.name.length > 20
-                  ? item.name.slice(0, 20) + "..."
-                  : item.name}
-              </button>
-            )}
-          </MenuItem>
-        ))}
-      </MenuItems>
+      {type === "default" ? (
+        <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col">
+          {items.map((item) => (
+            <MenuItem key={item.name}>
+              {({ active }) => (
+                <button
+                  onClick={(e) => selectHandler(e, item)}
+                  className={`block w-full text-left px-4 py-2 text-sm h-regular cursor-pointer ${
+                    active ? "bg-[var(--overview-color-two)]" : ""
+                  }`}
+                >
+                  {item.name.length > 20
+                    ? item.name.slice(0, 20) + "..."
+                    : item.name}
+                </button>
+              )}
+            </MenuItem>
+          ))}
+        </MenuItems>
+      ) : type === "visual" ? (
+        <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col gap-4 px-2 py-2">
+          {items.map((item) => (
+            <MenuItem key={item.name}>
+              {({ active }) => (
+                <div className="w-full flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <img
+                      className="w-[20px] h-[20px] rounded-full"
+                      src={item.avatar || ""}
+                      alt=""
+                    />
+                    <TheIcon
+                      cClass="!w-fit !h-fit !p-0 border-none text-xl"
+                      onClick={(e) => {
+                        e.preventDefault(); // 👈 prevent dropdown from closing
+                        e.stopPropagation(); // 👈 prevent bubbling to MenuItem
+                        checkHandler(item);
+                      }}
+                    >
+                      {checked.some((c) => c.id === item.id && c.checked) ? (
+                        <IoCheckbox />
+                      ) : (
+                        <MdCheckBoxOutlineBlank /> // fallback unchecked icon
+                      )}
+                    </TheIcon>
+                  </div>
+                  <div
+                    className={`w-full flex-1 text-left  py-2  text-sm h-regular cursor-pointer ${
+                      active ? "bg-[var(--overview-color-two)]" : ""
+                    }`}
+                  >
+                    {item.name.length > 20
+                      ? item.name.slice(0, 20) + "..."
+                      : item.name}
+                  </div>
+                </div>
+              )}
+            </MenuItem>
+          ))}
+        </MenuItems>
+      ) : (
+        ""
+      )}
     </Menu>
   );
 };

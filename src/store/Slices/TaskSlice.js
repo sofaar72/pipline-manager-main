@@ -50,7 +50,7 @@ export const createTask = createAsyncThunk("task/createTask", async (data) => {
     return response.data;
   } catch (error) {
     console.log("Error response:", error.response);
-    toast.error("something went wrong!");
+    toast.error(error.response.data.error || "something went wrong!");
     return thunkAPI.rejectWithValue(
       error.response?.data?.error || { error: "Server error" }
     );

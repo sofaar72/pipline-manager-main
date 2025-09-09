@@ -25,6 +25,7 @@ const OverviewItems = ({
   previewWidth,
   showPreview,
   setEntityId,
+  setTaskId,
   setTaskType,
   setSelectedTasks,
   selectedMultipleTasks,
@@ -72,6 +73,7 @@ const OverviewItems = ({
                       previewWidth={previewWidth}
                       theShowPreview={showPreview}
                       setEntityId={setEntityId}
+                      setTaskId={setTaskId}
                       setTaskType={setTaskType}
                       setSelectedTasks={setSelectedTasks}
                       selectedMultipleTasks={selectedMultipleTasks}

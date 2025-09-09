@@ -72,7 +72,6 @@ const EntityItem = ({ item, dataType }) => {
                 <MenuItems className=" absolute left-0 z-20 mt-2 w-fit !min-w-20 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col ">
                   {item?.children?.length > 0 &&
                     item?.children?.map((option) => {
-                      console.log(option);
                       return (
                         <MenuItem key={option} as="button">
                           {({ active }) => (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   fetchTaskVersions,
   fetchVersionPreview,
+  resetVersionPreview,
 } from "../store/Slices/VersionsSlice";
 import { createVersion } from "../store/Slices/VersionsSlice";
 import { useTasks } from "./useTasks";
@@ -30,8 +31,27 @@ export const useVersions = () => {
     error: createVersionError,
   } = createVersionData || {};
 
-  const fetchAllVersions = (taskId) => {
-    dispatch(fetchTaskVersions({ id: taskId }));
+  const fetchAllVersions = (taskId, setVersionId = () => {}) => {
+    return dispatch(fetchTaskVersions({ id: taskId }));
+    // .unwrap() // optional: unwraps the thunk to throw real errors
+    // .then((res) => {
+    //   if (res.payload.versions) {
+    //     setVersionId({
+    //       id: res.payload.versions[0].id,
+    //       name: res.payload.versions[0].name,
+    //     });
+    //   }
+    //   console.log("✅ Versions fetched:", res);
+    //   return res;
+    // })
+    // .catch((err) => {
+    //   console.error("❌ Failed to fetch versions:", err);
+    //   throw err;
+    // })
+  };
+
+  const clearVersionPreview = () => {
+    dispatch(resetVersionPreview());
   };
 
   const fetchSingleVersionPreview = (versionId) => {
@@ -67,5 +87,6 @@ export const useVersions = () => {
     createNewVersion,
     createVersionLoading,
     createVersionError,
+    clearVersionPreview,
   };
 };

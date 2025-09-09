@@ -12,6 +12,7 @@ export const useOverview = () => {
   const [addressbar, setAddressbar] = useState("");
   const [searchItem, setSearchItem] = useState("");
   const [taskType, setTaskType] = useState("");
+  const [taskId, setTaskId] = useState(null);
   const [versionId, setVersionId] = useState(null);
 
   // table controls
@@ -20,6 +21,8 @@ export const useOverview = () => {
   const [showAssignees, setShowAssignees] = useState(true);
 
   const [createEntityModal, setCreateEntityModal] = useState(false);
+  const [createTaskModal, setCreateTaskModal] = useState(false);
+
   const [selectedEntType, setSelectedEntType] = useState("All");
 
   const { projects, selectedProject } = useSelector((state) => state.project);
@@ -27,6 +30,9 @@ export const useOverview = () => {
 
   const handleCreateEntityModal = () => {
     setCreateEntityModal(!createEntityModal);
+  };
+  const handleCreateTaskModal = () => {
+    setCreateTaskModal(!createTaskModal);
   };
 
   const getTheProjects = () => {
@@ -49,7 +55,7 @@ export const useOverview = () => {
   ) => {
     const projectId = project ? project : localStorage.getItem("project_id");
     if (projectId) {
-      console.log(project);
+      // console.log(project);
       dispatch(
         fetchFilms({
           project: project.id,
@@ -84,7 +90,10 @@ export const useOverview = () => {
     films,
     createEntityModal,
     setCreateEntityModal,
+    createTaskModal,
+    setCreateTaskModal,
     handleCreateEntityModal,
+    handleCreateTaskModal,
     resizeTableItems,
     setTableItemsSize,
     tableItemsSize,
@@ -104,5 +113,7 @@ export const useOverview = () => {
     setTaskType,
     versionId,
     setVersionId,
+    taskId,
+    setTaskId,
   };
 };

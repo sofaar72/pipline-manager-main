@@ -65,6 +65,8 @@ const projectSlice = createSlice({
         id: action.payload.id,
         name: action.payload.name,
       };
+
+      console.log(action.payload);
       localStorage.setItem("project_name", action.payload.name);
       localStorage.setItem("project_id", action.payload.id);
     },

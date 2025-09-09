@@ -137,7 +137,7 @@ const filmSlice = createSlice({
         // console.log(action.payload);
         state.loading = false;
         state.films = action.payload;
-        console.log(state.films);
+        // console.log(state.films);
       })
       .addCase(fetchFilms.rejected, (state, action) => {
         state.loading = false;

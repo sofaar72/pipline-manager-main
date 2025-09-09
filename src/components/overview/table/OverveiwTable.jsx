@@ -47,6 +47,7 @@ export default function OverviewTable({
   selectedProject,
   setEntityId,
   setTaskType,
+  setTaskId,
 }) {
   // TASK SETTINGS HOOK
   const {
@@ -154,6 +155,7 @@ export default function OverviewTable({
                 showPreview={showPreview}
                 previewWidth={previewWidth}
                 setEntityId={setEntityId}
+                setTaskId={setTaskId}
                 setTaskType={setTaskType}
                 setSelectedTasks={setSelectedTasks}
                 selectedMultipleTasks={selectedMultipleTasks}

@@ -121,7 +121,9 @@ export const useTableFunctions = ({
       header: dept,
       cell: ({ row }) => {
         const val = row?.original?.departments?.[dept];
-
+        // console.log(dept);
+        // console.log(row?.original?.departments);
+        // console.log(val);
         if (!val) {
           return (
             <div className="flex items-center justify-center text-gray-400">
@@ -233,10 +235,12 @@ export const useTableFunctions = ({
         return "400px";
       }
       if (
-        (c.id === "Modeling" ||
-          c.id === "Texturing" ||
-          c.id === "Rigging" ||
-          c.id === "Shading") &&
+        (c.id === "modeling" ||
+          c.id === "texturing" ||
+          c.id === "light" ||
+          c.id === "animate" ||
+          c.id === "rigging" ||
+          c.id === "shading") &&
         !showAssignees
       ) {
         return " 100px";
@@ -257,10 +261,12 @@ export const useTableFunctions = ({
       setColumnWidths((prev) => {
         const newWidth = Math.min(
           Math.max(startWidth + dx, minWidth),
-          colId === "Modeling" ||
-            colId === "Texturing" ||
-            colId === "Rigging" ||
-            colId === "Shading"
+          colId === "modeling" ||
+            colId === "texturing" ||
+            colId === "light" ||
+            colId === "animate" ||
+            colId === "rigging" ||
+            colId === "shading"
             ? 250
             : colId === "entity"
             ? 250

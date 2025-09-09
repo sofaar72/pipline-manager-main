@@ -24,26 +24,29 @@ const PreviewMain = ({
   versionPreviewLoading,
   versionId,
   setVersionId,
+  handleCreateTaskModal,
+  clearVersionPreview,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
   const { getAllComments, comments, loading: commentsLoading } = useComments();
 
   // FETCH VERSIONS OF THE TASK
-  useEffect(() => {
-    if (taskResults.length > 0) {
-      fetchAllVersions(taskResults[0]?.id);
-      setVersionId();
-    }
-  }, [taskResults]);
+  // useEffect(() => {
+  //   if (taskResults.length > 0) {
+  //     fetchAllVersions(taskResults[0]?.id, setVersionId);
+  //   }
+  // }, [taskResults]);
 
   // FETCH SINGLE VERSION
   useEffect(() => {
-    if (versionResults && versionId) {
-      // console.log(versionId);
+    console.log(versionId);
+    if (versionId && versionId.id) {
       fetchVersionPreview(versionId.id);
-      getAllComments(versionId.id);
+    } else {
+      clearVersionPreview();
     }
-  }, [versionResults, versionId]);
+    // getAllComments(versionId.id);
+  }, [versionId]); // Added versionResults to dependencies
 
   if (loading) {
     return <PreviewLoading />;
@@ -72,6 +75,7 @@ const PreviewMain = ({
             versionResults={versionResults}
             versionPreviewData={versionPreviewData}
             versionPreviewLoading={versionPreviewLoading}
+            fetchVersionPreview={fetchVersionPreview}
           />
           <PreviewFilesAndComments
             switcher={switcher}
@@ -81,7 +85,7 @@ const PreviewMain = ({
           />
         </>
       ) : (
-        <PreviewNoTask />
+        <PreviewNoTask openCreateTask={handleCreateTaskModal} />
       )}
     </div>
   );

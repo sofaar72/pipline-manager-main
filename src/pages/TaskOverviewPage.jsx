@@ -12,6 +12,7 @@ import { useTableTaskSettings } from "../hooks/overview/useTableTaskSettings,js"
 import { useTasks } from "../hooks/useTasks";
 import { useVersions } from "../hooks/useVersions";
 import { useComments } from "../hooks/useComments";
+import CreateTaskForm from "../components/overview/CreateTaskForm";
 
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
@@ -24,6 +25,7 @@ const TaskOverviewPage = () => {
     fetchSingleVersionPreview,
     versionPreviewData,
     versionPreviewLoading,
+    clearVersionPreview,
   } = useVersions();
 
   // OVERVIEW HOOK
@@ -38,7 +40,10 @@ const TaskOverviewPage = () => {
     films,
     createEntityModal,
     setCreateEntityModal,
+    createTaskModal,
+    setCreateTaskModal,
     handleCreateEntityModal,
+    handleCreateTaskModal,
     setTableItemsSize,
     tableItemsSize,
     resizeTableItems,
@@ -58,6 +63,8 @@ const TaskOverviewPage = () => {
     setTaskType,
     versionId,
     setVersionId,
+    taskId,
+    setTaskId,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -75,7 +82,7 @@ const TaskOverviewPage = () => {
     isResizing.current = false;
   };
 
-  // Start resizing
+  // // Start resizing
   const startResizing = (e) => {
     e.stopPropagation();
     isResizing.current = true;
@@ -97,12 +104,12 @@ const TaskOverviewPage = () => {
     window.addEventListener("mouseup", resizeMouseUp);
   };
 
-  // Initial data loading - get projects first
+  // // Initial data loading - get projects first
   useEffect(() => {
     getTheProjects();
   }, []);
 
-  // Get episodes when selectedProject changes
+  // // Get episodes when selectedProject changes
   useEffect(() => {
     if (selectedProject) {
       getEpisodes();
@@ -111,15 +118,21 @@ const TaskOverviewPage = () => {
     }
   }, [selectedProject]);
 
-  // Get entities when selectedEntType changes (but only if we have a selected project)
+  // // Get entities when selectedEntType changes (but only if we have a selected project)
   useEffect(() => {
-    if (selectedProject) {
+    if (selectedProject && selectedEntType) {
       getTheEntities(selectedProject, selectedEntType);
     }
     setSearchItem("");
   }, [selectedEntType]);
 
-  // Additional effect to ensure entities are loaded if we have both project and type
+  // useEffect(() => {
+  //   if (!selectedProject || !selectedEntType) return;
+
+  //   getTheEntities(selectedProject, selectedEntType);
+  // }, [selectedEntType]);
+
+  // // Additional effect to ensure entities are loaded if we have both project and type
   useEffect(() => {
     if (selectedProject && selectedEntType && (!films || !films.results)) {
       getTheEntities(selectedProject, selectedEntType);
@@ -145,6 +158,7 @@ const TaskOverviewPage = () => {
   }, []);
 
   const selectProject = (id) => {
+    console.log(id);
     selectTheProject(id);
   };
 
@@ -182,17 +196,11 @@ const TaskOverviewPage = () => {
   useEffect(() => {
     if (!showPreview.show) {
       setShowMeta(false);
+      setVersionId({}); // 🔥 reset versionId when preview closes
     } else {
       setShowMeta(true);
     }
   }, [showPreview?.show]);
-
-  // Debug logging (remove in production)
-  useEffect(() => {
-    console.log("Debug - selectedProject:", selectedProject);
-    console.log("Debug - selectedEntType:", selectedEntType);
-    console.log("Debug - films:", films);
-  }, [selectedProject, selectedEntType, films]);
 
   const searchEntity = (e) => {
     const search = e.target.value;
@@ -200,29 +208,29 @@ const TaskOverviewPage = () => {
   };
 
   useEffect(() => {
-    getTheEntities(selectedProject, selectedEntType, searchItem);
+    // getTheEntities(selectedProject, selectedEntType, searchItem);
   }, [searchItem]);
 
   // CLose preview by clicking outside
-  // useEffect(() => {
-  //   const handleClickOutside = (e) => {
-  //     // if preview is hidden, do nothing
-  //     if (showPreview.show) return;
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // if preview is hidden, do nothing
+      if (showPreview.show) return;
 
-  //     if (
-  //       wrapperRef.current &&
-  //       !wrapperRef.current.contains(e.target) &&
-  //       !isResizing.current
-  //     ) {
-  //       hidePrev();
-  //     }
-  //   };
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target) &&
+        !isResizing.current
+      ) {
+        hidePrev();
+      }
+    };
 
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [wrapperRef, isResizing, showPreview.show]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [wrapperRef, isResizing, showPreview.show]);
 
   // FETCH TASKS
   useEffect(() => {
@@ -230,9 +238,33 @@ const TaskOverviewPage = () => {
       fetchAllTasks(entityId, taskType);
     }
   }, [addressbar]);
-  // useEffect(() => {
-  //   console.log(entityId);
-  // }, [entityId]);
+
+  useEffect(() => {
+    if (taskResults.length > 0) {
+      fetchAllVersions(taskResults[0]?.id);
+    }
+  }, [taskResults]);
+
+  useEffect(() => {
+    const versions = versionResults?.versions;
+
+    if (Array.isArray(versions) && versions.length > 0) {
+      const first = versions[0];
+      setVersionId((prev) => {
+        const newVal = {
+          id: first.id,
+          // prefer `version` field, fallback to `name` or empty string
+          name: first.version ?? first.name ?? "",
+        };
+        // avoid re-setting identical state
+        if (prev?.id === newVal.id && prev?.name === newVal.name) return prev;
+        return newVal;
+      });
+    } else {
+      // consider using null if you want "no selection" more explicitly
+      setVersionId({});
+    }
+  }, [versionResults]);
 
   return (
     <LayoutOne>
@@ -287,6 +319,7 @@ const TaskOverviewPage = () => {
               previewWidth={previewWidth}
               setEntityId={setEntityId}
               setTaskType={setTaskType}
+              setTaskId={setTaskId}
             />
           )}
         </div>
@@ -329,6 +362,8 @@ const TaskOverviewPage = () => {
               fetchVersionPreview={fetchSingleVersionPreview}
               versionPreviewData={versionPreviewData}
               versionPreviewLoading={versionPreviewLoading}
+              handleCreateTaskModal={handleCreateTaskModal}
+              clearVersionPreview={clearVersionPreview}
             />
           </div>
         </div>
@@ -348,6 +383,10 @@ const TaskOverviewPage = () => {
             fetchData={getTheEntities}
           />
         </div>
+      </GlobalPureModal>
+      {/* CREATE TASK MODAL  */}
+      <GlobalPureModal open={createTaskModal} setOpen={setCreateTaskModal}>
+        <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} />
       </GlobalPureModal>
     </LayoutOne>
   );

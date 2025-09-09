@@ -36,12 +36,12 @@ const TableHeader = ({
             }
       
       ${
-        (col.id === "Modeling" ||
-          col.id === "Rigging" ||
+        (col.id === "modeling" ||
+          col.id === "rigging" ||
           col.id === "animate" ||
           col.id === "light" ||
-          col.id === "Texturing" ||
-          col.id === "Shading") &&
+          col.id === "texturing" ||
+          col.id === "shading") &&
         "px-2 !justify-center border-l border-r border-white/20"
       }
       `}
