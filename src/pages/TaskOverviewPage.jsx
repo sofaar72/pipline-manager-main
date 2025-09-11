@@ -13,6 +13,7 @@ import { useTasks } from "../hooks/useTasks";
 import { useVersions } from "../hooks/useVersions";
 import { useComments } from "../hooks/useComments";
 import CreateTaskForm from "../components/overview/CreateTaskForm";
+import OnlyCreateTaskModal from "../components/overview/OnlyCreateTaskModal";
 
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
@@ -386,7 +387,14 @@ const TaskOverviewPage = () => {
       </GlobalPureModal>
       {/* CREATE TASK MODAL  */}
       <GlobalPureModal open={createTaskModal} setOpen={setCreateTaskModal}>
-        <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} />
+        {/* <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} /> */}
+        <OnlyCreateTaskModal
+          entityId={entityId}
+          typeId={""}
+          status={540}
+          setCreateModal={setCreateTaskModal}
+          fetchData={() => {}}
+        />
       </GlobalPureModal>
     </LayoutOne>
   );

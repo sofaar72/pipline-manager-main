@@ -49,7 +49,8 @@ const CreateTaskForm = ({
       status: 540,
       parent: id,
     };
-    // console.log("Form values:", newData);
+
+    console.log("Form values:", newData);
     // Remove empty, null, or undefined values
     const cleanedData = Object.fromEntries(
       Object.entries(newData).filter(
