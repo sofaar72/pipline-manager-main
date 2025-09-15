@@ -14,9 +14,28 @@ const TheDropDown = ({
   cClass = "",
   type = "default",
   funcAfter = () => {},
+  users,
 }) => {
   const [selected, setSelected] = useState(value || init);
-  const [checked, setChecked] = useState([]);
+  // const [checked, setChecked] = useState([]);
+
+  const [checked, setChecked] = useState(() =>
+    (users || []).map((u) => ({
+      id: u.id,
+      checked: true,
+    }))
+  );
+
+  useEffect(() => {
+    if (users?.length) {
+      setChecked(
+        users.map((u) => ({
+          id: u.id,
+          checked: true,
+        }))
+      );
+    }
+  }, [users]);
 
   // Update local state when value prop changes
   useEffect(() => {
@@ -60,7 +79,7 @@ const TheDropDown = ({
     );
 
     funcAfter(selectedItems);
-  }, [checked, type, items, funcAfter]);
+  }, [checked]);
 
   return (
     <Menu as="div" className="relative inline-block text-left shrink-0">
@@ -85,10 +104,10 @@ const TheDropDown = ({
             <MenuItem key={item.name}>
               {({ active }) => (
                 <button
-                  onClick={(e) => selectHandler(e, item)}
                   className={`block w-full text-left px-4 py-2 text-sm h-regular cursor-pointer ${
                     active ? "bg-[var(--overview-color-two)]" : ""
                   }`}
+                  onClick={(e) => selectHandler(e, item)}
                 >
                   {item.name.length > 20
                     ? item.name.slice(0, 20) + "..."
@@ -101,7 +120,7 @@ const TheDropDown = ({
       ) : type === "visual" ? (
         <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col gap-4 px-2 py-2">
           {items.map((item) => (
-            <MenuItem key={item.name}>
+            <MenuItem key={item.name} onClick={(e) => selectVisulHandler()}>
               {({ active }) => (
                 <div className="w-full flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">

@@ -10,6 +10,8 @@ import { FaRegEdit } from "react-icons/fa";
 import TheIcon from "../../components/overview/TheIcon";
 import { FaPlus } from "react-icons/fa";
 import { BsThreeDots } from "react-icons/bs";
+import { Tooltip as ReactTooltip } from "react-tooltip";
+import { IoIosAdd } from "react-icons/io";
 
 export const useTableFunctions = ({
   selectedProject = "",
@@ -19,6 +21,8 @@ export const useTableFunctions = ({
   tableItems = [],
   editMode,
   setEditMode,
+  loading,
+  handleAddUserTaskModal = () => {},
 }) => {
   const {
     statusClasses,
@@ -117,21 +121,22 @@ export const useTableFunctions = ({
 
     // 2️⃣ Dynamic department columns from real data
     const deptCols = dynamicDepartments.map((dept) => ({
-      id: dept,
-      header: dept,
+      id: dept.name,
+      type_id: dept.id,
+      header: dept.name,
       cell: ({ row }) => {
-        const val = row?.original?.departments?.[dept];
+        const val = row?.original?.departments?.[dept.name];
+
         // console.log(dept);
         // console.log(row?.original?.departments);
         // console.log(val);
-        if (!val) {
+        if (!val || !val.status || !row.original.tasks) {
           return (
             <div className="flex items-center justify-center text-gray-400">
               No data
             </div>
           );
         }
-
         return (
           <div
             className={`flex transition ${
@@ -146,13 +151,13 @@ export const useTableFunctions = ({
               className={`${editMode && "pointer-none"} px-3 py-1 radius ${
                 showAssignees ? "w-[100px]" : "flex-1 shrink-0 w-full"
               } h-regular font-[500] flex items-center justify-center text-center text-white ${statusClasses(
-                val.status
+                val?.status
               )}`}
             >
-              {val.status || "No Status"}
+              {val?.status || "No Status"}
             </div>
 
-            {showAssignees && val.assignees?.length > 0 && (
+            {showAssignees && val?.assignees?.length > 0 && (
               <div
                 className={`${editMode && "pointer-none"} flex transition ${
                   !tableItemsSize ? "w-1/2" : "w-full"
@@ -160,22 +165,38 @@ export const useTableFunctions = ({
               >
                 <div className={`flex items-center relative`}>
                   {val.assignees.slice(0, 2).map((assignee, i) => (
-                    <img
-                      key={i}
-                      src={assignee.avatar}
-                      className="w-7 h-7 rounded-full"
-                      alt={assignee.name}
-                    />
+                    <div key={i}>
+                      <img
+                        src={assignee.avatar}
+                        className="w-7 h-7 rounded-full"
+                        alt={assignee.name}
+                        data-tooltip-id={`assignee-${assignee.id}_${i}`} // unique per avatar
+                      />
+                      <ReactTooltip
+                        id={`assignee-${assignee.id}_${i}`}
+                        place="top"
+                      >
+                        {assignee.name}
+                      </ReactTooltip>
+                    </div>
                   ))}
                   {val.assignees.length > 2 && (
                     <span className="ml-1">...</span>
                   )}
                 </div>
-                <div className="w-7 h-7 rounded-full bg-[var(--overview-color-three)] absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center transition hover:bg-[var(--overview-color-four)]">
-                  <BsThreeDots className="text-xs" />
-                </div>
               </div>
             )}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+
+                handleAddUserTaskModal(val.assignees, val.taskId);
+              }}
+              className="w-7 h-7 rounded-full bg-[var(--overview-color-three)] absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center transition hover:bg-[var(--overview-color-four)]"
+            >
+              {/* <BsThreeDots className="text-xs" />  */}
+              <IoIosAdd className="text-xs" />
+            </div>
           </div>
         );
       },
@@ -184,7 +205,9 @@ export const useTableFunctions = ({
 
     // 3️⃣ Combine base + dynamic department columns
     const allCols = [...base, ...deptCols];
-    return showMeta ? allCols : allCols.filter((col) => col.type !== "meta");
+    return showMeta
+      ? allCols
+      : allCols.filter((col) => col.type.name !== "meta");
   }, [
     // Fixed dependency array - removed nested arrays
     REAL_DATA,
@@ -195,6 +218,7 @@ export const useTableFunctions = ({
     editMode,
     data,
     statusClasses,
+    loading,
   ]);
 
   const table = useReactTable({
@@ -210,7 +234,7 @@ export const useTableFunctions = ({
     const map = new Map();
     table.getRowModel().rows.forEach((r) => map.set(r.original.id, r));
     return map;
-  }, [table]);
+  }, [table, loading]);
 
   const grouped = useMemo(() => {
     const m = new Map();
@@ -297,11 +321,14 @@ export const useTableFunctions = ({
     }
 
     // Department task columns → fixed between 180–250
-    if (DEPARTMENTS.includes(col?.id) || dynamicDepartments.includes(col?.id)) {
+    if (
+      DEPARTMENTS.includes(col?.id) ||
+      dynamicDepartments.some((dept) => dept.name === col?.id)
+    ) {
       return 200; // will be clamped in resize between 180–250
     }
 
-    return 120; // fallback if some unknown col appears
+    return 200; // fallback if some unknown col appears
   };
 
   return {

@@ -5,6 +5,7 @@ import {
   createTask,
   fetchAssetsTasks,
   fetchTasks,
+  updateTask,
 } from "../store/Slices/TaskSlice";
 import { useVersions } from "./useVersions";
 
@@ -13,7 +14,9 @@ export const useTasks = ({ dataType = "production" } = {}) => {
   const { fetchAllVersions } = useVersions();
   const dispatch = useDispatch();
 
-  const { tasks, createStatus } = useSelector((state) => state.task);
+  const { tasks, createStatus, updateStatus } = useSelector(
+    (state) => state.task
+  );
   const {
     results: taskResults,
     loading: taskLoading,
@@ -24,6 +27,12 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     loading: createTaskLoading,
     error: createTaskError,
   } = createStatus || {};
+
+  const {
+    success: taskUpdateSuccess,
+    loading: updateTaskLoading,
+    error: updateTaskError,
+  } = updateStatus || {};
 
   const fetchAllTasks = (entityId, taskType) => {
     if (dataType === "production") {
@@ -52,12 +61,19 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     dispatch(createTask({ ...taskData })).then((res) => {
       if (res.payload) {
         if (dataType === "production") {
-          // console.log(res.payload);
-          setTimeout(() => fetchAllTasks(res.payload.film), 1000);
-          // closeModal(false);
-          // fetchAllTasks(res?.payload?.film);
+          closeModal(false);
         } else {
-          // fetchAllAssetsTasks(res?.payload?.asset_variation);
+        }
+      }
+    });
+  };
+  const updateTheTask = async (id, taskData, closeModal = () => {}) => {
+    console.log(taskData);
+    dispatch(updateTask({ id: id, data: { ...taskData } })).then((res) => {
+      if (res.payload) {
+        if (dataType === "production") {
+          closeModal(false);
+        } else {
         }
       }
     });
@@ -71,9 +87,13 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     createTaskLoading,
     createTaskError,
     activeTask,
+    taskUpdateSuccess,
+    updateTaskLoading,
+    updateTaskError,
     fetchTaskVersion,
     fetchAllVersions,
     fetchAllTasks,
+    updateTheTask,
     addTask,
     fetchAllAssetsTasks,
   };

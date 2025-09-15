@@ -6,6 +6,7 @@ const PreviewFilesAndComments = ({
   switcher,
   setSwitcher,
   versionPreviewData,
+  versionId,
   comments,
 }) => {
   const [files, setFiles] = useState([]);
@@ -17,7 +18,7 @@ const PreviewFilesAndComments = ({
   return (
     <div className="w-full flex-1 radius bg-[var(--overview-color-two)] text-white h-lg flex items-center p-2 justify-center shrink-0">
       {switcher === "file" ? (
-        <FilesWrapper files={files} />
+        <FilesWrapper files={files} versionId={versionId} />
       ) : (
         <CommentWrapper comments={comments} />
       )}

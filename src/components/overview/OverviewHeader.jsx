@@ -34,6 +34,7 @@ const OverviewHeader = ({
   previewWidth,
   searchEntity,
   searchItem,
+  filterByUser,
 }) => {
   const [entType, setEntType] = useState({ id: 3, name: "All" });
 
@@ -82,28 +83,34 @@ const OverviewHeader = ({
             width={"w-[100px]"}
           />
         )}
-      </div>
 
-      {/* TODO CREATE Entity  */}
-      {showPreview && (
-        <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
-          <TheButton
-            cClass="flex items-center justify-between gap-2 h-regular"
-            onClick={openCreateEntity}
-          >
-            <span>Create Entity</span>
-            <span>+</span>
-          </TheButton>
-        </div>
-      )}
+        {/* TODO CREATE Entity  */}
+        {showPreview && (
+          <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+            <TheButton
+              cClass="flex items-center justify-between gap-2 h-regular"
+              onClick={openCreateEntity}
+            >
+              <span>Create Entity</span>
+              <span>+</span>
+            </TheButton>
+          </div>
+        )}
+
+        {/* Assign to me  */}
+        <TheIcon
+          onClick={() => filterByUser()}
+          tooltip={"Assign to me"}
+          tooltipId="tooltip-button"
+          showTooltip
+        >
+          <IoIosCheckboxOutline />
+        </TheIcon>
+      </div>
 
       {/* TODO SERCH AND FILTERS  */}
       {showPreview && (
         <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
-          {/* Assign to me  */}
-          <TheIcon onClick={() => {}}>
-            <IoIosCheckboxOutline />
-          </TheIcon>
           {/* Search  */}
           <TheSearch
             placeHolder="Search.."

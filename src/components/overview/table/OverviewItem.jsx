@@ -23,11 +23,12 @@ const OverviewItem = ({
   previewWidth,
   theShowPreview,
   setEntityId,
-  setTaskId,
   setSelectedTasks,
   selectedMultipleTasks,
   allRows = [], // Add this prop to pass all rows data for range selection
   setTaskType,
+  typeId,
+  setTypeId,
 }) => {
   const validCells = [
     "texturing",
@@ -63,11 +64,12 @@ const OverviewItem = ({
   };
 
   const handleCellClick = (e, cell) => {
-    console.log(cell);
     const {
-      column: { id: cellId },
+      column: { id: cellId, type_id },
       row: { id: rowId, original },
     } = cell;
+
+    setTypeId(cell.column.columnDef.type_id);
 
     if (!validCells.includes(cellId) || editMode) return;
     // console.log(original);

@@ -17,6 +17,7 @@ export const loginUser = createAsyncThunk(
         // }
         { username: userData.email, password: userData.password }
       );
+      console.log(response);
 
       if (response.status === 200) {
         // Store authentication tokens
@@ -31,6 +32,18 @@ export const loginUser = createAsyncThunk(
 
           if (typeof roleData === "object") {
             // Store complete role object
+            localStorage.setItem(
+              "first_name",
+              JSON.stringify(response.data.user.first_name)
+            );
+            localStorage.setItem(
+              "last_name",
+              JSON.stringify(response.data.user.last_name)
+            );
+            localStorage.setItem(
+              "user_id",
+              JSON.stringify(response.data.user.id)
+            );
             localStorage.setItem("role", JSON.stringify(roleData));
             localStorage.setItem("role_id", roleData.id);
             localStorage.setItem("role_name", roleData.name);
@@ -98,9 +111,12 @@ export const logoutUser = createAsyncThunk(
     try {
       const response = await axiosInstance.post("/auth/logout/");
       if (response.status === 200) {
+        localStorage.removeItem("user_id");
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("role");
+        localStorage.removeItem("first_name");
+        localStorage.removeItem("last_name");
         toast.success("User is logged out");
       }
       return response.data;

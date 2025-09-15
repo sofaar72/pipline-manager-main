@@ -63,14 +63,22 @@ export const useTableData = ({ tableItems = [] }) => {
   const [dynamicDepartments, setDynamicDepartments] = useState([]);
 
   useEffect(() => {
+    console.log(tableItems);
     if (!tableItems || !tableItems.length) return;
 
     // 1. Collect all unique task types
     const depts = [];
     tableItems.forEach((item) => {
       (item.tasks || []).forEach((task) => {
-        if (task.type && !depts.includes(task.type)) {
-          depts.push(task.type);
+        if (
+          task.type.name &&
+          !depts.some((dept) => dept.name === task.type.name)
+        ) {
+          depts.push({
+            name: task.type.name,
+            id: task.type.id,
+            color: task.type.color,
+          });
         }
       });
     });
@@ -82,23 +90,46 @@ export const useTableData = ({ tableItems = [] }) => {
     return tableItems.map((item) => {
       const departmentsObj = {};
 
+      const assignees = [];
+
       (item.tasks || []).forEach((task) => {
-        // console.log(task);
-        departmentsObj[task.type] = {
-          taskId: task.id,
-          status: task.status?.name || "Todo",
-          assignees: (task.assignee || []).map((id) => ({
-            id,
-            name: `User ${id}`,
-            avatar: `https://i.pravatar.cc/40?img=${id % 70}`,
-          })),
-        };
+        const deptKey = task?.type?.name;
+
+        // Build new assignees for this task
+        const newAssignees = (task.assignee || []).map((id) => ({
+          id,
+          name: `User ${id}`,
+          avatar: `https://i.pravatar.cc/40?img=${id % 70}`,
+        }));
+
+        if (!departmentsObj[deptKey]) {
+          // First time we see this department → create new entry
+          departmentsObj[deptKey] = {
+            type: {
+              name: task.type.name,
+              id: task.type.id,
+              color: task.type.color,
+            },
+            taskId: task.id,
+            status: task.status?.name || "Todo",
+            assignees: [...newAssignees],
+          };
+        } else {
+          // Already exists → push new assignees
+          departmentsObj[deptKey].assignees = [
+            ...departmentsObj[deptKey].assignees,
+            ...newAssignees,
+          ];
+        }
+
+        // Optionally also keep a global flat list
+        assignees.push(...newAssignees);
       });
 
       // Make sure all dynamicDepartments exist
       dynamicDepartments.forEach((dept) => {
-        if (!departmentsObj[dept]) {
-          departmentsObj[dept] = { status: "", assignees: [] };
+        if (!departmentsObj[dept?.name]) {
+          departmentsObj[dept?.name] = { status: "", assignees: [] };
         }
       });
 
@@ -112,13 +143,22 @@ export const useTableData = ({ tableItems = [] }) => {
         duration: item.duration || "",
         location: item.location || "",
         other: "",
+        tasks: item.tasks,
+        user_assignees: assignees,
       };
     });
   }, [tableItems, dynamicDepartments]);
 
   // useEffect(() => {
+  //   const userId = Number(localStorage.getItem("user_id")); // ensure it's a number
+  //   const filteredData = REAL_DATA.filter((data) =>
+  //     data.user_assignees.some((p) => p.id === userId)
+  //   );
+
+  //   console.log(filteredData);
   //   console.log(REAL_DATA);
   // }, [REAL_DATA]);
+
   // useEffect(() => {
   //   console.log(SAMPLE_DATA);
   // }, [REAL_DATA]);
@@ -133,7 +173,7 @@ export const useTableData = ({ tableItems = [] }) => {
   };
 
   DEPARTMENTS.forEach((d) => (DEFAULT_WIDTHS[d] = 200));
-  dynamicDepartments.forEach((d) => (DEFAULT_WIDTHS[d] = 200));
+  dynamicDepartments.forEach((d) => (DEFAULT_WIDTHS[d.name] = 200));
 
   return {
     statusClasses,

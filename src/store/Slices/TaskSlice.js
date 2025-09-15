@@ -56,6 +56,27 @@ export const createTask = createAsyncThunk("task/createTask", async (data) => {
     );
   }
 });
+// UPDATE TASK
+export const updateTask = createAsyncThunk(
+  "task/updateTask",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.patch(`/tasks/${id}/`, data);
+
+      if (response.status == 200) {
+        toast.success("Task UPDATED!");
+      }
+      // Return both the updated task and its ID
+      return { id, ...response.data };
+    } catch (error) {
+      console.log("Error response:", error.response);
+      toast.error(error.response.data.error || "something went wrong!");
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.error || { error: "Server error" }
+      );
+    }
+  }
+);
 
 // Step 2: Slice
 const taskSlice = createSlice({
@@ -67,6 +88,11 @@ const taskSlice = createSlice({
       error: null,
     },
     createStatus: {
+      loading: false,
+      error: null,
+      success: false,
+    },
+    updateStatus: {
       loading: false,
       error: null,
       success: false,
@@ -117,6 +143,31 @@ const taskSlice = createSlice({
       .addCase(createTask.rejected, (state, action) => {
         state.createStatus.loading = false;
         // state.createStatus.error = action.payload.error || "Unknown error";
+      });
+    // UPDATE TASK
+    builder
+      .addCase(updateTask.pending, (state) => {
+        state.updateStatus.loading = true;
+        state.updateStatus.error = null;
+        state.updateStatus.success = false;
+      })
+      .addCase(updateTask.fulfilled, (state, action) => {
+        const updatedTask = action.payload;
+        const taskIndex = state.tasks.results.findIndex(
+          (task) => task.id === updatedTask.id
+        );
+
+        if (taskIndex !== -1) {
+          state.tasks.results[taskIndex] = updatedTask;
+        }
+        state.updateStatus.loading = false;
+        state.updateStatus.success = true;
+        state.updateStatus.error = null;
+      })
+      .addCase(updateTask.rejected, (state, action) => {
+        state.updateStatus.loading = false;
+        state.updateStatus.error = action.payload.error || "Unknown error";
+        state.updateStatus.success = false;
       });
   },
 });

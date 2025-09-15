@@ -101,6 +101,7 @@ const UploadFileForm = ({
 
     // Handle large file uploads (TUS)
     if (largeFiles.length > 0) {
+      console.log(largeFiles);
       try {
         const res = await dispatch(uploadFileToServer({ file: largeFiles }));
 

@@ -80,3 +80,16 @@ export const useEntityFormSchema = () => {
 
   return { formSchema };
 };
+
+export const useVersionFormSchema = () => {
+  let formSchema = yup.object().shape({
+    note: yup.string().required("This field may not be blank"),
+  });
+
+  // check validity
+  //   formSchema.isValid().then(function (valid) {
+  //     valid; // => true
+  //   });
+
+  return { formSchema };
+};

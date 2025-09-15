@@ -43,7 +43,8 @@ export const createVersion = createAsyncThunk(
       }
       return response.data;
     } catch (error) {
-      console.log("Error response:", error.response);
+      console.log(error.message);
+      toast.error(error.message);
       return thunkAPI.rejectWithValue(
         error.response?.data?.error || { error: "Server error" }
       );

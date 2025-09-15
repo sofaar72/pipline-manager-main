@@ -8,6 +8,7 @@ const TheButton = ({
   onClick = () => {},
   loading = false,
   type = "",
+  disabled = false,
 }) => {
   return (
     <button

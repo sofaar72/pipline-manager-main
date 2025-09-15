@@ -26,6 +26,7 @@ const PreviewMain = ({
   setVersionId,
   handleCreateTaskModal,
   clearVersionPreview,
+  taskId,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
   const { getAllComments, comments, loading: commentsLoading } = useComments();
@@ -48,7 +49,11 @@ const PreviewMain = ({
     // getAllComments(versionId.id);
   }, [versionId]); // Added versionResults to dependencies
 
-  if (loading) {
+  useEffect(() => {
+    console.log(versionPreviewData);
+  }, [versionPreviewData]);
+
+  if (loading || versionPreviewLoading) {
     return <PreviewLoading />;
   }
 
@@ -76,12 +81,14 @@ const PreviewMain = ({
             versionPreviewData={versionPreviewData}
             versionPreviewLoading={versionPreviewLoading}
             fetchVersionPreview={fetchVersionPreview}
+            taskId={taskId}
           />
           <PreviewFilesAndComments
             switcher={switcher}
             setSwitcher={setSwitcher}
             versionPreviewData={versionPreviewData}
             comments={comments}
+            versionId={versionId}
           />
         </>
       ) : (

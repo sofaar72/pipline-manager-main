@@ -13,26 +13,39 @@ export const useOverview = () => {
   const [searchItem, setSearchItem] = useState("");
   const [taskType, setTaskType] = useState("");
   const [taskId, setTaskId] = useState(null);
+  const [typeId, setTypeId] = useState(null);
+
   const [versionId, setVersionId] = useState(null);
 
   // table controls
   const [tableItemsSize, setTableItemsSize] = useState(false);
   const [showMeta, setShowMeta] = useState(true);
   const [showAssignees, setShowAssignees] = useState(true);
+  const [assigneeUsers, setAssigneeUsers] = useState([]);
 
   const [createEntityModal, setCreateEntityModal] = useState(false);
   const [createTaskModal, setCreateTaskModal] = useState(false);
+  const [addUserTaskModal, setAddUserTaskModal] = useState(false);
 
   const [selectedEntType, setSelectedEntType] = useState("All");
 
   const { projects, selectedProject } = useSelector((state) => state.project);
-  const { films, episodes } = useSelector((state) => state.film);
+  const {
+    films,
+    episodes,
+    loading: filmLoading,
+  } = useSelector((state) => state.film);
 
   const handleCreateEntityModal = () => {
     setCreateEntityModal(!createEntityModal);
   };
   const handleCreateTaskModal = () => {
     setCreateTaskModal(!createTaskModal);
+  };
+  const handleAddUserTaskModal = (assignees, taskId) => {
+    setTaskId(taskId);
+    setAssigneeUsers(assignees);
+    setAddUserTaskModal(!createTaskModal);
   };
 
   const getTheProjects = () => {
@@ -88,12 +101,16 @@ export const useOverview = () => {
     episodes,
     getTheEntities,
     films,
+    filmLoading,
     createEntityModal,
     setCreateEntityModal,
     createTaskModal,
     setCreateTaskModal,
     handleCreateEntityModal,
     handleCreateTaskModal,
+    handleAddUserTaskModal,
+    addUserTaskModal,
+    setAddUserTaskModal,
     resizeTableItems,
     setTableItemsSize,
     tableItemsSize,
@@ -115,5 +132,8 @@ export const useOverview = () => {
     setVersionId,
     taskId,
     setTaskId,
+    typeId,
+    setTypeId,
+    assigneeUsers,
   };
 };

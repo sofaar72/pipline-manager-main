@@ -22,6 +22,7 @@ const PreviewVideoWrapper = ({
   versionPreviewData,
   versionPreviewLoading,
   fetchVersionPreview,
+  taskId,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -122,7 +123,7 @@ const PreviewVideoWrapper = ({
 
       {/* add version modal  */}
       <GlobalPureModal open={open} setOpen={setOpen}>
-        <CreateVersionForm />
+        <CreateVersionForm open={open} setOpen={setOpen} taskId={taskId} />
       </GlobalPureModal>
     </div>
   );

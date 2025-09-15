@@ -73,7 +73,7 @@ const fileSlice = createSlice({
     // data: { results: [], loading: false, error: null },
     uploadFile: { results: [] },
     files: { results: [] },
-    uploadSmallFile: { results: [] },
+    uploadSmallFile: { results: [], smallLoading: false, smallError: false },
     loading: false,
     error: null,
   },
@@ -111,15 +111,20 @@ const fileSlice = createSlice({
     builder
       .addCase(uploadSmallFileToServer.pending, (state) => {
         state.loading = true;
+        state.uploadSmallFile.smallLoading = true;
+        state.uploadSmallFile.smallError = null;
         state.error = null;
       })
       .addCase(uploadSmallFileToServer.fulfilled, (state, action) => {
         state.loading = false;
+        state.uploadSmallFile.smallLoading = false;
         state.uploadSmallFile.results = action.payload;
       })
       .addCase(uploadSmallFileToServer.rejected, (state, action) => {
         state.loading = false;
+        state.uploadSmallFile.smallLoading = false;
         state.error = action.payload;
+        state.uploadSmallFile.smallError = action.payload;
       });
   },
 });

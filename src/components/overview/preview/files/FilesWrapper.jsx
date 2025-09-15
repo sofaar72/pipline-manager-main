@@ -5,7 +5,7 @@ import FilesList from "./FilesList";
 import GlobalPureModal from "../../../golbals/GlobalPureModal";
 import UploadFileForm from "./UploadFileForm";
 
-const FilesWrapper = ({ files }) => {
+const FilesWrapper = ({ files, versionId }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -16,7 +16,11 @@ const FilesWrapper = ({ files }) => {
       </div>
       {/* add the upload file modal  */}
       <GlobalPureModal open={open} setOpen={setOpen}>
-        <UploadFileForm />
+        <UploadFileForm
+          versionId={versionId}
+          setOpenModal={setOpen}
+          openModal={open}
+        />
       </GlobalPureModal>
     </>
   );

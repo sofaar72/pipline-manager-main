@@ -31,6 +31,8 @@ const OverviewItems = ({
   selectedMultipleTasks,
   selectSingleTask, // Add this prop
   addToSelection, // Add this prop
+  typeId,
+  setTypeId,
 }) => {
   return (
     <div className="w-full h-full flex-1 ">
@@ -80,6 +82,8 @@ const OverviewItems = ({
                       selectSingleTask={selectSingleTask} // Pass the new function
                       addToSelection={addToSelection} // Pass the new function
                       allRows={g?.items} // This allows range selection within the group
+                      typeId={typeId}
+                      setTypeId={setTypeId}
                     />
                   );
                 })}

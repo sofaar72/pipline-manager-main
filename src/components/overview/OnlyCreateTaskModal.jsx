@@ -6,19 +6,20 @@ import TheButton from "./TheButton";
 
 import { useTasks } from "../../hooks/useTasks";
 import { useUser } from "../../hooks/useUser";
+import { useTypes } from "../../hooks/useTypes";
 
 const OnlyCreateTaskModal = ({
   header = "Create Task",
   setCreateModal = () => {},
+  createTaskModal,
   entityId = null,
   status = 540,
   parentType = "PRD",
   typeId = null,
+  compareType = null,
   fetchData = () => {},
 }) => {
-  const { addTask, createTaskLoading } = useTasks();
-
-  // MUST FETCH TYPE AND COMPARE WITH THE COLUMN TYPE
+  const { addTask, createTaskLoading, taskSuccess } = useTasks();
 
   const create = () => {
     const newData = {
@@ -29,8 +30,12 @@ const OnlyCreateTaskModal = ({
     };
     console.log(newData);
 
-    // addTask(newData, setCreateModal);
+    addTask(newData, setCreateModal);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [taskSuccess]);
 
   return (
     <>

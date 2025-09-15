@@ -2,18 +2,22 @@ import React from "react";
 
 const CustomInput = ({
   type = "text",
+  noLabel = false,
   label = "",
   name = "",
   onChange = () => {},
   inputClass = "",
   textAreaClass = "",
+  cClass = "",
   placeholder = "text",
   value = "",
 }) => {
   if (type === "text") {
     return (
-      <div className="w-full flex text-left flex-col gap-2 text-white h-regular">
-        <label htmlFor="version">{label}</label>
+      <div
+        className={`${cClass} w-full flex text-left flex-col gap-2 text-white h-regular`}
+      >
+        {!noLabel && <label htmlFor="version">{label}</label>}
         <input
           id={name}
           name={name}

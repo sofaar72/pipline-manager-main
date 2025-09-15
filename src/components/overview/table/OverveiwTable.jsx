@@ -48,6 +48,10 @@ export default function OverviewTable({
   setEntityId,
   setTaskType,
   setTaskId,
+  setTypeId,
+  typeId,
+  loading,
+  handleAddUserTaskModal,
 }) {
   // TASK SETTINGS HOOK
   const {
@@ -90,6 +94,8 @@ export default function OverviewTable({
     tableItems,
     editMode,
     setEditMode,
+    loading,
+    handleAddUserTaskModal,
   });
 
   useEffect(() => {
@@ -161,6 +167,8 @@ export default function OverviewTable({
                 selectedMultipleTasks={selectedMultipleTasks}
                 selectSingleTask={selectSingleTask} // Pass the new function
                 addToSelection={addToSelection} // Pass the new function
+                typeId={typeId}
+                setTypeId={setTypeId}
               />
             </div>
 

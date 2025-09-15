@@ -107,8 +107,6 @@ const filmSlice = createSlice({
       error: false,
       results: [],
     },
-    loading: false,
-    error: null,
     createFilm: {
       results: [],
       loading: false,
@@ -124,6 +122,8 @@ const filmSlice = createSlice({
       loading: false,
       error: null,
     },
+    loading: false,
+    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {

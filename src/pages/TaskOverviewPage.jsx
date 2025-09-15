@@ -14,6 +14,9 @@ import { useVersions } from "../hooks/useVersions";
 import { useComments } from "../hooks/useComments";
 import CreateTaskForm from "../components/overview/CreateTaskForm";
 import OnlyCreateTaskModal from "../components/overview/OnlyCreateTaskModal";
+import Loading from "../components/golbals/Loading";
+import { ToastContainer } from "react-toastify";
+import AddUserToTaskForm from "../components/overview/AddUserToTaskForm";
 
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
@@ -39,6 +42,7 @@ const TaskOverviewPage = () => {
     episodes,
     getTheEntities,
     films,
+    filmLoading,
     createEntityModal,
     setCreateEntityModal,
     createTaskModal,
@@ -66,6 +70,12 @@ const TaskOverviewPage = () => {
     setVersionId,
     taskId,
     setTaskId,
+    typeId,
+    setTypeId,
+    addUserTaskModal,
+    setAddUserTaskModal,
+    handleAddUserTaskModal,
+    assigneeUsers,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -110,19 +120,23 @@ const TaskOverviewPage = () => {
     getTheProjects();
   }, []);
 
+  const fetchEntities = () => {
+    getTheEntities(selectedProject, selectedEntType);
+  };
+
   // // Get episodes when selectedProject changes
   useEffect(() => {
     if (selectedProject) {
       getEpisodes();
       // Also get entities when project is selected
-      getTheEntities(selectedProject, selectedEntType);
+      fetchEntities();
     }
   }, [selectedProject]);
 
   // // Get entities when selectedEntType changes (but only if we have a selected project)
   useEffect(() => {
     if (selectedProject && selectedEntType) {
-      getTheEntities(selectedProject, selectedEntType);
+      fetchEntities();
     }
     setSearchItem("");
   }, [selectedEntType]);
@@ -136,7 +150,7 @@ const TaskOverviewPage = () => {
   // // Additional effect to ensure entities are loaded if we have both project and type
   useEffect(() => {
     if (selectedProject && selectedEntType && (!films || !films.results)) {
-      getTheEntities(selectedProject, selectedEntType);
+      fetchEntities();
     }
   }, [selectedProject, selectedEntType]);
 
@@ -209,7 +223,7 @@ const TaskOverviewPage = () => {
   };
 
   useEffect(() => {
-    // getTheEntities(selectedProject, selectedEntType, searchItem);
+    getTheEntities(selectedProject, selectedEntType, searchItem);
   }, [searchItem]);
 
   // CLose preview by clicking outside
@@ -242,6 +256,7 @@ const TaskOverviewPage = () => {
 
   useEffect(() => {
     if (taskResults.length > 0) {
+      setTaskId(taskResults[0]?.id);
       fetchAllVersions(taskResults[0]?.id);
     }
   }, [taskResults]);
@@ -269,6 +284,7 @@ const TaskOverviewPage = () => {
 
   return (
     <LayoutOne>
+      <ToastContainer style={{ zIndex: 999999999999999 }} />
       <div className="w-full h-full flex gap-4 p-4 relative radius overflow-hidden">
         {/* OVERVIEW PART */}
         <div
@@ -304,24 +320,36 @@ const TaskOverviewPage = () => {
               No entities found. Please select a project or check your data.
             </div>
           ) : (
-            <OverveiwTable
-              handleShowPrev={handleShowPrev}
-              activeTask={activeTask}
-              setActiveTask={setActiveTask}
-              selectedId={showPreview.id}
-              groupId={showPreview.groupId}
-              tableItemsSize={tableItemsSize}
-              showMeta={showMeta}
-              showAssignees={showAssignees}
-              tableItems={films.results}
-              collapseWidth={"w-full"}
-              setAddressbar={setAddressbar}
-              showPreview={showPreview.show}
-              previewWidth={previewWidth}
-              setEntityId={setEntityId}
-              setTaskType={setTaskType}
-              setTaskId={setTaskId}
-            />
+            <>
+              {filmLoading ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Loading size={"w-20 h-20"} />
+                </div>
+              ) : (
+                <OverveiwTable
+                  handleShowPrev={handleShowPrev}
+                  activeTask={activeTask}
+                  setActiveTask={setActiveTask}
+                  selectedId={showPreview.id}
+                  groupId={showPreview.groupId}
+                  tableItemsSize={tableItemsSize}
+                  showMeta={showMeta}
+                  showAssignees={showAssignees}
+                  tableItems={films.results}
+                  loading={filmLoading}
+                  collapseWidth={"w-full"}
+                  setAddressbar={setAddressbar}
+                  showPreview={showPreview.show}
+                  previewWidth={previewWidth}
+                  setEntityId={setEntityId}
+                  setTaskType={setTaskType}
+                  setTaskId={setTaskId}
+                  setTypeId={setTypeId}
+                  typeId={typeId}
+                  handleAddUserTaskModal={handleAddUserTaskModal}
+                />
+              )}
+            </>
           )}
         </div>
 
@@ -365,6 +393,7 @@ const TaskOverviewPage = () => {
               versionPreviewLoading={versionPreviewLoading}
               handleCreateTaskModal={handleCreateTaskModal}
               clearVersionPreview={clearVersionPreview}
+              taskId={taskId}
             />
           </div>
         </div>
@@ -390,10 +419,23 @@ const TaskOverviewPage = () => {
         {/* <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} /> */}
         <OnlyCreateTaskModal
           entityId={entityId}
-          typeId={""}
+          typeId={typeId}
           status={540}
           setCreateModal={setCreateTaskModal}
-          fetchData={() => {}}
+          createTaskModal={createTaskModal}
+          fetchData={fetchEntities}
+        />
+      </GlobalPureModal>
+
+      {/* add user form  */}
+      <GlobalPureModal open={addUserTaskModal} setOpen={setAddUserTaskModal}>
+        {/* <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} /> */}
+        <AddUserToTaskForm
+          id={entityId}
+          taskId={taskId}
+          setCreateModal={setAddUserTaskModal}
+          users={assigneeUsers}
+          fetchData={fetchEntities}
         />
       </GlobalPureModal>
     </LayoutOne>
