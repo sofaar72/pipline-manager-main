@@ -14,6 +14,7 @@ const TheDropDown = ({
   cClass = "",
   type = "default",
   funcAfter = () => {},
+  funcAfterForSearch = () => {},
   users,
 }) => {
   const [selected, setSelected] = useState(value || init);
@@ -108,6 +109,10 @@ const TheDropDown = ({
                     active ? "bg-[var(--overview-color-two)]" : ""
                   }`}
                   onClick={(e) => selectHandler(e, item)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    funcAfterForSearch();
+                  }}
                 >
                   {item.name.length > 20
                     ? item.name.slice(0, 20) + "..."

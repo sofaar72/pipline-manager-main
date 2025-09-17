@@ -7,7 +7,13 @@ const PreviewFilesAndComments = ({
   setSwitcher,
   versionPreviewData,
   versionId,
+  taskId,
   comments,
+  sendComment,
+  createCommentLoading,
+  createResult,
+  getAllComments,
+  getAllCommentReplies,
 }) => {
   const [files, setFiles] = useState([]);
 
@@ -20,7 +26,16 @@ const PreviewFilesAndComments = ({
       {switcher === "file" ? (
         <FilesWrapper files={files} versionId={versionId} />
       ) : (
-        <CommentWrapper comments={comments} />
+        <CommentWrapper
+          comments={comments}
+          sendComment={sendComment}
+          createCommentLoading={createCommentLoading}
+          versionId={versionId}
+          createResult={createResult}
+          getAllComments={getAllComments}
+          getAllCommentReplies={getAllCommentReplies}
+          taskId={taskId}
+        />
       )}
     </div>
   );

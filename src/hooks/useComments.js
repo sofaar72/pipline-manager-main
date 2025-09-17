@@ -23,14 +23,29 @@ export const useComments = () => {
     annotationError,
   } = useSelector((state) => state.comments);
 
-  const getAllComments = (id) => {
-    dispatch(fetchComment({ version: id }));
+  const getAllComments = (id, taskId = null, parent = undefined) => {
+    dispatch(
+      fetchComment({
+        version: id,
+        task: taskId,
+        parent: parent ? parent : undefined,
+      })
+    );
   };
-  const sendTheComment = (comment) => {
+  const getAllCommentReplies = (id, taskId = null, parent = undefined) => {
+    dispatch(
+      fetchComment({
+        version: id,
+        task: taskId,
+        parent: parent ? parent : undefined,
+      })
+    );
+  };
+  const sendTheComment = (comment, getTheComment) => {
     dispatch(sendComment(comment)).then((response) => {
       if (response?.payload) {
         // getComments();
-        getAllComments(response?.payload?.version);
+        getTheComment();
       }
     });
   };
@@ -45,6 +60,7 @@ export const useComments = () => {
 
   return {
     getAllComments,
+    getAllCommentReplies,
     comments,
     loading,
     error,

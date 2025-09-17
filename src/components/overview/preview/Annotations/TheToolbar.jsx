@@ -7,7 +7,11 @@ import {
   FaPlay,
 } from "react-icons/fa6";
 import { FaPause } from "react-icons/fa6";
-import { IoMdRefresh } from "react-icons/io";
+import {
+  IoMdArrowDropleft,
+  IoMdArrowDropright,
+  IoMdRefresh,
+} from "react-icons/io";
 import {
   MdAirlineStops,
   MdOutlineRectangle,
@@ -44,18 +48,35 @@ const TheToolbar = ({
   isFullScreen,
   toggleFullscreen,
   previewWidth,
+  type,
+  allPreviews,
+  setPrevVideoData,
+  prevVideoData,
+  setIndex,
+  index,
 }) => {
   const [openShapes, setOpenShapes] = useState(false);
 
   useEffect(() => {
-    console.log(isFullScreen);
-  }, [isFullScreen]);
-
+    console.log(allPreviews);
+  }, [allPreviews]);
   useEffect(() => {
     if (previewWidth >= 550) {
       setAction(null);
     }
   }, [previewWidth]);
+
+  console.log(prevVideoData);
+
+  const nextItem = () => {
+    if (index + 1 >= allPreviews.length) return;
+
+    setIndex(index + 1);
+  };
+  const prevItem = () => {
+    if (index + 1 <= 1) return;
+    setIndex(index - 1);
+  };
 
   return (
     <div className="w-full h-[25px] shrink-0 bg-[#1D1B37] flex justify-between gap-2 text-white">
@@ -80,6 +101,23 @@ const TheToolbar = ({
           {!isMuted ? <IoVolumeMediumSharp /> : <IoVolumeMute />}
         </TheIcon>
       </div>
+      {/* select previews  */}
+      <div className="h-full flex items-center gap-2 h-small">
+        {/* arrow left */}
+        <span className="h-lg" onClick={() => prevItem()}>
+          <IoMdArrowDropleft />
+        </span>
+        <div className="h-full flex items-center gap-1">
+          <span>{index + 1}</span>
+          <span>/</span>
+          <span>{allPreviews.length}</span>
+        </div>
+        {/* arrow right */}
+        <span className="h-lg" onClick={() => nextItem()}>
+          <IoMdArrowDropright />
+        </span>
+      </div>
+
       {/* annotate handlers  */}
       {previewWidth >= 550 && (
         <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">

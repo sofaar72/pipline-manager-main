@@ -18,16 +18,16 @@
 
 /* TYPLOGRAPHY  */
 .h-xs {
-  font-size: 6px;
-}
-.h-small {
   font-size: 8px;
 }
+.h-small {
+  font-size: 9px;
+}
 .h-regular {
-  font-size: 10px;
+  font-size: 11px;
 }
 .h-lg {
-  font-size: 12px;
+  font-size: 13px;
 }
 .h-xl {
   font-size: 14px;

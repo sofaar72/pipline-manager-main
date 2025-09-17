@@ -66,7 +66,11 @@ export default function OverviewTable({
     selectedTasks,
     selectedMultipleTasks,
     selectSingleTask, // Get the new function
-    addToSelection, // Get the new function
+    toggleSingleTask, // Get the new function for Ctrl+Click
+    selectRangeTask, // Get the new function for Shift+Click
+    extendSelectionRange, // Get the new function for Shift+Ctrl+Click
+    handleTaskSelection, // Get the main handler function
+    addToSelection, // Get the legacy function
     clearSelection,
     selectAllTasks,
   } = useTableTaskSettings();
@@ -166,30 +170,45 @@ export default function OverviewTable({
                 setSelectedTasks={setSelectedTasks}
                 selectedMultipleTasks={selectedMultipleTasks}
                 selectSingleTask={selectSingleTask} // Pass the new function
-                addToSelection={addToSelection} // Pass the new function
+                toggleSingleTask={toggleSingleTask} // Pass the new function for Ctrl+Click
+                selectRangeTask={selectRangeTask} // Pass the new function for Shift+Click
+                extendSelectionRange={extendSelectionRange} // Pass the new function for Shift+Ctrl+Click
+                handleTaskSelection={handleTaskSelection} // Pass the main handler function
+                addToSelection={addToSelection} // Pass the legacy function
                 typeId={typeId}
                 setTypeId={setTypeId}
               />
             </div>
 
-            {/* Optional: Selection status indicator */}
+            {/* Enhanced Selection status indicator with more detailed info */}
             {selectedTasks.length > 0 && (
               <div className="px-4 py-2 bg-[var(--overview-color-two)] border-t border-[var(--overview-color-three)]/30">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">
-                    {selectedTasks.length} task
-                    {selectedTasks.length > 1 ? "s" : ""} selected
-                    {selectedTasks.length === 1 && (
-                      <span className="text-blue-400 ml-1">
-                        (preview shown)
-                      </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-gray-300">
+                      {selectedTasks.length} task
+                      {selectedTasks.length > 1 ? "s" : ""} selected
+                      {selectedTasks.length === 1 && (
+                        <span className="text-blue-400 ml-1">
+                          (preview shown)
+                        </span>
+                      )}
+                      {selectedTasks.length > 1 && (
+                        <span className="text-orange-400 ml-1">
+                          (multiple selection)
+                        </span>
+                      )}
+                    </span>
+                    {selectedTasks.length > 0 && (
+                      <div className="text-xs text-gray-400">
+                        <span className="text-gray-500">Tips:</span>
+                        <span className="ml-1">
+                          Click = Select • Ctrl+Click = Toggle • Shift+Click =
+                          Range • Shift+Ctrl+Click = Extend Range
+                        </span>
+                      </div>
                     )}
-                    {selectedTasks.length > 1 && (
-                      <span className="text-orange-400 ml-1">
-                        (multiple selection)
-                      </span>
-                    )}
-                  </span>
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
@@ -197,14 +216,14 @@ export default function OverviewTable({
                         selectAllTasks(allItems);
                       }}
                       className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-                      title="Select All Tasks"
+                      title="Select All Tasks (Ctrl+A)"
                     >
                       Select All
                     </button>
                     <button
                       onClick={clearSelection}
                       className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-                      title="Clear Selection"
+                      title="Clear Selection (Escape)"
                     >
                       Clear
                     </button>

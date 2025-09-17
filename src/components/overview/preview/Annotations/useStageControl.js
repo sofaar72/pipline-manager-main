@@ -9,6 +9,7 @@ export const useStageControl = ({
   isplaying = null,
   media_id = null,
   // isloope = null,
+  prevVideoData,
 }) => {
   const frameBoxRef = useRef(null);
 
@@ -396,7 +397,7 @@ export const useStageControl = ({
     resizeObserver.observe(containerRef.current);
 
     return () => resizeObserver.disconnect();
-  }, [containerRef, isFullScreen]); // 👈 add isFullScreen
+  }, [containerRef, isFullScreen, prevVideoData]); // 👈 add isFullScreen
 
   // ---------------- HANDLE SELECT FRAME ----------------
   const handleSelectFrame = (frameIndex) => {

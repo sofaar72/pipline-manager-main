@@ -7,10 +7,10 @@ export const useTableTaskSettings = () => {
   const [lastSelectedCell, setLastSelectedCell] = useState(null); // Store last clicked cell for range selection
 
   const validCells = [
-    "Texturing",
-    "Rigging",
-    "Modeling",
-    "Shading",
+    "texturing", // Changed to lowercase to match OverviewItem
+    "rigging",
+    "modeling",
+    "shading",
     "animate",
     "light",
   ];
@@ -33,13 +33,24 @@ export const useTableTaskSettings = () => {
   const getCellsInRange = (startCell, endCell, allRows) => {
     if (!startCell || !endCell) return [];
 
-    const startRowIndex = parseInt(startCell.rowId);
-    const endRowIndex = parseInt(endCell.rowId);
+    const startRowIndex = allRows.findIndex(
+      (row) => row.id.toString() === startCell.rowId
+    );
+    const endRowIndex = allRows.findIndex(
+      (row) => row.id.toString() === endCell.rowId
+    );
     const startColIndex = validCells.indexOf(startCell.cellId);
     const endColIndex = validCells.indexOf(endCell.cellId);
 
-    // Ensure we have valid column indices
-    if (startColIndex === -1 || endColIndex === -1) return [];
+    // Ensure we have valid indices
+    if (
+      startRowIndex === -1 ||
+      endRowIndex === -1 ||
+      startColIndex === -1 ||
+      endColIndex === -1
+    ) {
+      return [];
+    }
 
     const minRow = Math.min(startRowIndex, endRowIndex);
     const maxRow = Math.max(startRowIndex, endRowIndex);
@@ -52,17 +63,14 @@ export const useTableTaskSettings = () => {
     for (let rowIndex = minRow; rowIndex <= maxRow; rowIndex++) {
       for (let colIndex = minCol; colIndex <= maxCol; colIndex++) {
         const cellId = validCells[colIndex];
-        const rowId = rowIndex.toString();
-
-        // Find the row data to get departments
-        const rowData = allRows.find((row) => row.id.toString() === rowId);
-        const departments = rowData?.departments || [];
+        const rowData = allRows[rowIndex];
+        const rowId = rowData.id.toString();
 
         cellsInRange.push({
           key: `${rowId}-${cellId}`,
           cellId,
           rowId,
-          tasks: departments,
+          tasks: rowData?.departments || [],
         });
       }
     }
@@ -81,8 +89,31 @@ export const useTableTaskSettings = () => {
     return true; // Return true to indicate preview should be shown
   };
 
-  // FOR SHIFT+CLICK - TOGGLE SELECTION (RANGE OR SINGLE)
-  const addToSelection = (cellId, rowId, departments, allRows = []) => {
+  // FOR CTRL+CLICK - TOGGLE INDIVIDUAL SELECTION
+  const toggleSingleTask = (cellId, rowId, departments) => {
+    if (!validCells.includes(cellId)) return false;
+
+    const theKey = `${rowId}-${cellId}`;
+    const currentCell = { cellId, rowId };
+
+    setSelectedTasks((prev) => {
+      const existingIndex = prev.findIndex((item) => item.key === theKey);
+      if (existingIndex !== -1) {
+        // Cell is selected, deselect it
+        return prev.filter((item) => item.key !== theKey);
+      } else {
+        // Cell is not selected, select it
+        return [...prev, { key: theKey, tasks: departments }];
+      }
+    });
+
+    // Update last selected cell for potential range selection
+    setLastSelectedCell(currentCell);
+    return false; // Return false to indicate no preview should be shown
+  };
+
+  // FOR SHIFT+CLICK - RANGE SELECTION
+  const selectRangeTask = (cellId, rowId, departments, allRows = []) => {
     if (!validCells.includes(cellId)) return false;
 
     const currentCell = { cellId, rowId };
@@ -117,36 +148,94 @@ export const useTableTaskSettings = () => {
         }
       });
     } else {
-      // First shift+click - toggle this single cell
+      // First shift+click without previous selection - just select this cell
+      const theKey = `${rowId}-${cellId}`;
+      setSelectedTasks([{ key: theKey, tasks: departments }]);
+      setLastSelectedCell(currentCell);
+    }
+    return false; // Return false to indicate no preview should be shown
+  };
+
+  // FOR SHIFT+CTRL+CLICK - EXTEND SELECTION RANGE WITHOUT DESELECTING EXISTING
+  const extendSelectionRange = (cellId, rowId, departments, allRows = []) => {
+    if (!validCells.includes(cellId)) return false;
+
+    const currentCell = { cellId, rowId };
+
+    if (lastSelectedCell) {
+      // Range selection with Shift+Ctrl+Click
+      const cellsInRange = getCellsInRange(
+        lastSelectedCell,
+        currentCell,
+        allRows
+      );
+
+      setSelectedTasks((prev) => {
+        // Create a set of existing keys for faster lookup
+        const existingKeys = new Set(prev.map((item) => item.key));
+
+        // Always add new cells to selection (don't deselect if all are selected)
+        const newSelections = cellsInRange.filter(
+          (cell) => !existingKeys.has(cell.key)
+        );
+        return [...prev, ...newSelections];
+      });
+    } else {
+      // First shift+ctrl+click without previous selection - just select this cell
       const theKey = `${rowId}-${cellId}`;
       setSelectedTasks((prev) => {
         const existingIndex = prev.findIndex((item) => item.key === theKey);
-        if (existingIndex !== -1) {
-          // Cell is selected, deselect it
-          return prev.filter((item) => item.key !== theKey);
-        } else {
-          // Cell is not selected, select it
+        if (existingIndex === -1) {
           return [...prev, { key: theKey, tasks: departments }];
         }
+        return prev;
       });
       setLastSelectedCell(currentCell);
     }
     return false; // Return false to indicate no preview should be shown
   };
 
-  // FOR SHIFT+CLICK RANGE SELECTION (Legacy - keeping for backward compatibility)
+  // Main handler that determines which selection method to use
+  const handleTaskSelection = (
+    cellId,
+    rowId,
+    departments,
+    allRows,
+    isShiftClick,
+    isCtrlClick
+  ) => {
+    if (isShiftClick && isCtrlClick) {
+      // Shift+Ctrl+Click - extend range without deselecting existing
+      return extendSelectionRange(cellId, rowId, departments, allRows);
+    } else if (isShiftClick) {
+      // Shift+Click - range selection
+      return selectRangeTask(cellId, rowId, departments, allRows);
+    } else if (isCtrlClick) {
+      // Ctrl+Click - toggle individual
+      return toggleSingleTask(cellId, rowId, departments);
+    } else {
+      // Normal click - single selection with preview
+      return selectSingleTask(cellId, rowId, departments);
+    }
+  };
+
+  // Legacy function for backward compatibility
   const selectedMultipleTasks = (
     cellId,
     rowId,
     departments,
     allRows = [],
-    isShiftClick = false
+    isShiftClick = false,
+    isCtrlClick = false
   ) => {
-    if (isShiftClick) {
-      return addToSelection(cellId, rowId, departments, allRows);
-    } else {
-      return selectSingleTask(cellId, rowId, departments);
-    }
+    return handleTaskSelection(
+      cellId,
+      rowId,
+      departments,
+      allRows,
+      isShiftClick,
+      isCtrlClick
+    );
   };
 
   // FOR EDIT MODE (deprecated but keeping for compatibility)
@@ -212,7 +301,10 @@ export const useTableTaskSettings = () => {
     setSelectedTasks,
     selectedMultipleTasks,
     selectSingleTask,
-    addToSelection,
+    toggleSingleTask,
+    selectRangeTask,
+    extendSelectionRange,
+    handleTaskSelection,
     clearSelection,
     selectAllTasks,
     lastSelectedCell,

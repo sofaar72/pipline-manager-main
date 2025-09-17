@@ -30,7 +30,8 @@ const OverviewItems = ({
   setSelectedTasks,
   selectedMultipleTasks,
   selectSingleTask, // Add this prop
-  addToSelection, // Add this prop
+  addToSelection, // Add this prop (legacy)
+  handleTaskSelection, // Add this new prop from the hook
   typeId,
   setTypeId,
 }) => {
@@ -79,8 +80,9 @@ const OverviewItems = ({
                       setTaskType={setTaskType}
                       setSelectedTasks={setSelectedTasks}
                       selectedMultipleTasks={selectedMultipleTasks}
-                      selectSingleTask={selectSingleTask} // Pass the new function
-                      addToSelection={addToSelection} // Pass the new function
+                      selectSingleTask={selectSingleTask} // Pass the function
+                      addToSelection={addToSelection} // Pass the function (legacy)
+                      handleTaskSelection={handleTaskSelection} // Pass the new main handler
                       allRows={g?.items} // This allows range selection within the group
                       typeId={typeId}
                       setTypeId={setTypeId}

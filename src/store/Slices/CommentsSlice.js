@@ -97,7 +97,7 @@ const CommentsSlice = createSlice({
     });
     builder.addCase(sendComment.fulfilled, (state, action) => {
       state.createLoading = false;
-      state.createComment = action.payload.results;
+      state.createComment = action.payload;
     });
     builder.addCase(sendComment.rejected, (state, action) => {
       state.createLoading = false;

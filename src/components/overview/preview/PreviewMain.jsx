@@ -29,7 +29,16 @@ const PreviewMain = ({
   taskId,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
-  const { getAllComments, comments, loading: commentsLoading } = useComments();
+  const {
+    getAllComments,
+    getAllCommentReplies,
+    comments,
+    loading: commentsLoading,
+    sendTheComment,
+    createLoading,
+    createComment: createResult,
+    createError,
+  } = useComments();
 
   // FETCH VERSIONS OF THE TASK
   // useEffect(() => {
@@ -40,20 +49,21 @@ const PreviewMain = ({
 
   // FETCH SINGLE VERSION
   useEffect(() => {
-    console.log(versionId);
     if (versionId && versionId.id) {
       fetchVersionPreview(versionId.id);
     } else {
       clearVersionPreview();
     }
-    // getAllComments(versionId.id);
+    getAllComments(versionId?.id, taskId);
   }, [versionId]); // Added versionResults to dependencies
 
   useEffect(() => {
-    console.log(versionPreviewData);
-  }, [versionPreviewData]);
+    console.log(versionId);
+  }, [versionId]);
 
-  if (loading || versionPreviewLoading) {
+  if (loading) {
+    return <PreviewLoading />;
+  } else if (versionPreviewLoading) {
     return <PreviewLoading />;
   }
 
@@ -69,6 +79,7 @@ const PreviewMain = ({
         <>
           <PreviewTopBar hidePrev={hidePrev} />
           <PreviewAddress addressbar={addressbar} />
+
           <PreviewVideoWrapper
             switcher={switcher}
             setSwitcher={setSwitcher}
@@ -83,12 +94,19 @@ const PreviewMain = ({
             fetchVersionPreview={fetchVersionPreview}
             taskId={taskId}
           />
+
           <PreviewFilesAndComments
             switcher={switcher}
             setSwitcher={setSwitcher}
             versionPreviewData={versionPreviewData}
             comments={comments}
+            sendComment={sendTheComment}
+            createCommentLoading={createLoading}
             versionId={versionId}
+            createResult={createResult}
+            getAllComments={getAllComments}
+            getAllCommentReplies={getAllCommentReplies}
+            taskId={taskId}
           />
         </>
       ) : (

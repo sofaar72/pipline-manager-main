@@ -12,6 +12,7 @@ export const useVideoControl = () => {
     duration: 10,
     url: "",
     media_id: "",
+    type: "Video",
   });
 
   useEffect(() => {
@@ -22,12 +23,14 @@ export const useVideoControl = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (isPlaying) {
-      video.play();
-    } else {
-      video.pause();
+    if (prevVideoData.type === "Video") {
+      if (isPlaying) {
+        video.play();
+      } else {
+        video.pause();
+      }
     }
-  }, [isPlaying]);
+  }, [isPlaying, prevVideoData]);
 
   // extract the video frames
   const extractFrames = () => {

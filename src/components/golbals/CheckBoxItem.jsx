@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { IoCheckbox } from "react-icons/io5";
 import { MdCheckBoxOutlineBlank } from "react-icons/md";
 
-const CheckBoxItem = ({ label = "text", isChecked = true }) => {
-  const [checked, setChecked] = useState(false);
+const CheckBoxItem = ({ label = "text", isChecked = false }) => {
+  const [checked, setChecked] = useState(isChecked);
   return (
     <div className="flex items-center gap-2 cursor-pointer">
       <span className="text-lg" onClick={() => setChecked(!checked)}>

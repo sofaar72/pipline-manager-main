@@ -12,7 +12,7 @@ const FilesWrapper = ({ files, versionId }) => {
     <>
       <div className="w-full h-full flex-1 flex flex-col gap-[10px]">
         <FilesHeader setOpen={setOpen} />
-        <FilesList files={files} />
+        {files && files.length > 0 && <FilesList files={files} />}
       </div>
       {/* add the upload file modal  */}
       <GlobalPureModal open={open} setOpen={setOpen}>

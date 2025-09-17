@@ -25,6 +25,7 @@ const OverviewItem = ({
   setEntityId,
   setSelectedTasks,
   selectedMultipleTasks,
+  handleTaskSelection, // New prop for the main handler
   allRows = [], // Add this prop to pass all rows data for range selection
   setTaskType,
   typeId,
@@ -72,36 +73,34 @@ const OverviewItem = ({
     setTypeId(cell.column.columnDef.type_id);
 
     if (!validCells.includes(cellId) || editMode) return;
-    // console.log(original);
 
     setEntityId(original?.id);
 
-    if (e.shiftKey) {
-      // Shift+Click for range selection
-      e.preventDefault();
-      e.stopPropagation();
+    // Determine which modifiers are pressed
+    const isShiftClick = e.shiftKey;
+    const isCtrlClick = e.ctrlKey || e.metaKey;
 
-      selectedMultipleTasks(
-        cellId,
-        rowId,
-        original?.departments || [],
-        allRows,
-        true // isShiftClick flag
-      );
-    } else if (e.ctrlKey || e.metaKey) {
-      // Ctrl+Click for individual toggle (optional feature)
-      e.preventDefault();
-      e.stopPropagation();
+    // Use the new handleTaskSelection function if available, otherwise fall back to selectedMultipleTasks
+    const shouldShowPreview = handleTaskSelection
+      ? handleTaskSelection(
+          cellId,
+          rowId,
+          original?.departments || [],
+          allRows,
+          isShiftClick,
+          isCtrlClick
+        )
+      : selectedMultipleTasks(
+          cellId,
+          rowId,
+          original?.departments || [],
+          allRows,
+          isShiftClick,
+          isCtrlClick
+        );
 
-      selectedMultipleTasks(
-        cellId,
-        rowId,
-        original?.departments || [],
-        allRows,
-        false
-      );
-    } else {
-      // Normal click - show preview
+    // Only show preview for normal clicks (no modifiers)
+    if (!isShiftClick && !isCtrlClick && shouldShowPreview) {
       showPreview(
         e,
         cellId,
@@ -111,6 +110,12 @@ const OverviewItem = ({
         original?.id,
         cell?.column?.columnDef.header
       );
+    }
+
+    // Prevent default behavior and event bubbling for modifier clicks
+    if (isShiftClick || isCtrlClick) {
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 

@@ -117,15 +117,15 @@ const OverviewHeader = ({
             onChange={searchEntity}
             value={searchItem}
           />
-          {/* advance filter  */}
-          <TheIcon onClick={() => {}}>
-            <FaFilter />
-          </TheIcon>
           {/* small filter  */}
-          <TheIcon onClick={() => {}}>
+          {/* <TheIcon onClick={() => {}}>
             <HiFilter />
-          </TheIcon>
-          <TheSavedFiltersDropDown width={"w-[160px]"} />
+          </TheIcon> */}
+          {/* advance filter  */}
+          {/* <TheIcon onClick={() => {}}>
+            <FaFilter />
+          </TheIcon> */}
+          {/* <TheSavedFiltersDropDown width={"w-[160px]"} /> */}
         </div>
       )}
       {/* TODO WIDGETS AND CREATE   ENTITY  */}

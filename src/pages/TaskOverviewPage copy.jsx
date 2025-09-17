@@ -211,7 +211,7 @@ const TaskOverviewPage = () => {
   useEffect(() => {
     if (!showPreview.show) {
       setShowMeta(false);
-      // setVersionId({}); // 🔥 reset versionId when preview closes
+      setVersionId({}); // 🔥 reset versionId when preview closes
     } else {
       setShowMeta(true);
     }
