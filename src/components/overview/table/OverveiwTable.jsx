@@ -227,6 +227,13 @@ export default function OverviewTable({
     setTasksWithoutId(withoutId);
   };
 
+  useEffect(() => {
+    console.log(tasksWithId);
+  }, [tasksWithId]);
+  useEffect(() => {
+    console.log(tasksWithoutId);
+  }, [tasksWithoutId]);
+
   return (
     <div
       className={`${collapseWidth} h-full p-0 bg-[var(--overview-color-bg)] text-white `}
