@@ -48,7 +48,7 @@ export const deleteComment = createAsyncThunk(
 export const sendAnnotations = createAsyncThunk(
   "annotation/sendAnnotation",
   async (data, thunkAPI) => {
-    console.log(data);
+    // console.log(data);
     try {
       const response = await axiosInstance.post(`/annotations/`, { ...data });
 
@@ -62,7 +62,7 @@ export const sendAnnotations = createAsyncThunk(
 export const getAnnotations = createAsyncThunk(
   "annotation/getAnnotations",
   async ({ media_id }, thunkAPI) => {
-    console.log(media_id);
+    // console.log(media_id);
     try {
       const response = await axiosInstance.get(`/annotations/${media_id}/`);
 

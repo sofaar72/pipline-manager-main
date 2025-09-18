@@ -13,7 +13,7 @@ const VideoPlayer = forwardRef(
     };
 
     const pauseOrPlay = () => {
-      console.log(videoRef);
+      // console.log(videoRef);
       const video = videoRef?.current;
       if (!video) return;
 

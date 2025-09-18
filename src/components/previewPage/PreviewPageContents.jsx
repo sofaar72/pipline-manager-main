@@ -70,13 +70,13 @@ const PreviewPageContents = ({
   };
 
   const handelComment = (e) => {
-    console.log(e.target.value);
+    // console.log(e.target.value);
     setComment({ ...comment, text: e.target.value });
     // setComment({...comment,text})
   };
   const uploadCommentAttachment = (e) => {
     const cmFile = e.target.files[0];
-    console.log(cmFile);
+    // console.log(cmFile);
 
     // setComment({
     //   ...comment,
@@ -103,7 +103,7 @@ const PreviewPageContents = ({
   // send annotations each 2 second
 
   useEffect(() => {
-    console.log(fileId);
+    // console.log(fileId);
     const handler = setTimeout(() => {
       sendAllAnnotations({ annotations: annotationData, file: fileId });
     }, 2000); // 2 seconds

@@ -68,7 +68,7 @@ export const useComments = () => {
     dispatch(sendAnnotations(data));
   };
   const fetchAllAnnotations = (media_id) => {
-    console.log(media_id);
+    // console.log(media_id);
     dispatch(getAnnotations({ media_id: media_id }));
   };
 

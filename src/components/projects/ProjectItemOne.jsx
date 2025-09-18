@@ -14,8 +14,6 @@ const ProjectItemOne = ({ project, selectProject, selectedProject }) => {
   };
   const projectData = useSelector((state) => state.project);
 
-  console.log("test");
-
   return (
     <div
       className={` shrink-0 relative ${

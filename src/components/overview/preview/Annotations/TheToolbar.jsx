@@ -58,7 +58,7 @@ const TheToolbar = ({
   const [openShapes, setOpenShapes] = useState(false);
 
   useEffect(() => {
-    console.log(allPreviews);
+    // console.log(allPreviews);
   }, [allPreviews]);
   useEffect(() => {
     if (previewWidth >= 550) {
@@ -66,7 +66,7 @@ const TheToolbar = ({
     }
   }, [previewWidth]);
 
-  console.log(prevVideoData);
+  // console.log(prevVideoData);
 
   const nextItem = () => {
     if (index + 1 >= allPreviews.length) return;

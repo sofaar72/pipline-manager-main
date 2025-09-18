@@ -50,10 +50,10 @@ const UploadFileForm = ({
         },
         onProgress: (bytesUploaded, bytesTotal) => {
           const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          console.log(`${bytesUploaded}/${bytesTotal} (${percentage}%)`);
+          // console.log(`${bytesUploaded}/${bytesTotal} (${percentage}%)`);
         },
         onSuccess: () => {
-          console.log("Uploaded", upload.file.name, "to", upload.url);
+          // console.log("Uploaded", upload.file.name, "to", upload.url);
         },
       });
 
@@ -101,7 +101,7 @@ const UploadFileForm = ({
 
     // Handle large file uploads (TUS)
     if (largeFiles.length > 0) {
-      console.log(largeFiles);
+      // console.log(largeFiles);
       try {
         const res = await dispatch(uploadFileToServer({ file: largeFiles }));
 
@@ -127,7 +127,6 @@ const UploadFileForm = ({
     if (smallFiles.length > 0) {
       const formData = new FormData();
       smallFiles.forEach((item, index) => {
-        console.log(item);
         formData.append(`files_${index}`, item.file);
         formData.append(
           `metadata_${index}`,
@@ -155,7 +154,7 @@ const UploadFileForm = ({
   };
 
   useEffect(() => {
-    console.log(mediaIds);
+    // console.log(mediaIds);
     setVersionFiles(mediaIds);
   }, [mediaIds]);
 

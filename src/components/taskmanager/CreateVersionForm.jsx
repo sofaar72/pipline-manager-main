@@ -67,9 +67,9 @@ const CreateVersionForm = ({
     dispatch(fetchFiles());
   }, []);
 
-  useEffect(() => {
-    console.log(versionFiles);
-  }, [versionFiles]);
+  // useEffect(() => {
+  //   console.log(versionFiles);
+  // }, [versionFiles]);
 
   return (
     <div className="w-full h-full  form-bg radius px-[10px] py-[40px] flex flex-col items-center justify-between gap-4">

@@ -48,7 +48,7 @@ export const useUploadFile = () => {
           }));
         },
         onSuccess: () => {
-          console.log("Uploaded", upload.file.name, "to", upload.url);
+          // console.log("Uploaded", upload.file.name, "to", upload.url);
           toast.success(`${file.name} uploaded successfully`);
           setUploadProgress((prev) => ({
             ...prev,

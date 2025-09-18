@@ -33,10 +33,10 @@ const UploadFileForm = ({ setVersionFiles = () => {} }) => {
         },
         onProgress: (bytesUploaded, bytesTotal) => {
           const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          console.log(`${bytesUploaded}/${bytesTotal} (${percentage}%)`);
+          // console.log(`${bytesUploaded}/${bytesTotal} (${percentage}%)`);
         },
         onSuccess: () => {
-          console.log("Download %s from %s", upload.file.name, upload.url);
+          // console.log("Download %s from %s", upload.file.name, upload.url);
         },
       });
 
@@ -67,15 +67,15 @@ const UploadFileForm = ({ setVersionFiles = () => {} }) => {
   const removeUploadItem = (id, setFile) => {
     const newFiles = uploadItems.filter((it, i) => it.id !== id);
 
-    console.log(newFiles);
+    // console.log(newFiles);
     setUploadItems(newFiles);
     setFileDatas((prev) => prev.filter((file) => file.id !== id));
     setFiles((prev) => prev.filter((_, i) => uploadItems[i]?.id !== id));
   };
 
-  useEffect(() => {
-    console.log(uploadItems);
-  }, [uploadItems]);
+  // useEffect(() => {
+  //   console.log(uploadItems);
+  // }, [uploadItems]);
 
   const uploadFile = () => {
     dispatch(uploadFileToServer({ file: fileDatas }))
@@ -113,9 +113,9 @@ const UploadFileForm = ({ setVersionFiles = () => {} }) => {
       });
   };
 
-  useEffect(() => {
-    console.log(uploadFileLoading);
-  }, [uploadFileLoading]);
+  // useEffect(() => {
+  //   console.log(uploadFileLoading);
+  // }, [uploadFileLoading]);
 
   return (
     <div className="w-full flex flex-col gap-4 h-full ">

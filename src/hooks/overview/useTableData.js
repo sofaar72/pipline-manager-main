@@ -63,7 +63,7 @@ export const useTableData = ({ tableItems = [] }) => {
   const [dynamicDepartments, setDynamicDepartments] = useState([]);
 
   useEffect(() => {
-    console.log(tableItems);
+    // console.log(tableItems);
     if (!tableItems || !tableItems.length) return;
 
     // 1. Collect all unique task types

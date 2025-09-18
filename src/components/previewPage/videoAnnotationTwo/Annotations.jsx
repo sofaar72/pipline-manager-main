@@ -29,15 +29,15 @@ export default function Annotations({
   }, [selectedIds, onDelete]);
 
   // Debugging current frame lines
-  useEffect(() => {
-    if (lines.length > 0) {
-      console.log("First line in current frame:", lines[0]);
-    }
-  }, [lines]);
+  // useEffect(() => {
+  //   if (lines.length > 0) {
+  //     console.log("First line in current frame:", lines[0]);
+  //   }
+  // }, [lines]);
 
-  useEffect(() => {
-    console.log(selectedIds);
-  }, [selectedIds]);
+  // useEffect(() => {
+  //   console.log(selectedIds);
+  // }, [selectedIds]);
 
   return (
     <>

@@ -233,7 +233,7 @@ const UploadFileForm = ({
       workfileItem,
     ].filter((item) => item?.name || item?.size);
 
-    console.log(allItems);
+    // console.log(allItems);
 
     // Build form data for small and large files
     allItems.forEach((item, index) => {
@@ -279,11 +279,11 @@ const UploadFileForm = ({
         uploadedFileIds = [...uploadedFileIds, ...largeFileIds];
       }
 
-      console.log({
-        task: values.task,
-        note: values.note || null,
-        files: uploadedFileIds, // 🔑 associate uploaded files
-      });
+      // console.log({
+      //   task: values.task,
+      //   note: values.note || null,
+      //   files: uploadedFileIds, // 🔑 associate uploaded files
+      // });
 
       // ✅ 3. Create version AFTER uploads
       await handleCreateVersion({

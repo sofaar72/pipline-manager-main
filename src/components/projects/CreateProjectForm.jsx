@@ -37,9 +37,9 @@ const CreateProjectForm = () => {
     members: false,
   });
 
-  const handleDateStart = (e) => {
-    console.log(e.target.value);
-  };
+  // const handleDateStart = (e) => {
+  //   console.log(e.target.value);
+  // };
   const triggerDateStart = () => {
     dateStartRef.current.click();
   };
@@ -72,7 +72,6 @@ const CreateProjectForm = () => {
         }}
         validationSchema={formSchema}
         onSubmit={(values, { setSubmitting }) => {
-          console.log(values);
           const formData = new FormData();
           formData.append("avatar", values.avatar);
           formData.append("name", values.name);

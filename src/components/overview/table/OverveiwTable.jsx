@@ -227,12 +227,12 @@ export default function OverviewTable({
     setTasksWithoutId(withoutId);
   };
 
-  useEffect(() => {
-    console.log(tasksWithId);
-  }, [tasksWithId]);
-  useEffect(() => {
-    console.log(tasksWithoutId);
-  }, [tasksWithoutId]);
+  // useEffect(() => {
+  //   console.log(tasksWithId);
+  // }, [tasksWithId]);
+  // useEffect(() => {
+  //   console.log(tasksWithoutId);
+  // }, [tasksWithoutId]);
 
   return (
     <div
@@ -346,10 +346,10 @@ export default function OverviewTable({
                               new Set(tasksWithoutId.map((t) => t.entityId))
                             );
 
-                            console.log(
-                              "Unique Entity IDs without tasks:",
-                              entityIds
-                            );
+                            // console.log(
+                            //   "Unique Entity IDs without tasks:",
+                            //   entityIds
+                            // );
                             setEntIdies(entityIds);
                             setCreateTasksModal(!createTasksModal);
                           }}

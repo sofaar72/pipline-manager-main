@@ -3,11 +3,11 @@ import React, { forwardRef, useEffect } from "react";
 const TheVideo = forwardRef(
   ({ videoUrl = "", previewWidth, isMuted, isLoope, type }, ref) => {
     useEffect(() => {
-      console.log(videoUrl);
+      // console.log(videoUrl);
     }, [videoUrl]);
 
     useEffect(() => {
-      console.log(type);
+      // console.log(type);
     }, [type]);
 
     return (

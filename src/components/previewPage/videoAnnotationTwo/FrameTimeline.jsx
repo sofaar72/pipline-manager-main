@@ -16,9 +16,9 @@ export default function FrameTimeline({
     handleDragFrame(i);
   };
 
-  useEffect(() => {
-    console.log(allAnnotations[selectedFrameIndex]?.length);
-  }, [allAnnotations]);
+  // useEffect(() => {
+  //   console.log(allAnnotations[selectedFrameIndex]?.length);
+  // }, [allAnnotations]);
 
   // Arrow key navigation
   useEffect(() => {

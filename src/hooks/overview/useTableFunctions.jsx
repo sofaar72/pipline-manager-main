@@ -127,7 +127,7 @@ export const useTableFunctions = ({
       cell: ({ row }) => {
         const val = row?.original?.departments?.[dept.name];
 
-        console.log(val);
+        // console.log(val);
         // console.log(row?.original?.departments);
         // console.log(val);
         if (!val || !val.status || !row.original.tasks) {

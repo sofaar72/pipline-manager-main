@@ -18,9 +18,9 @@ const UsersList = () => {
   useEffect(() => {
     getUsers();
   }, []);
-  useEffect(() => {
-    console.log(userResults);
-  }, [userResults]);
+  // useEffect(() => {
+  //   console.log(userResults);
+  // }, [userResults]);
 
   return (
     <div className="w-full h-full flex flex-col gap-4">

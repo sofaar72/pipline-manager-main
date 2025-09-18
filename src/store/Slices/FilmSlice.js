@@ -48,7 +48,7 @@ export const createFilm = createAsyncThunk(
       }
       return response.data;
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       if (error.message) {
         toast.error(`"Name Error" ${error.message}`);
         // } else if (error.response.data.type) {

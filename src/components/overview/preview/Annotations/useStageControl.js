@@ -39,8 +39,8 @@ export const useStageControl = ({
 
   useEffect(() => {
     if (containerRef) {
-      console.log(containerRef.current?.videoWidth);
-      console.log(containerRef.current?.videoHeight);
+      // console.log(containerRef.current?.videoWidth);
+      // console.log(containerRef.current?.videoHeight);
     }
   }, [isFullScreen]);
 
@@ -758,8 +758,8 @@ export const useStageControl = ({
           ? {
               ...frame,
               shapes: frame.shapes.map((s) => {
-                console.log(target);
-                console.log(s.id, "---------------------- ", target.id());
+                // console.log(target);
+                // console.log(s.id, "---------------------- ", target.id());
                 return {
                   ...s,
                   selected: s.id === target.id(),
@@ -823,7 +823,7 @@ export const useStageControl = ({
       if (!rect) return;
 
       const shapes = getShapesForFrame(currentFrameIndex); // your function to get all shapes
-      console.log(shapes);
+      // console.log(shapes);
       const selectedIds = shapes
         .filter((shape) => {
           const shapeBounds = getShapeBounds(shape); // helper to get x/y/width/height

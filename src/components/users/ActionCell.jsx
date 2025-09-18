@@ -16,7 +16,7 @@ const ActionCell = (props) => {
       </button>
       <button
         className="cursor-pointer transition group"
-        onClick={() => console.log("Delete", data)}
+        // onClick={() => console.log("Delete", data)}
       >
         <AiFillDelete className="group-hover:text-red-500 transition" />
       </button>

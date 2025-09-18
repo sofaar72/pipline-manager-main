@@ -47,9 +47,9 @@ const SelectProjectContents = () => {
     getAllProjects({ page: 1, page_size: 10 });
   }, []);
 
-  useEffect(() => {
-    console.log(projectsData);
-  }, [projectsData]);
+  // useEffect(() => {
+  //   console.log(projectsData);
+  // }, [projectsData]);
 
   const selectProjectItem = (proj) => {
     dispatch(selectProject(proj));

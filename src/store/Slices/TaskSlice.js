@@ -49,7 +49,7 @@ export const createTask = createAsyncThunk("task/createTask", async (data) => {
     }
     return response.data;
   } catch (error) {
-    console.log("Error response:", error.response);
+    // console.log("Error response:", error.response);
     toast.error(error.response.data.error || "something went wrong!");
     return thunkAPI.rejectWithValue(
       error.response?.data?.error || { error: "Server error" }
@@ -69,7 +69,7 @@ export const updateTask = createAsyncThunk(
       // Return both the updated task and its ID
       return { id, ...response.data };
     } catch (error) {
-      console.log("Error response:", error.response);
+      // console.log("Error response:", error.response);
       toast.error(error.response.data.error || "something went wrong!");
       return thunkAPI.rejectWithValue(
         error.response?.data?.error || { error: "Server error" }

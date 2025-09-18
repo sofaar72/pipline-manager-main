@@ -108,7 +108,7 @@ const TheAnnotationWrapper = ({
 
   // fetch annotations - FIXED: Clear annotations when media_id changes
   useEffect(() => {
-    console.log(annotations);
+    // console.log(annotations);
     if (prevVideoData.media_id) {
       // Clear existing annotations first
       clearAnnotations();
@@ -156,7 +156,7 @@ const TheAnnotationWrapper = ({
     : "w-full flex-1 flex flex-col gap-0 justify-between bg-blue-500 relative overflow-hidden";
 
   useEffect(() => {
-    console.log(prevVideoData);
+    // console.log(prevVideoData);
   }, [prevVideoData]);
 
   if (

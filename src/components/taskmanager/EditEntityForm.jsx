@@ -20,7 +20,7 @@ const EditEntityForm = ({
   const { createFilmEntity, createLoading } = useEntities();
   const { fromSchema } = useEntityFormSchema();
 
-  console.log(theEditData);
+  // console.log(theEditData);
   const initialValues = {
     name: "",
     project: {

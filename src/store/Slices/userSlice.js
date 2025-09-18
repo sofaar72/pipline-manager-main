@@ -17,7 +17,7 @@ export const loginUser = createAsyncThunk(
         // }
         { username: userData.email, password: userData.password }
       );
-      console.log(response);
+      // console.log(response);
 
       if (response.status === 200) {
         // Store authentication tokens
@@ -64,7 +64,7 @@ export const loginUser = createAsyncThunk(
         return response.data;
       }
     } catch (error) {
-      console.log(error.response?.data);
+      // console.log(error.response?.data);
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
     }
   }
@@ -85,7 +85,7 @@ export const registerUser = createAsyncThunk(
       }
       return response.data;
     } catch (error) {
-      console.log(error.response?.data.email[0]);
+      // console.log(error.response?.data.email[0]);
       if (error.response?.data.email) {
         toast.error(error.response?.data.email[0]);
       }
@@ -194,7 +194,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log(action.payload);
+        // console.log(action.payload);
         // console.log(action.payload);
         state.loading = false;
         state.user = action.payload;
@@ -230,7 +230,7 @@ const userSlice = createSlice({
         state.userRoles.error = null;
       })
       .addCase(fetchUserRoles.fulfilled, (state, action) => {
-        console.log(action.payload);
+        // console.log(action.payload);
         state.userRoles.loading = true;
         state.userRoles.results = action.payload?.results;
       })
@@ -245,7 +245,7 @@ const userSlice = createSlice({
         state.users.error = null;
       })
       .addCase(fetchAllUsers.fulfilled, (state, action) => {
-        console.log(action.payload);
+        // console.log(action.payload);
         state.users.loading = false;
         state.users.results = action.payload?.results;
       })

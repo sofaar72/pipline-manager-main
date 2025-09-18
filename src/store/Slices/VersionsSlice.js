@@ -35,7 +35,7 @@ export const fetchVersionPreview = createAsyncThunk(
 export const createVersion = createAsyncThunk(
   "version/createVersion",
   async (data) => {
-    console.log(data);
+    // console.log(data);
     try {
       const response = await axiosInstance.post(`/versions/publish/`, data);
       if (response.status === 201) {
@@ -43,7 +43,7 @@ export const createVersion = createAsyncThunk(
       }
       return response.data;
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       toast.error(error.message);
       return thunkAPI.rejectWithValue(
         error.response?.data?.error || { error: "Server error" }

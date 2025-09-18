@@ -94,7 +94,7 @@ export const VideoAnnotator = ({
             const onSeeked = () => {
               context.drawImage(video, 0, 0, canvas.width, canvas.height);
               const dataURL = canvas.toDataURL("image/png");
-              console.log("test");
+
               newThumbnails.push({ time, image: dataURL });
               video.removeEventListener("seeked", onSeeked);
               resolve();

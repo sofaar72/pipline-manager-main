@@ -55,9 +55,9 @@ const UploadFileItem = ({
     removeUploadItem(id);
   };
 
-  useEffect(() => {
-    console.log(uploadItems);
-  }, [uploadItems]);
+  // useEffect(() => {
+  //   console.log(uploadItems);
+  // }, [uploadItems]);
 
   useEffect(() => {
     const updatedItems = [...uploadItems];

@@ -265,9 +265,9 @@ export const useTableTaskSettings = () => {
     setSelectedTasks(allTasks);
   };
 
-  useEffect(() => {
-    console.log("Selected tasks:", selectedTasks);
-  }, [selectedTasks]);
+  // useEffect(() => {
+  //   console.log("Selected tasks:", selectedTasks);
+  // }, [selectedTasks]);
 
   useEffect(() => {
     setSelectedTasks([]);

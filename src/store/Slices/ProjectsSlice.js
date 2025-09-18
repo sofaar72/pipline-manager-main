@@ -14,7 +14,7 @@ export const createProject = createAsyncThunk(
       toast.success("Project created successfully");
       return response.data;
     } catch (error) {
-      console.log(error?.response?.data);
+      // console.log(error?.response?.data);
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
       // toast.error(error.response?.data || "Server error");
     }
@@ -28,7 +28,7 @@ export const getProjects = createAsyncThunk(
       const response = await axiosInstance.get("/projects/", queryParams);
       return response.data;
     } catch (error) {
-      console.log(error?.response?.data);
+      // console.log(error?.response?.data);
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
       // toast.error(error.response?.data || "Server error");
     }

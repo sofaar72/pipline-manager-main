@@ -30,7 +30,7 @@ export const usePermissions = () => {
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (userData, thunkAPI) => {
-    console.log(userData);
+    // console.log(userData);
     try {
       // await new Promise((resolve) => setTimeout(resolve, 200));
 
@@ -40,7 +40,7 @@ export const loginUser = createAsyncThunk(
       });
 
       if (response.status === 200) {
-        console.log("Login response:", response.data);
+        // console.log("Login response:", response.data);
 
         // Store authentication tokens
         if (response.data.access && response.data.refresh) {
@@ -74,7 +74,7 @@ export const loginUser = createAsyncThunk(
         return response.data;
       }
     } catch (error) {
-      console.log("Login error:", error.response?.data);
+      // console.log("Login error:", error.response?.data);
       return thunkAPI.rejectWithValue(error.response?.data || "Login failed");
     }
   }

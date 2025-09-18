@@ -74,7 +74,7 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     });
   };
   const updateTheTask = async (id, taskData, closeModal = () => {}) => {
-    console.log(taskData);
+    // console.log(taskData);
     dispatch(updateTask({ id: id, data: { ...taskData } })).then((res) => {
       if (res.payload) {
         if (dataType === "production") {

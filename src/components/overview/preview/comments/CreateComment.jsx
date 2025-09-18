@@ -24,7 +24,7 @@ const CreateComment = ({
   });
 
   const handelComment = (e) => {
-    console.log(e.target.value);
+    // console.log(e.target.value);
     setComment({ ...comment, text: e.target.value });
     // setComment({...comment,text})
   };

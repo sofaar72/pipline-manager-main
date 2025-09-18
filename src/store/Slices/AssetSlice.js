@@ -43,7 +43,7 @@ const assetSlice = createSlice({
         // console.log(action.payload);
         state.loading = false;
         state.assets = action.payload;
-        console.log(state.assets);
+        // console.log(state.assets);
       })
       .addCase(fetchAssets.rejected, (state, action) => {
         state.loading = false;

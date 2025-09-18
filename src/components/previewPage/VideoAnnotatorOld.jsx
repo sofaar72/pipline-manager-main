@@ -248,9 +248,9 @@ export const VideoAnnotator = () => {
     setAnotateable(true);
   };
 
-  useEffect(() => {
-    console.log(annotations);
-  }, [annotations]);
+  // useEffect(() => {
+  //   console.log(annotations);
+  // }, [annotations]);
 
   return (
     <>

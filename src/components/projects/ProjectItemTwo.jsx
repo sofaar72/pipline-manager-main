@@ -12,7 +12,7 @@ const ProjectItemTwo = ({ project, selectProject, selectedProject }) => {
     navigate("/task-manager/production");
   };
 
-  console.log(selectedProject.id, project.id);
+  // console.log(selectedProject.id, project.id);
   return (
     <div
       className={` radius p-4 shrink-0 relative ${

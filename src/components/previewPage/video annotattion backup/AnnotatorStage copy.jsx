@@ -21,9 +21,9 @@ export default function AnnotatorStage({ frame, tool }) {
 
   // Deselect annotation when frame or tool changes to pen
 
-  useEffect(() => {
-    console.log(annotations);
-  }, [annotations]);
+  // useEffect(() => {
+  //   // console.log(annotations);
+  // }, [annotations]);
   useEffect(() => {
     if (tool === "pen") setSelectedId(null);
   }, [frame, tool]);

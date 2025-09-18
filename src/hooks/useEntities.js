@@ -112,7 +112,7 @@ export const useEntities = () => {
     fetchAfter = null
   ) => {
     dispatch(createFilm(data)).then((res) => {
-      console.log(res);
+      // console.log(res);
       if (res.payload && !res.payload.error) {
         setCurrentPage(1); // this will auto-trigger fetchEntities via useEffect
 
@@ -134,7 +134,7 @@ export const useEntities = () => {
 
   const deleteFilmEntity = async (id, closeModal = () => {}) => {
     dispatch(deleteFilm(id)).then((res) => {
-      console.log(res);
+      // console.log(res);
       if (res) {
         setTimeout(() => {
           closeModal();

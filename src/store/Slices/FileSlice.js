@@ -20,7 +20,7 @@ export const uploadFileToServer = createAsyncThunk(
   "file/uploadFileToServer",
   async ({ file, version }, thunkAPI) => {
     try {
-      console.log(file);
+      // console.log(file);
 
       const response = await axiosInstance.post(
         `/file/upload_url/`,
