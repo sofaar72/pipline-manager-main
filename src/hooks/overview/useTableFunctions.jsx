@@ -127,7 +127,7 @@ export const useTableFunctions = ({
       cell: ({ row }) => {
         const val = row?.original?.departments?.[dept.name];
 
-        // console.log(dept);
+        console.log(val);
         // console.log(row?.original?.departments);
         // console.log(val);
         if (!val || !val.status || !row.original.tasks) {
@@ -137,6 +137,11 @@ export const useTableFunctions = ({
             </div>
           );
         }
+
+        const { className, style } = statusClasses(
+          val?.status,
+          val?.type?.color
+        );
         return (
           <div
             className={`flex transition ${
@@ -150,9 +155,8 @@ export const useTableFunctions = ({
             <div
               className={`${editMode && "pointer-none"} px-3 py-1 radius ${
                 showAssignees ? "w-[100px]" : "flex-1 shrink-0 w-full"
-              } h-regular font-[500] flex items-center justify-center text-center text-white ${statusClasses(
-                val?.status
-              )}`}
+              } h-regular font-[500] flex items-center justify-center text-center text-white ${className}`}
+              style={style}
             >
               {val?.status || "No Status"}
             </div>

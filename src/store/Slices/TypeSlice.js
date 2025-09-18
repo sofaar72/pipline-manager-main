@@ -7,7 +7,7 @@ export const fetchTypes = createAsyncThunk(
   "type/fetchTypes",
   async ({ queryParams }, thunkAPI) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/task_type/`, {
         params: queryParams,
       });

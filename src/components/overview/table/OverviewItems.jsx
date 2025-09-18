@@ -34,6 +34,7 @@ const OverviewItems = ({
   handleTaskSelection, // Add this new prop from the hook
   typeId,
   setTypeId,
+  selectedTasks,
 }) => {
   return (
     <div className="w-full h-full flex-1 ">
@@ -86,6 +87,7 @@ const OverviewItems = ({
                       allRows={g?.items} // This allows range selection within the group
                       typeId={typeId}
                       setTypeId={setTypeId}
+                      selectedTasks={selectedTasks}
                     />
                   );
                 })}

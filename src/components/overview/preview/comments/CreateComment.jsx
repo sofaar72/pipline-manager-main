@@ -40,6 +40,7 @@ const CreateComment = ({
         ...comment,
         author: Number(userId),
         parent: type === "reply" ? parentId : undefined,
+        version: versionId.id,
 
         // annotations: annotationData,
       },

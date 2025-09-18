@@ -21,7 +21,16 @@ import AddUserToTaskForm from "../components/overview/AddUserToTaskForm";
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
-  const { fetchAllTasks, taskResults, taskLoading, taskError } = useTasks();
+  const {
+    fetchAllTasks,
+    taskResults,
+    taskLoading,
+    taskError,
+    deleteTheTask,
+    taskDeleteSuccess,
+    deleteTaskLoading,
+    deleteTaskError,
+  } = useTasks();
   const {
     fetchAllVersions,
     versionResults,
@@ -76,6 +85,7 @@ const TaskOverviewPage = () => {
     setAddUserTaskModal,
     handleAddUserTaskModal,
     assigneeUsers,
+    entityResults,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -84,7 +94,7 @@ const TaskOverviewPage = () => {
     taskID: null,
     show: true,
   });
-
+  const [selectedTasksOutside, setSelectedTasksOutside] = useState([]);
   const [activeTask, setActiveTask] = useState({ collId: "", rowId: "" });
   const [previewWidth, setPreviewWidth] = useState(600); // default width
   const isResizing = useRef(false);
@@ -177,6 +187,8 @@ const TaskOverviewPage = () => {
     selectTheProject(id);
   };
 
+  // 👇 Auto open preview if only one task is selected
+
   const handleShowPrev = (e, id, groupId, taskId) => {
     e.stopPropagation();
 
@@ -207,6 +219,10 @@ const TaskOverviewPage = () => {
     });
     setActiveTask({ collId: "", rowId: "" });
   };
+
+  // useEffect(() => {
+  //   console.log(selectedTasksOutside);
+  // }, [selectedTasksOutside]);
 
   useEffect(() => {
     if (!showPreview.show) {
@@ -252,7 +268,7 @@ const TaskOverviewPage = () => {
     if (addressbar) {
       fetchAllTasks(entityId, taskType);
     }
-  }, [addressbar]);
+  }, [addressbar, entityResults]);
 
   useEffect(() => {
     if (taskResults.length > 0) {
@@ -347,6 +363,9 @@ const TaskOverviewPage = () => {
                   setTypeId={setTypeId}
                   typeId={typeId}
                   handleAddUserTaskModal={handleAddUserTaskModal}
+                  setSelectedTasksOutside={setSelectedTasksOutside}
+                  deleteTheTask={deleteTheTask}
+                  fetchEntities={fetchEntities}
                 />
               )}
             </>
@@ -354,50 +373,66 @@ const TaskOverviewPage = () => {
         </div>
 
         {/* PREVIEW PART */}
-
-        <div
-          className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/30  ${
-            showPreview.show ? "translate-x-[100%]" : "translate-x-0"
-          }`}
-          // style={{ width: previewWidth }}
-          onMouseDown={(e) => {
-            if (!isResizing.current) hidePrev();
-          }}
-        >
+        {selectedTasksOutside.length > 0 ? (
+          <></>
+        ) : (
+          // <div
+          //   className={` h-full top-0 right-0 z-[999] absolute bg-black/30 `}
+          //   // style={{ width: previewWidth }}
+          // >
+          //   <div
+          //     className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] text-white `}
+          //     style={{ width: previewWidth }}
+          //     ref={wrapperRef}
+          //     onMouseDown={(e) => e.stopPropagation()}
+          //   >
+          //     show the data
+          //   </div>
+          // </div>
           <div
-            className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
-            style={{ width: previewWidth }}
-            ref={wrapperRef}
-            onMouseDown={(e) => e.stopPropagation()}
+            className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/30  ${
+              showPreview.show ? "translate-x-[100%]" : "translate-x-0"
+            }`}
+            // style={{ width: previewWidth }}
+            onMouseDown={(e) => {
+              if (!isResizing.current) hidePrev();
+            }}
           >
-            {/* Drag handle */}
             <div
-              className="absolute -left-2 top-0 w-2 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600 z-[100] transition"
-              onMouseDown={startResizing}
-            />
+              className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
+              style={{ width: previewWidth }}
+              ref={wrapperRef}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {/* Drag handle */}
+              <div
+                className="absolute -left-2 top-0 w-2 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600 z-[100] transition"
+                onMouseDown={startResizing}
+              />
 
-            <PreviewMain
-              addressbar={addressbar}
-              previewWidth={width}
-              stopResizing={stopResizing}
-              isResizing={isResizing}
-              hidePrev={hidePrev}
-              taskResults={taskResults}
-              loading={taskLoading}
-              fetchAllVersions={fetchAllVersions}
-              versionLoading={versionLoading}
-              setVersionId={setVersionId}
-              versionId={versionId}
-              versionResults={versionResults}
-              fetchVersionPreview={fetchSingleVersionPreview}
-              versionPreviewData={versionPreviewData}
-              versionPreviewLoading={versionPreviewLoading}
-              handleCreateTaskModal={handleCreateTaskModal}
-              clearVersionPreview={clearVersionPreview}
-              taskId={taskId}
-            />
+              <PreviewMain
+                addressbar={addressbar}
+                previewWidth={width}
+                stopResizing={stopResizing}
+                isResizing={isResizing}
+                hidePrev={hidePrev}
+                taskResults={taskResults}
+                loading={taskLoading}
+                fetchAllVersions={fetchAllVersions}
+                versionLoading={versionLoading}
+                setVersionId={setVersionId}
+                versionId={versionId}
+                versionResults={versionResults}
+                fetchVersionPreview={fetchSingleVersionPreview}
+                versionPreviewData={versionPreviewData}
+                versionPreviewLoading={versionPreviewLoading}
+                handleCreateTaskModal={handleCreateTaskModal}
+                clearVersionPreview={clearVersionPreview}
+                taskId={taskId}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* modals */}

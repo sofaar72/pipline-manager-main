@@ -30,6 +30,7 @@ const OverviewItem = ({
   setTaskType,
   typeId,
   setTypeId,
+  selectedTasks,
 }) => {
   const validCells = [
     "texturing",
@@ -88,7 +89,8 @@ const OverviewItem = ({
           original?.departments || [],
           allRows,
           isShiftClick,
-          isCtrlClick
+          isCtrlClick,
+          original?.id // <- pass entityId
         )
       : selectedMultipleTasks(
           cellId,
@@ -96,7 +98,8 @@ const OverviewItem = ({
           original?.departments || [],
           allRows,
           isShiftClick,
-          isCtrlClick
+          isCtrlClick,
+          original?.id
         );
 
     // Only show preview for normal clicks (no modifiers)

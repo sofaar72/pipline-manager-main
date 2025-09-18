@@ -10,7 +10,7 @@ export const fetchTasks = createAsyncThunk(
     // console.log(queryParams);
     try {
       // console.log(id);
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/film/${id}/tasks`, {
         params: queryParams,
       });
@@ -45,7 +45,7 @@ export const createTask = createAsyncThunk("task/createTask", async (data) => {
     const response = await axiosInstance.post(`/tasks/`, data);
 
     if (response.status == 201) {
-      toast.success("Task Created!");
+      // toast.success("Task Created!");
     }
     return response.data;
   } catch (error) {
@@ -77,6 +77,27 @@ export const updateTask = createAsyncThunk(
     }
   }
 );
+// DELETE TASK
+export const deleteTask = createAsyncThunk(
+  "task/deleteTask",
+  async ({ id }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.delete(`/tasks/${id}/`);
+
+      // if (response.status == 204) {
+      //   toast.success("Task REMOVED!");
+      // }
+      // Return both the updated task and its ID
+      return { id, ...response.data };
+    } catch (error) {
+      // console.log("Error response:", error.response);
+      toast.error(error.response.data.error || "something went wrong!");
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.error || { error: "Server error" }
+      );
+    }
+  }
+);
 
 // Step 2: Slice
 const taskSlice = createSlice({
@@ -93,6 +114,11 @@ const taskSlice = createSlice({
       success: false,
     },
     updateStatus: {
+      loading: false,
+      error: null,
+      success: false,
+    },
+    deleteStatus: {
       loading: false,
       error: null,
       success: false,
@@ -168,6 +194,24 @@ const taskSlice = createSlice({
         state.updateStatus.loading = false;
         state.updateStatus.error = action.payload.error || "Unknown error";
         state.updateStatus.success = false;
+      });
+
+    // DELETE TASK
+    builder
+      .addCase(deleteTask.pending, (state) => {
+        state.deleteStatus.loading = true;
+        state.deleteStatus.error = null;
+        state.deleteStatus.success = false;
+      })
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        state.deleteStatus.loading = false;
+        state.deleteStatus.success = true;
+        state.deleteStatus.error = null;
+      })
+      .addCase(deleteTask.rejected, (state, action) => {
+        state.deleteStatus.loading = false;
+        state.deleteStatus.error = action.payload.error || "Unknown error";
+        state.deleteStatus.success = false;
       });
   },
 });

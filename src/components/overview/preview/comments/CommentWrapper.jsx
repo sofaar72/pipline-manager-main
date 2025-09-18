@@ -12,6 +12,10 @@ const CommentWrapper = ({
   createResult,
   getAllComments,
   getAllCommentReplies,
+  deleteCommentData,
+  deleteComment,
+  deleteLoading,
+  deleteError,
 }) => {
   return (
     <div className="w-full h-full flex-1 flex flex-col gap-[10px]">
@@ -32,6 +36,10 @@ const CommentWrapper = ({
         sendComment={sendComment}
         loading={createCommentLoading}
         createResult={createResult}
+        deleteCommentData={deleteCommentData}
+        deleteComment={deleteComment}
+        deleteLoading={deleteLoading}
+        deleteError={deleteError}
       />
     </div>
   );

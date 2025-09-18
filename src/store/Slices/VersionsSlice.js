@@ -8,7 +8,7 @@ export const fetchTaskVersions = createAsyncThunk(
   async ({ id, queryParams }, thunkAPI) => {
     try {
       // console.log(id);
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/tasks/${id}`, {
         params: queryParams,
       });
@@ -23,7 +23,7 @@ export const fetchVersionPreview = createAsyncThunk(
   "version/fetchVersionPreview",
   async ({ id }, thunkAPI) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/versions/${id}`);
       return response.data;
     } catch (error) {

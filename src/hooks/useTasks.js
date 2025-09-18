@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   createTask,
+  deleteTask,
   fetchAssetsTasks,
   fetchTasks,
   updateTask,
@@ -14,7 +15,7 @@ export const useTasks = ({ dataType = "production" } = {}) => {
   const { fetchAllVersions } = useVersions();
   const dispatch = useDispatch();
 
-  const { tasks, createStatus, updateStatus } = useSelector(
+  const { tasks, createStatus, updateStatus, deleteStatus } = useSelector(
     (state) => state.task
   );
   const {
@@ -33,6 +34,11 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     loading: updateTaskLoading,
     error: updateTaskError,
   } = updateStatus || {};
+  const {
+    success: taskDeleteSuccess,
+    loading: deleteTaskLoading,
+    error: deleteTaskError,
+  } = deleteStatus || {};
 
   const fetchAllTasks = (entityId, taskType) => {
     if (dataType === "production") {
@@ -79,6 +85,18 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     });
   };
 
+  const deleteTheTask = async (id, fetch, closeModal = () => {}) => {
+    dispatch(deleteTask({ id: id })).then((res) => {
+      if (res.payload) {
+        fetch();
+        if (dataType === "production") {
+          closeModal(false);
+        } else {
+        }
+      }
+    });
+  };
+
   return {
     taskResults,
     taskLoading,
@@ -90,10 +108,15 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     taskUpdateSuccess,
     updateTaskLoading,
     updateTaskError,
+    taskDeleteSuccess,
+    deleteTaskLoading,
+    deleteTaskError,
     fetchTaskVersion,
     fetchAllVersions,
     fetchAllTasks,
     updateTheTask,
+    deleteTheTask,
+
     addTask,
     fetchAllAssetsTasks,
   };

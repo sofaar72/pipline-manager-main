@@ -9,6 +9,10 @@ const CommentsList = ({
   sendComment,
   loading,
   createResult,
+  deleteCommentData,
+  deleteComment,
+  deleteLoading,
+  deleteError,
 }) => {
   return (
     <div className="flex flex-col h-[250px]">
@@ -23,6 +27,10 @@ const CommentsList = ({
               sendComment={sendComment}
               loading={loading}
               createResult={createResult}
+              deleteCommentData={deleteCommentData}
+              deleteComment={deleteComment}
+              deleteLoading={deleteLoading}
+              deleteError={deleteError}
             />
           );
         })}

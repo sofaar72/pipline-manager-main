@@ -6,6 +6,7 @@ const TheButton = ({
   cClass = "",
   children,
   onClick = () => {},
+  onKeyDown = () => {},
   loading = false,
   type = "",
   disabled = false,

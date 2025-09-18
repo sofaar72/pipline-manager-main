@@ -7,7 +7,7 @@ export const fetchVariation = createAsyncThunk(
   "type/fetchVariations",
   async ({ id }, thunkAPI) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/variations/`, {
         params: {
           head: id,

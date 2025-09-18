@@ -23,7 +23,7 @@ export const useStageControl = ({
   const isDraggable = action === ACTIONS.SELECT;
   const transformerRef = useRef();
   // for selecting multiple items
-  const [selectionRect, setSelectionRect] = useState(null); // ✅ NEW
+  const [selectionRect, setSelectionRect] = useState(null); // âœ… NEW
   const [selecting, setSelecting] = useState(false);
   const selectionStart = useRef({ x: 0, y: 0 });
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -51,6 +51,20 @@ export const useStageControl = ({
     annotations: annotationResults,
     getAnnotationLoading,
   } = useComments();
+
+  // CLEAR ANNOTATIONS FUNCTION - NEW
+  const clearAnnotations = () => {
+    setAnnotations([]);
+    setCurrentFrameIndex(0);
+    // Clear transformer selection
+    if (transformerRef.current) {
+      transformerRef.current.nodes([]);
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+    // Clear undo/redo stacks as well
+    setUndoStack([]);
+    setRedoStack([]);
+  };
 
   // ---------- helpers: video size / transform ----------
   const getVideoNaturalSize = () => {
@@ -356,7 +370,7 @@ export const useStageControl = ({
     if (!annotationResults || annotationResults.length === 0) return;
 
     setAnnotations((prev) => {
-      // If first load (no local annotations), just take server’s
+      // If first load (no local annotations), just take serverâ€™s
       if (!prev || prev.length === 0) {
         return annotationResults;
       }
@@ -368,7 +382,7 @@ export const useStageControl = ({
         );
         if (!serverFrame) return frame;
 
-        // If local has shapes → keep them, otherwise use server’s
+        // If local has shapes â†' keep them, otherwise use serverâ€™s
         if (frame.shapes && frame.shapes.length > 0) {
           return frame; // keep local edits
         }
@@ -397,7 +411,7 @@ export const useStageControl = ({
     resizeObserver.observe(containerRef.current);
 
     return () => resizeObserver.disconnect();
-  }, [containerRef, isFullScreen, prevVideoData]); // 👈 add isFullScreen
+  }, [containerRef, isFullScreen, prevVideoData]); // ðŸ'ˆ add isFullScreen
 
   // ---------------- HANDLE SELECT FRAME ----------------
   const handleSelectFrame = (frameIndex) => {
@@ -719,18 +733,6 @@ export const useStageControl = ({
   };
 
   const updateShape = (frameIndex, shapeId, updater) => {
-    // setAnnotations((prev) =>
-    //   prev.map((frame, i) =>
-    //     i === frameIndex
-    //       ? {
-    //           ...frame,
-    //           shapes: frame.shapes.map((shape) =>
-    //             shape.id === shapeId ? updater(shape) : shape
-    //           ),
-    //         }
-    //       : frame
-    //   )
-    // );
     updateAnnotations((prev) =>
       prev?.map((frame, i) =>
         i === frameIndex
@@ -859,6 +861,7 @@ export const useStageControl = ({
     // new edit invalidates redo
     setRedoStack([]);
   };
+
   const updateAnnotations = (updater) => {
     setAnnotations((prev) => {
       pushUndo(prev); // snapshot of previous state
@@ -876,6 +879,7 @@ export const useStageControl = ({
       return newUndo;
     });
   };
+
   const redo = () => {
     setRedoStack((prevRedo) => {
       if (prevRedo.length === 0) return prevRedo;
@@ -886,6 +890,7 @@ export const useStageControl = ({
       return newRedo;
     });
   };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "z") {
@@ -957,5 +962,6 @@ export const useStageControl = ({
     sendAllAnnotations,
     annotationResults,
     getAnnotationLoading,
+    clearAnnotations, // Export the clearAnnotations function
   };
 };

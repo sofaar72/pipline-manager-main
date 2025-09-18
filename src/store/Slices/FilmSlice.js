@@ -9,7 +9,7 @@ export const fetchFilms = createAsyncThunk(
   async (queryParams, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get("/film/", {
         params: queryParams,
       });
@@ -25,7 +25,7 @@ export const fetchFilmEpisode = createAsyncThunk(
   async (queryParams, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get("/film/", {
         params: queryParams,
       });
@@ -41,7 +41,7 @@ export const createFilm = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.post("/film/", data);
       if (response.data) {
         toast.success(`Entity created successfully`);
@@ -64,7 +64,7 @@ export const deleteFilm = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.delete(`/film/delete/${id}/`);
 
       // if (response.data === 204) {
@@ -81,7 +81,7 @@ export const editFilm = createAsyncThunk(
   async ({ id, data }, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.post(`/film/${id}`, data);
       if (response.data) {
         toast.success(`film updated successfully`);

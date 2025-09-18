@@ -1,8 +1,11 @@
 import React, { useEffect, useState, version } from "react";
-import { MdFeedback } from "react-icons/md";
+import { MdDelete, MdFeedback } from "react-icons/md";
 import TheButton from "../../TheButton";
 import ReplyItem from "./ReplyItem";
 import CreateComment from "./CreateComment";
+import TheIcon from "../../TheIcon";
+import GlobalPureModal from "../../../golbals/GlobalPureModal";
+import OnlyRemoveCommentModal from "./OnlyRemoveCommentModal";
 
 const CommentItem = ({
   comment,
@@ -12,8 +15,13 @@ const CommentItem = ({
   sendComment,
   loading,
   createResult,
+  deleteCommentData,
+  deleteComment,
+  deleteLoading,
+  deleteError,
 }) => {
   const [replyPart, setReplyPart] = useState(false);
+  const [openRemove, setOpenRemove] = useState(false);
 
   const convertDate = (date) => {
     const sentDate = new Date(date);
@@ -48,6 +56,20 @@ const CommentItem = ({
   const getReplyComments = () => {
     getAllComments(versionId.id, taskId, comment.parent);
   };
+
+  // get all comments after removing
+  const getAllTheComments = () => {
+    getAllComments(versionId.id, taskId);
+  };
+
+  const openTheRemoveComment = () => {
+    setOpenRemove(!openRemove);
+  };
+
+  const removeComment = (id, fetch, closeModal) => {
+    deleteComment(id, fetch, closeModal);
+  };
+
   return (
     <div className="w-full radius bg-[var(--overview-color-three)]/50  flex flex-col gap-2 relative p-2 cursor-pointer">
       {/* header  */}
@@ -61,6 +83,7 @@ const CommentItem = ({
               src={comment?.author.avatar}
               alt=""
             />
+
             {comment?.message_type === "fb" && (
               <div className="absolute -left-[2px] -top-[2px]">
                 <span className="flex items-center justify-center w-[16px] h-[16px] rounded-full bg-[var(--overview-color-progress)] text-white">
@@ -70,9 +93,14 @@ const CommentItem = ({
             )}
           </div>
           <div className="flex flex-col gap-[5px] h-regular">
-            <span>
-              {comment?.author.first_name + " " + comment?.author.last_name}
-            </span>
+            <div className="flex gap-2 items-center">
+              <span>
+                {comment?.author.first_name + " " + comment?.author.last_name}
+              </span>
+              <span className="h-small">
+                {convertDate(comment?.created_at)}
+              </span>
+            </div>
             {/* <span>Role</span> */}
             <span className="h-xs">{comment?.author.email}</span>
           </div>
@@ -80,7 +108,12 @@ const CommentItem = ({
             <div className="w-[100px] h-[16px] flex items-center  bg-[var(--overview-color-four)] gap-[2px] p-2 rounded-full"></div>
           )}
         </div>
-        <span className="h-small">{convertDate(comment?.created_at)}</span>
+
+        <div className="h-sm">
+          <TheIcon cClass="border-none" onClick={openTheRemoveComment}>
+            <MdDelete />
+          </TheIcon>
+        </div>
       </div>
       {/* description  */}
       {comment?.text && <p className="h-small">{comment.text}</p>}
@@ -112,6 +145,15 @@ const CommentItem = ({
           {/* <ReplyItem /> */}
         </div>
       )}
+
+      <GlobalPureModal open={openRemove} setOpen={setOpenRemove}>
+        <OnlyRemoveCommentModal
+          removeCommentModal={setOpenRemove}
+          id={comment.id}
+          removeComment={removeComment}
+          fetchData={getAllTheComments}
+        />
+      </GlobalPureModal>
     </div>
   );
 };

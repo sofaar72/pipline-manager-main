@@ -38,6 +38,10 @@ const PreviewMain = ({
     createLoading,
     createComment: createResult,
     createError,
+    deleteCommentData,
+    deleteTheComment,
+    deleteLoading,
+    deleteError,
   } = useComments();
 
   // FETCH VERSIONS OF THE TASK
@@ -107,6 +111,10 @@ const PreviewMain = ({
             getAllComments={getAllComments}
             getAllCommentReplies={getAllCommentReplies}
             taskId={taskId}
+            deleteCommentData={deleteCommentData}
+            deleteComment={deleteTheComment}
+            deleteLoading={deleteLoading}
+            deleteError={deleteError}
           />
         </>
       ) : (

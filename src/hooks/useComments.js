@@ -6,6 +6,7 @@ import {
   fetchComment,
   sendAnnotations,
   sendComment,
+  deleteComment,
   getAnnotations,
 } from "../store/Slices/CommentsSlice";
 
@@ -18,6 +19,9 @@ export const useComments = () => {
     createComment,
     createLoading,
     createError,
+    deleteCommentData,
+    deleteLoading,
+    deleteError,
     annotations,
     annotationLoading,
     annotationError,
@@ -49,6 +53,16 @@ export const useComments = () => {
       }
     });
   };
+  const deleteTheComment = (id, getComments, closeModal) => {
+    // console.log(id);
+    dispatch(deleteComment(id)).then((response) => {
+      if (response?.payload) {
+        // getComments();
+        getComments();
+        closeModal();
+      }
+    });
+  };
 
   const sendAllAnnotations = (data) => {
     dispatch(sendAnnotations(data));
@@ -68,6 +82,10 @@ export const useComments = () => {
     createComment,
     createLoading,
     createError,
+    deleteCommentData,
+    deleteTheComment,
+    deleteLoading,
+    deleteError,
     sendAllAnnotations,
     fetchAllAnnotations,
     annotations,

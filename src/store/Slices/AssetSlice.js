@@ -8,7 +8,7 @@ export const fetchAssets = createAsyncThunk(
   async (queryParams, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get("/assets/", {
         params: queryParams,
       });

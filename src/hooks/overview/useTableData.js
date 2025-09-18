@@ -4,18 +4,18 @@ export const useTableData = ({ tableItems = [] }) => {
   /**
    * Helper to map status -> Tailwind classes
    */
-  const statusClasses = (status) => {
+  const statusClasses = (status, color) => {
     switch (status) {
-      case "Todo":
-        return "bg-sky-500 text-white";
+      case "todo":
+        return { className: "!text-black", style: { backgroundColor: color } };
       case "In Progress":
-        return "bg-amber-500 text-white";
+        return { className: "bg-amber-500 text-white" };
       case "Blocked":
-        return "bg-red-500 text-white";
+        return { className: "bg-red-500 text-white" };
       case "Done":
-        return "bg-emerald-400 text-black";
+        return { className: "bg-emerald-400 text-black" };
       default:
-        return "bg-gray-600 text-white";
+        return { className: "bg-gray-600 text-white" };
     }
   };
 

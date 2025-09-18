@@ -9,7 +9,7 @@ export const loginUser = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.post(
         "/auth/login/",
         //   {
@@ -76,7 +76,7 @@ export const registerUser = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       // Simulate 2-second delay
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.post("/auth/register/", {
         ...userData,
       });

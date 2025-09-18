@@ -79,6 +79,7 @@ const TheAnnotationWrapper = ({
     sendAllAnnotations,
     annotationResults,
     getAnnotationLoading,
+    clearAnnotations, // Add this function to clear annotations
   } = useStageControl({
     containerRef: videoRef,
     frames,
@@ -105,13 +106,16 @@ const TheAnnotationWrapper = ({
     }
   }, [versionPreviewData, index]);
 
-  // fetch annotations
+  // fetch annotations - FIXED: Clear annotations when media_id changes
   useEffect(() => {
     console.log(annotations);
     if (prevVideoData.media_id) {
+      // Clear existing annotations first
+      clearAnnotations();
+      // Then fetch new annotations
       fetchAllAnnotations(prevVideoData.media_id);
     }
-  }, [prevVideoData]);
+  }, [prevVideoData.media_id]); // Only depend on media_id, not the entire prevVideoData
 
   // send annotations
   useEffect(() => {
@@ -120,12 +124,12 @@ const TheAnnotationWrapper = ({
     const allEmpty = annotations?.every((frame) => frame.shapes.length === 0);
 
     const handler = setTimeout(() => {
-      if (!allEmpty) {
-        sendAllAnnotations({
-          annotations,
-          file: prevVideoData.media_id,
-        });
-      }
+      // if (!allEmpty) {
+      sendAllAnnotations({
+        annotations,
+        file: prevVideoData.media_id,
+      });
+      // }
     }, 2000); // 2 seconds delay
 
     return () => {

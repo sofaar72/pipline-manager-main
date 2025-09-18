@@ -30,6 +30,21 @@ export const sendComment = createAsyncThunk(
   }
 );
 
+export const deleteComment = createAsyncThunk(
+  "file/deleteComment",
+  async (id, thunkAPI) => {
+    try {
+      const response = await axiosInstance.delete(`/comment/${id}/`);
+      if (response.status === 200) {
+        toast.success("Comment removed successfully");
+      }
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 export const sendAnnotations = createAsyncThunk(
   "annotation/sendAnnotation",
   async (data, thunkAPI) => {
@@ -69,6 +84,9 @@ const CommentsSlice = createSlice({
     createComment: [],
     createLoading: false,
     createError: null,
+    deleteCommentData: [],
+    deleteLoading: false,
+    deleteError: null,
     annotations: [],
     annotationLoading: false,
     annotationError: false,
@@ -102,6 +120,19 @@ const CommentsSlice = createSlice({
     builder.addCase(sendComment.rejected, (state, action) => {
       state.createLoading = false;
       state.createError = action.payload;
+    });
+    // delete comment
+    builder.addCase(deleteComment.pending, (state) => {
+      state.deleteLoading = true;
+      state.deleteError = null;
+    });
+    builder.addCase(deleteComment.fulfilled, (state, action) => {
+      state.deleteLoading = false;
+      state.deleteComment = action.payload;
+    });
+    builder.addCase(deleteComment.rejected, (state, action) => {
+      state.deleteLoading = false;
+      state.deleteError = action.payload;
     });
     // send annotations
     builder.addCase(sendAnnotations.pending, (state) => {

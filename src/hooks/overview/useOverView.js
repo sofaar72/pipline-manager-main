@@ -135,5 +135,6 @@ export const useOverview = () => {
     typeId,
     setTypeId,
     assigneeUsers,
+    entityResults,
   };
 };

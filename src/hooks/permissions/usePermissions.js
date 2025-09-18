@@ -32,7 +32,7 @@ export const loginUser = createAsyncThunk(
   async (userData, thunkAPI) => {
     console.log(userData);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // await new Promise((resolve) => setTimeout(resolve, 200));
 
       const response = await axiosInstance.post("/auth/login/", {
         username: userData.email,

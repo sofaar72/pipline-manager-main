@@ -14,6 +14,10 @@ const PreviewFilesAndComments = ({
   createResult,
   getAllComments,
   getAllCommentReplies,
+  deleteCommentData,
+  deleteComment,
+  deleteLoading,
+  deleteError,
 }) => {
   const [files, setFiles] = useState([]);
 
@@ -35,6 +39,10 @@ const PreviewFilesAndComments = ({
           getAllComments={getAllComments}
           getAllCommentReplies={getAllCommentReplies}
           taskId={taskId}
+          deleteCommentData={deleteCommentData}
+          deleteComment={deleteComment}
+          deleteLoading={deleteLoading}
+          deleteError={deleteError}
         />
       )}
     </div>
