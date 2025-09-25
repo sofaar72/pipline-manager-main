@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 
-export const useTableData = ({ tableItems = [] }) => {
+export const useTableData = ({ tableItems = [], selectedEntType }) => {
   /**
    * Helper to map status -> Tailwind classes
    */
   const statusClasses = (status, color) => {
     switch (status) {
       case "todo":
-        return { className: "!text-black", style: { backgroundColor: color } };
+        return { className: "!text-white", style: { backgroundColor: color } };
       case "In Progress":
         return { className: "bg-amber-500 text-white" };
       case "Blocked":
@@ -70,6 +70,7 @@ export const useTableData = ({ tableItems = [] }) => {
     const depts = [];
     tableItems.forEach((item) => {
       (item.tasks || []).forEach((task) => {
+        console.log(task);
         if (
           task.type.name &&
           !depts.some((dept) => dept.name === task.type.name)
@@ -78,6 +79,7 @@ export const useTableData = ({ tableItems = [] }) => {
             name: task.type.name,
             id: task.type.id,
             color: task.type.color,
+            short_name: task.type.short_name,
           });
         }
       });
@@ -109,9 +111,14 @@ export const useTableData = ({ tableItems = [] }) => {
               name: task.type.name,
               id: task.type.id,
               color: task.type.color,
+              short_name: task.type.short_name,
             },
             taskId: task.id,
-            status: task.status?.name || "Todo",
+            status: {
+              name: task.status?.name || "todo",
+              id: task.status?.id || null,
+              color: task.status?.color,
+            },
             assignees: [...newAssignees],
           };
         } else {
@@ -137,8 +144,12 @@ export const useTableData = ({ tableItems = [] }) => {
         id: item.id,
         name: item.name,
         thumbnail: item.thumbnail || "",
-        episode: item.parent || "",
-        group: item.parent || "Ungrouped",
+        episode:
+          selectedEntType === "Assets" ? item.group || "" : item.parent || "",
+        group:
+          selectedEntType === "Assets"
+            ? item.group || ""
+            : item.parent || "Ungrouped",
         departments: departmentsObj,
         duration: item.duration || "",
         location: item.location || "",

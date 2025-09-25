@@ -18,25 +18,41 @@ import { useEntities } from "../../hooks/useEntities";
 import { useVariations } from "../../hooks/useVariations";
 import { useTasks } from "../../hooks/useTasks";
 import { useUser } from "../../hooks/useUser";
+import { useOverview } from "../../hooks/overview/useOverView";
 
 const CreateTaskForm = ({
   header = "Create Task",
   setCreateModal = () => {},
   selectedProject = { id: null, name: "" },
-  fetchData = () => {},
   id = null,
+  fetchData = () => {},
+  selectedEntType,
 }) => {
   const { typeResults, typeLoading, typeError, fetchAllTypes } = useTypes();
   const { getUsers, userResults, userLoading } = useUser();
+  const {
+    filmLoading,
+    films,
+    getTheEntities,
+    assetResults,
+    assetLoading,
+    allVariationsResults,
+    allVariationsLoading,
+    allVariationsError,
+  } = useOverview();
   // const {
   //   variationResults,
   //   variationLoading,
   //   variationError,
   //   fetchAllVariation,
   // } = useVariations();
-  const { addTask, createTaskLoading } = useTasks();
+  const { addTask, createTaskLoading, taskSuccess } = useTasks();
   const [checked, setChecked] = useState(false);
   const [taskTypes, setTaskTypes] = useState([]);
+  const [selectedType, setSelectedType] = useState({
+    name: null,
+    id: null,
+  });
   const [assignees, setAssignees] = useState([]);
 
   const submitForm = (values) => {
@@ -45,12 +61,11 @@ const CreateTaskForm = ({
     const newData = {
       assignee: assineesArray,
       type: values.type.id,
-      parent_type: "PRD",
+      parent_type: selectedEntType === "Assets" ? "BLD" : "PRD",
       status: 540,
-      parent: id,
+      parent: values.entity.id,
     };
 
-    console.log("Form values:", newData);
     // Remove empty, null, or undefined values
     const cleanedData = Object.fromEntries(
       Object.entries(newData).filter(
@@ -69,6 +84,7 @@ const CreateTaskForm = ({
   useEffect(() => {
     fetchAllTypes();
     getUsers();
+    getTheEntities(selectedProject, selectedEntType);
   }, []);
   // set types
   useEffect(() => {
@@ -95,9 +111,9 @@ const CreateTaskForm = ({
     }
   }, [userResults]);
 
-  // useEffect(() => {
-  //   console.log(taskTypes);
-  // }, [taskTypes]);
+  useEffect(() => {
+    fetchData();
+  }, [taskSuccess]);
 
   return (
     <>
@@ -113,6 +129,16 @@ const CreateTaskForm = ({
         <Formik
           initialValues={{
             type: taskTypes[0]?.name || { id: null, name: "Select Type" },
+            entity:
+              selectedEntType === "Assets"
+                ? allVariationsResults[0].name || {
+                    id: null,
+                    name: "Select Entity",
+                  }
+                : films?.results[0]?.name || {
+                    id: null,
+                    name: "Select Entity",
+                  },
             assignees: [],
           }}
           enableReinitialize
@@ -133,6 +159,16 @@ const CreateTaskForm = ({
               setFieldValue("type", {
                 id: selectedType.id,
                 name: selectedType.name,
+              });
+              setSelectedType({
+                id: selectedType.id,
+                name: selectedType.name,
+              });
+            };
+            const handleEntityChange = (selected) => {
+              setFieldValue("entity", {
+                id: selected.id,
+                name: selected.name,
               });
             };
 
@@ -155,6 +191,7 @@ const CreateTaskForm = ({
                 >
                   {/* inputs  */}
                   <div className="w-full flex flex-1  gap-4 mb-40">
+                    {/* SELECT TYPE  */}
                     <div className="w-fit">
                       <TheDropDown
                         init={values.type.name}
@@ -168,6 +205,27 @@ const CreateTaskForm = ({
                         }
                         width={"w-[200px]"}
                         funcAfter={handleTypeChange}
+                      />
+                    </div>
+                    {/* SELECT ENTITY  */}
+                    <div className="w-fit">
+                      <TheDropDown
+                        init={values.entity.name}
+                        items={
+                          selectedEntType === "Assets"
+                            ? allVariationsResults?.map((variation) => ({
+                                id: variation.id,
+                                name: variation.name,
+                              })) || []
+                            : films?.results?.map((film, i) => {
+                                return {
+                                  id: film.id,
+                                  name: film.name,
+                                };
+                              }) || []
+                        }
+                        width={"w-[200px]"}
+                        funcAfter={handleEntityChange}
                       />
                     </div>
                     <div className="w-fit">

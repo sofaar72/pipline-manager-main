@@ -125,8 +125,8 @@ export const useUploadFile = () => {
     }
   };
 
-  const handleCreateVersion = (data) => {
-    createNewVersion(data);
+  const handleCreateVersion = (data, close, setSuccess) => {
+    createNewVersion(data, close, setSuccess);
   };
 
   return {

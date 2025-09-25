@@ -4,7 +4,7 @@ import CbuttonOne from "./golbals/Buttons/CbuttonOne";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../assets/context/AuthContext";
 // icons
-import { FaHome } from "react-icons/fa";
+import { FaChartPie, FaHome } from "react-icons/fa";
 import { AiFillProduct } from "react-icons/ai";
 import { GrOverview } from "react-icons/gr";
 import { FaTasks } from "react-icons/fa";
@@ -23,6 +23,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { selectProject } from "../store/Slices/ProjectsSlice";
 import { useProject } from "../hooks/useProject";
 import { useEntities } from "../hooks/useEntities";
+import avatar from "/images/sidebar-avatar.png";
+import toggler from "/icons/Outdent.svg";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -40,11 +42,10 @@ const Sidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const logoutHandler = (e) => {
+  const logoutHandler = async (e) => {
     // e.preventDefault();
-    logout().then(() => {
-      navigate("/login");
-    });
+    await logout();
+    navigate("/login", { replace: true });
   };
 
   const selectProjectItem = (proj) => {
@@ -73,30 +74,27 @@ const Sidebar = () => {
           }`}
           onClick={toggleCollapse}
         >
-          <img className="w-full h-full" src="/icons/Outdent.svg" alt="" />
+          <img className="w-full h-full" src={toggler} alt="" />
         </div>
         {/* image part  */}
         <div className="w-full h-[121px] shrink-0 border-b border-white/20">
           <div className="w-[42px] h-[42px] overflow-hidden p-[2px] rounded-full bg-white ">
-            <img
-              className="w-full h-full"
-              src="/images/sidebar-avatar.png"
-              alt=""
-            />
+            <img className="w-full h-full" src={avatar} alt="" />
           </div>
         </div>
         {/* icons  */}
 
         <div className="w-full h-full  flex-1 flex flex-col items-center gap-[25px] text-white ">
-          <NavLink
+          {/* <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             to={"/dashboard"}
           >
             <FaHome className="w-full h-full" />
-          </NavLink>
+          </NavLink> */}
           <NavLink
+            title="Users"
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
@@ -104,15 +102,16 @@ const Sidebar = () => {
           >
             <FaUserGroup className="w-full h-full" />
           </NavLink>
-          <NavLink
+          {/* <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             to={"/productivity"}
           >
             <AiFillProduct className="w-full h-full" />
-          </NavLink>
+          </NavLink> */}
           <NavLink
+            title="Overviews"
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
@@ -120,15 +119,16 @@ const Sidebar = () => {
           >
             <GrOverview className="w-full h-full" />
           </NavLink>
-          <div
+          <NavLink
+            title="Select Projects"
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
-            // to={"/projects"}
+            to={"/projects/select"}
           >
-            <img className="w-full h-full" src="/icons/Pie Chart.svg" alt="" />
-          </div>
-          <div
+            <FaChartPie className="w-full h-full" />
+          </NavLink>
+          {/* <div
             className="w-full h-full transition flex  justify-center"
             style={{
               maxHeight: "30px",
@@ -147,40 +147,52 @@ const Sidebar = () => {
                 }}
               />
             </div>
-          </div>
-          <div
+          </div> */}
+          {/* <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             // to={"/gun-chart"}
           >
             <FaChartBar className="w-full h-full" />
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             // to={"/user-profile"}
           >
             <FaRegUser className="w-full h-full" />
-          </div>
-          <div
+          </div> */}
+          {/* <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             // to={"/register-configs"}
           >
             <GrDocumentConfig className="w-full h-full" />
-          </div>
-          <div
+          </div> */}
+          {/* <div
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             // to={"/settings"}
           >
             <IoMdSettings className="w-full h-full" />
-          </div>
+          </div> */}
+
+          <NavLink
+            title="Logout"
+            className={
+              "!text-white hover:!text-[var(--primary-color-light)] text-sm transition mt-auto"
+            }
+            onClick={logoutHandler}
+          >
+            <div className="w-[25px] h-[25px] flex items-center justify-center">
+              <CiLogout className="w-full h-full" />
+            </div>
+          </NavLink>
         </div>
       </div>
       <div
@@ -191,9 +203,9 @@ const Sidebar = () => {
           <div className="w-full flex">
             <div className="w-full h-full flex flex-col gap-y-[10px]">
               <span className="text-sm font-[400]">Soheil Farrokhi</span>
-              <span className="text-xs font-[300]">Developer</span>
+              {/* <span className="text-xs font-[300]">Developer</span> */}
             </div>
-            <NavLink
+            {/* <NavLink
               className={
                 "!text-white hover:!text-[var(--primary-color-light)] text-sm transition"
               }
@@ -202,13 +214,13 @@ const Sidebar = () => {
               <div className="w-[25px] h-[25px] flex items-center justify-center">
                 <CiLogout className="w-full h-full" />
               </div>
-            </NavLink>
+            </NavLink> */}
           </div>
           <div className="w-full  flex flex-col gap-y-[10px] mt-auto">
             {/* <SearchOne /> */}
             <div className="w-full flex flex-col gap-y-[4px]">
-              <span className="text-[10px]">Projects :</span>
-              {projectsData && projectsData.length > 0 && (
+              {/* <span className="text-[10px]">Projects :</span> */}
+              {/* {projectsData && projectsData.length > 0 && (
                 <div className="mb-2">
                   <CdropDown
                     options={projectsData || []}
@@ -220,7 +232,7 @@ const Sidebar = () => {
                     // icon={<MdOutlineSort className="text-[20px] text-white" />}
                   />
                 </div>
-              )}
+              )} */}
             </div>
             {/* <div
               className="w-full h-fit  flex items-center justify-between text-xs p-2 bg-[var(--primary-color-light)]/20 radius mb-4 hover:bg-[var(--primary-color-light)]/40 transition-all duration-200 cursor-pointer"
@@ -240,14 +252,14 @@ const Sidebar = () => {
         {/* bottom part  */}
         <div className="w-full h-full  flex-1 flex flex-col  text-white ">
           <div className="w-full  flex flex-col gap-[25px]">
-            <NavLink
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/dashboard"}
             >
               Dashboard
-            </NavLink>
+            </NavLink> */}
             <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
@@ -256,14 +268,14 @@ const Sidebar = () => {
             >
               Users
             </NavLink>
-            <NavLink
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/productivity"}
             >
               Productivity
-            </NavLink>
+            </NavLink> */}
 
             <NavLink
               className={
@@ -280,7 +292,7 @@ const Sidebar = () => {
                 { label: "Select Project", to: "/projects/select" },
               ]}
             />
-            <SidebarDropdown
+            {/* <SidebarDropdown
               label="File Manager"
               links={[
                 {
@@ -292,41 +304,41 @@ const Sidebar = () => {
                 },
                 { label: "Assets", to: "/file-manager/assets" },
               ]}
-            />
-            <NavLink
+            /> */}
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/gun-chart"}
             >
               Gun Chart
-            </NavLink>
+            </NavLink> */}
 
-            <NavLink
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/user-profile"}
             >
               User Profile
-            </NavLink>
-            <NavLink
+            </NavLink> */}
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/register-configs"}
             >
               Register Configs
-            </NavLink>
+            </NavLink> */}
 
-            <NavLink
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/settings"}
             >
               Settings
-            </NavLink>
+            </NavLink> */}
           </div>
         </div>
       </div>

@@ -4,11 +4,18 @@ import { useEntities } from "../useEntities";
 import { selectProject } from "../../store/Slices/ProjectsSlice";
 import { useEffect, useState } from "react";
 import { fetchFilms } from "../../store/Slices/FilmSlice";
+import { fetchAssets } from "../../store/Slices/AssetSlice";
+import { useAssets } from "../useAssets";
+import {
+  fetchVariation,
+  fetchVariationsForAll,
+} from "../../store/Slices/VariationsSlice";
 
 export const useOverview = () => {
   const dispatch = useDispatch();
   const { getAllProjects } = useProject();
   const { fetchEpisodes, entityResults, entityId, setEntityId } = useEntities();
+  const { assetResults, assetLoading, assetError } = useAssets();
   const [addressbar, setAddressbar] = useState("");
   const [searchItem, setSearchItem] = useState("");
   const [taskType, setTaskType] = useState("");
@@ -24,7 +31,9 @@ export const useOverview = () => {
   const [assigneeUsers, setAssigneeUsers] = useState([]);
 
   const [createEntityModal, setCreateEntityModal] = useState(false);
+  const [createAssetModal, setCreateAssetModal] = useState(false);
   const [createTaskModal, setCreateTaskModal] = useState(false);
+  const [createGlobalTaskModal, setCreateGlobalTaskModal] = useState(false);
   const [addUserTaskModal, setAddUserTaskModal] = useState(false);
 
   const [selectedEntType, setSelectedEntType] = useState("All");
@@ -36,11 +45,27 @@ export const useOverview = () => {
     loading: filmLoading,
   } = useSelector((state) => state.film);
 
+  const { variations, allVariations } = useSelector((state) => state.variation);
+
+  const {
+    results: variationsResults,
+    loading: variationsLoading,
+    error: variationsError,
+  } = variations || {};
+  const { allVariationsResults, allVariationsLoading, allVariationsError } =
+    allVariations || {};
+
   const handleCreateEntityModal = () => {
     setCreateEntityModal(!createEntityModal);
   };
+  const handleCreateAssetModal = () => {
+    setCreateAssetModal(!createAssetModal);
+  };
   const handleCreateTaskModal = () => {
     setCreateTaskModal(!createTaskModal);
+  };
+  const handleCreateGlobalTaskModal = () => {
+    setCreateGlobalTaskModal(!createGlobalTaskModal);
   };
   const handleAddUserTaskModal = (assignees, taskId) => {
     setTaskId(taskId);
@@ -69,22 +94,36 @@ export const useOverview = () => {
     const projectId = project ? project : localStorage.getItem("project_id");
     if (projectId) {
       // console.log(project);
-      dispatch(
-        fetchFilms({
-          project: project.id,
-          type:
-            type === "Episodes"
-              ? "EP"
-              : type === "Sequence"
-              ? "SQ"
-              : type === "Shot"
-              ? "SH"
-              : undefined,
-          name: search ? search : undefined,
-          page: page,
-          page_size: pageSize,
-        })
-      );
+
+      if (type === "Assets") {
+        dispatch(
+          fetchVariationsForAll()
+          // fetchAssets({
+          //   project: project.id,
+          //   // type:type,
+          //   name: search ? search : undefined,
+          //   page: page,
+          //   page_size: pageSize,
+          // })
+        );
+      } else {
+        dispatch(
+          fetchFilms({
+            project: project.id,
+            type:
+              type === "Episodes"
+                ? "EP"
+                : type === "Sequence"
+                ? "SQ"
+                : type === "Shot"
+                ? "SH"
+                : undefined,
+            name: search ? search : undefined,
+            page: page,
+            page_size: pageSize,
+          })
+        );
+      }
     }
   };
 
@@ -104,10 +143,16 @@ export const useOverview = () => {
     filmLoading,
     createEntityModal,
     setCreateEntityModal,
+    createAssetModal,
+    setCreateAssetModal,
     createTaskModal,
     setCreateTaskModal,
+    createGlobalTaskModal,
+    setCreateGlobalTaskModal,
     handleCreateEntityModal,
+    handleCreateAssetModal,
     handleCreateTaskModal,
+    handleCreateGlobalTaskModal,
     handleAddUserTaskModal,
     addUserTaskModal,
     setAddUserTaskModal,
@@ -136,5 +181,14 @@ export const useOverview = () => {
     setTypeId,
     assigneeUsers,
     entityResults,
+    assetResults,
+    assetLoading,
+    assetError,
+    variationsResults,
+    variationsLoading,
+    variationsError,
+    allVariationsResults,
+    allVariationsLoading,
+    allVariationsError,
   };
 };

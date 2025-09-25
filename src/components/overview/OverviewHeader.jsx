@@ -22,6 +22,7 @@ const OverviewHeader = ({
   selectedProject,
   entities,
   openCreateEntity,
+  openCreateAsset,
   resizeTableItems,
   tableItemsSize,
   showMeta,
@@ -37,6 +38,7 @@ const OverviewHeader = ({
   filterByUser,
 }) => {
   const [entType, setEntType] = useState({ id: 3, name: "All" });
+  const [showMobileEntFilters, setShowMobileEntFilters] = useState(false);
 
   // console.log(selectedEntType);
 
@@ -45,15 +47,19 @@ const OverviewHeader = ({
     setEntType(type);
   };
 
+  useEffect(() => {
+    console.log(entType.name);
+  }, [entType]);
   return (
     <div
-      className={`h-[50px] radius px-[10px] py-[5px] bg-[var(--overview-color-one)] flex items-center gap-2 justify-between`}
-      style={{
-        width: showPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
-      }}
+      className={`w-full h-[50px] radius px-[10px] py-[5px] bg-[var(--overview-color-one)] flex items-center gap-2 justify-between`}
+      // style={{
+      //   width: showPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
+      // }}
     >
       {/* TODO PROJECTS ENTITIES EPISODE SELECT  */}
-      <div className="w-[155px] shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+      <div className="w-[155px] shrink-0 h-full xl:flex hidden items-center gap-[5px] p-[5px] text-white radius ">
+        {/* projects  */}
         <TheDropDown
           init={selectedProject.name ? selectedProject.name : "projects"}
           items={projects.map((project) => {
@@ -61,6 +67,7 @@ const OverviewHeader = ({
           })}
           funcAfter={selectProject}
         />
+        {/* ent types  */}
         <TheDropDown
           init={selectedEntType}
           items={
@@ -74,18 +81,19 @@ const OverviewHeader = ({
           width={"w-[120px]"}
           funcAfter={setType}
         />
-        {entType?.name !== "Episodes" && (
+        {entType?.name !== "Episodes" && entType?.name !== "Assets" && (
           <TheDropDown
-            init={"Episodes"}
-            items={entities.map((entity) => {
-              return { id: entity?.id, name: entity?.name };
-            })}
-            width={"w-[100px]"}
+            init="Episodes"
+            items={entities.map((entity) => ({
+              id: entity?.id,
+              name: entity?.name,
+            }))}
+            width="w-[120px]"
           />
         )}
 
         {/* TODO CREATE Entity  */}
-        {showPreview && (
+        {selectedEntType !== "Assets" ? (
           <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
             <TheButton
               cClass="flex items-center justify-between gap-2 h-regular"
@@ -95,8 +103,17 @@ const OverviewHeader = ({
               <span>+</span>
             </TheButton>
           </div>
+        ) : (
+          <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+            <TheButton
+              cClass="flex items-center justify-between gap-2 h-regular"
+              onClick={openCreateAsset}
+            >
+              <span>Create Asset</span>
+              <span>+</span>
+            </TheButton>
+          </div>
         )}
-
         {/* Assign to me  */}
         <TheIcon
           onClick={() => filterByUser()}
@@ -106,30 +123,33 @@ const OverviewHeader = ({
         >
           <IoIosCheckboxOutline />
         </TheIcon>
-      </div>
 
-      {/* TODO SERCH AND FILTERS  */}
-      {showPreview && (
-        <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
-          {/* Search  */}
-          <TheSearch
-            placeHolder="Search.."
-            onChange={searchEntity}
-            value={searchItem}
-          />
-          {/* small filter  */}
-          {/* <TheIcon onClick={() => {}}>
+        {/* TODO SERCH AND FILTERS  */}
+        {showPreview && (
+          <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+            {/* Search  */}
+            <TheSearch
+              placeHolder="Search.."
+              onChange={searchEntity}
+              value={searchItem}
+            />
+            {/* small filter  */}
+            {/* <TheIcon onClick={() => {}}>
             <HiFilter />
           </TheIcon> */}
-          {/* advance filter  */}
-          {/* <TheIcon onClick={() => {}}>
+            {/* advance filter  */}
+            {/* <TheIcon onClick={() => {}}>
             <FaFilter />
           </TheIcon> */}
-          {/* <TheSavedFiltersDropDown width={"w-[160px]"} /> */}
-        </div>
-      )}
+            {/* <TheSavedFiltersDropDown width={"w-[160px]"} /> */}
+          </div>
+        )}
+      </div>
+
+      {/* TODO PROJECTS ENTITIES EPISODE SELECT ON MOBILE VIEW  */}
+
       {/* TODO WIDGETS AND CREATE   ENTITY  */}
-      <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius">
+      <div className="w-fit shrink-0 h-full flex items-center gap-[5px] p-[5px] text-white radius ml-auto">
         <TheIcon
           onClick={() => {
             setShowAssignees(!showAssignees);
@@ -142,7 +162,9 @@ const OverviewHeader = ({
           onClick={() => {
             setShowMeta(!showMeta);
           }}
-          cClass="!w-[25px] !h-[25px] !rounded-full"
+          cClass={`!w-[25px] !h-[25px] !rounded-full ${
+            showMeta && "!bg-[var(--overview-color-four)]"
+          }`}
         >
           <FaInfoCircle />
         </TheIcon>

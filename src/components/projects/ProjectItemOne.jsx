@@ -10,7 +10,8 @@ const ProjectItemOne = ({ project, selectProject, selectedProject }) => {
   const handleCheck = (item) => {
     // setIsChecked(!isChecked);
     selectProject(item);
-    navigate("/task-manager/production");
+    // navigate("/task-manager/production");
+    navigate("/overview");
   };
   const projectData = useSelector((state) => state.project);
 

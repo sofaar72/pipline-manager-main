@@ -16,6 +16,7 @@ const UploadFileForm = ({
   openModal,
   setOpenModal,
   createVersion = false,
+  setSuccess,
 }) => {
   // const {} = useVersionFormSchema();
 
@@ -286,11 +287,15 @@ const UploadFileForm = ({
       // });
 
       // ✅ 3. Create version AFTER uploads
-      await handleCreateVersion({
-        task: values.task,
-        note: values.note || null,
-        files: uploadedFileIds, // 🔑 associate uploaded files
-      });
+      await handleCreateVersion(
+        {
+          task: values.task,
+          note: values.note || null,
+          files: uploadedFileIds, // 🔑 associate uploaded files
+        },
+        setOpenModal,
+        setSuccess
+      );
 
       // ✅ 4. Clear items AFTER everything is done
       setWorkfileItem(null);

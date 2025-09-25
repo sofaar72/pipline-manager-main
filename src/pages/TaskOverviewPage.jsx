@@ -17,9 +17,14 @@ import OnlyCreateTaskModal from "../components/overview/OnlyCreateTaskModal";
 import Loading from "../components/golbals/Loading";
 import { ToastContainer } from "react-toastify";
 import AddUserToTaskForm from "../components/overview/AddUserToTaskForm";
+import CreateAssetForm from "../components/overview/CreateAssetForm";
+import CreateAssetModal from "../components/overview/table/CreateAssetModal";
+import { useMediaQuery } from "react-responsive";
+import OverviewHeaderMobile from "../components/overview/OverviewHeaderMobile";
 
 const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
+  const isSmallView = useMediaQuery({ maxWidth: 1400 });
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
   const {
     fetchAllTasks,
@@ -54,10 +59,16 @@ const TaskOverviewPage = () => {
     filmLoading,
     createEntityModal,
     setCreateEntityModal,
+    createAssetModal,
+    setCreateAssetModal,
     createTaskModal,
     setCreateTaskModal,
+    createGlobalTaskModal,
+    setCreateGlobalTaskModal,
     handleCreateEntityModal,
+    handleCreateAssetModal,
     handleCreateTaskModal,
+    handleCreateGlobalTaskModal,
     setTableItemsSize,
     tableItemsSize,
     resizeTableItems,
@@ -86,6 +97,12 @@ const TaskOverviewPage = () => {
     handleAddUserTaskModal,
     assigneeUsers,
     entityResults,
+    assetResults,
+    assetLoading,
+    assetError,
+    allVariationsResults,
+    allVariationsLoading,
+    allVariationsError,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -159,7 +176,11 @@ const TaskOverviewPage = () => {
 
   // // Additional effect to ensure entities are loaded if we have both project and type
   useEffect(() => {
-    if (selectedProject && selectedEntType && (!films || !films.results)) {
+    if (
+      selectedProject &&
+      selectedEntType &&
+      (!films || !films.results || assetResults)
+    ) {
       fetchEntities();
     }
   }, [selectedProject, selectedEntType]);
@@ -221,8 +242,14 @@ const TaskOverviewPage = () => {
   };
 
   // useEffect(() => {
-  //   console.log(selectedTasksOutside);
-  // }, [selectedTasksOutside]);
+  //   console.log(assetResults);
+  // }, [assetResults]);
+
+  useEffect(() => {
+    if (selectedTasksOutside.length > 0) {
+      // hidePrev();
+    }
+  }, [selectedTasksOutside]);
 
   useEffect(() => {
     if (!showPreview.show) {
@@ -243,25 +270,25 @@ const TaskOverviewPage = () => {
   }, [searchItem]);
 
   // CLose preview by clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      // if preview is hidden, do nothing
-      if (showPreview.show) return;
+  // useEffect(() => {
+  //   const handleClickOutside = (e) => {
+  //     // if preview is hidden, do nothing
+  //     if (showPreview.show) return;
 
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target) &&
-        !isResizing.current
-      ) {
-        hidePrev();
-      }
-    };
+  //     if (
+  //       wrapperRef.current &&
+  //       !wrapperRef.current.contains(e.target) &&
+  //       !isResizing.current
+  //     ) {
+  //       hidePrev();
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [wrapperRef, isResizing, showPreview.show]);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [wrapperRef, isResizing, showPreview.show]);
 
   // FETCH TASKS
   useEffect(() => {
@@ -275,6 +302,7 @@ const TaskOverviewPage = () => {
       setTaskId(taskResults[0]?.id);
       fetchAllVersions(taskResults[0]?.id);
     }
+    console.log(taskResults);
   }, [taskResults]);
 
   useEffect(() => {
@@ -298,46 +326,89 @@ const TaskOverviewPage = () => {
     }
   }, [versionResults]);
 
+  // ADD GLOBAL TASK
+  // const addGlobTask = () => {
+  //   setCreateGlobalTaskModal(true);
+  // };
+
+  // useEffect(() => {
+  //   console.log(entityId);
+  // }, [entityId]);
+
+  // hide the show modal
+  useEffect(() => {
+    hidePrev();
+  }, [allVariationsResults, films]);
+
   return (
     <LayoutOne>
       <ToastContainer style={{ zIndex: 999999999999999 }} />
       <div className="w-full h-full flex gap-4 p-4 relative radius overflow-hidden">
         {/* OVERVIEW PART */}
         <div
-          className={`flex-1 h-full p-[10px] text-white transition flex flex-col gap-[10px]`}
+          className={`w-full flex-1 h-full  text-white transition flex flex-col gap-[10px]`}
         >
-          <OverviewHeader
-            projects={projects?.results || []}
-            selectProject={selectProject}
-            selectedProject={selectedProject}
-            entities={episodes?.results || []}
-            openCreateEntity={handleCreateEntityModal}
-            resizeTableItems={resizeTableItems}
-            tableItemsSize={tableItemsSize}
-            setShowMeta={setShowMeta}
-            showMeta={showMeta}
-            setShowAssignees={setShowAssignees}
-            showAssignees={showAssignees}
-            setSelectedEntType={setSelectedEntType}
-            selectedEntType={selectedEntType}
-            showPreview={showPreview.show}
-            previewWidth={previewWidth}
-            searchEntity={searchEntity}
-            searchItem={searchItem}
-          />
+          {isSmallView || !showPreview.show ? (
+            <OverviewHeaderMobile
+              projects={projects?.results || []}
+              selectProject={selectProject}
+              selectedProject={selectedProject}
+              entities={episodes?.results || []}
+              openCreateEntity={handleCreateEntityModal}
+              openCreateAsset={handleCreateAssetModal}
+              resizeTableItems={resizeTableItems}
+              tableItemsSize={tableItemsSize}
+              setShowMeta={setShowMeta}
+              showMeta={showMeta}
+              setShowAssignees={setShowAssignees}
+              showAssignees={showAssignees}
+              setSelectedEntType={setSelectedEntType}
+              selectedEntType={selectedEntType}
+              showPreview={showPreview.show}
+              previewWidth={previewWidth}
+              searchEntity={searchEntity}
+              searchItem={searchItem}
+            />
+          ) : (
+            <OverviewHeader
+              projects={projects?.results || []}
+              selectProject={selectProject}
+              selectedProject={selectedProject}
+              entities={episodes?.results || []}
+              openCreateEntity={handleCreateEntityModal}
+              openCreateAsset={handleCreateAssetModal}
+              resizeTableItems={resizeTableItems}
+              tableItemsSize={tableItemsSize}
+              setShowMeta={setShowMeta}
+              showMeta={showMeta}
+              setShowAssignees={setShowAssignees}
+              showAssignees={showAssignees}
+              setSelectedEntType={setSelectedEntType}
+              selectedEntType={selectedEntType}
+              showPreview={showPreview.show}
+              previewWidth={previewWidth}
+              searchEntity={searchEntity}
+              searchItem={searchItem}
+            />
+          )}
 
           {/* Show loading state when no films data */}
-          {!films ? (
+          {!films || !assetResults || !allVariationsResults ? (
             <div className="flex-1 flex items-center justify-center text-white">
               Loading...
             </div>
-          ) : !films.results || films.results.length === 0 ? (
+          ) : !films.results &&
+            films.results.length === 0 &&
+            !assetResults &&
+            assetResults.length === 0 &&
+            !allVariationsResults &&
+            allVariationsResults.length === 0 ? (
             <div className="flex-1 flex items-center justify-center text-white">
               No entities found. Please select a project or check your data.
             </div>
           ) : (
             <>
-              {filmLoading ? (
+              {filmLoading || assetLoading || allVariationsLoading ? (
                 <div className="w-full h-full flex items-center justify-center">
                   <Loading size={"w-20 h-20"} />
                 </div>
@@ -351,8 +422,17 @@ const TaskOverviewPage = () => {
                   tableItemsSize={tableItemsSize}
                   showMeta={showMeta}
                   showAssignees={showAssignees}
-                  tableItems={films.results}
-                  loading={filmLoading}
+                  selectedEntType={selectedEntType}
+                  tableItems={
+                    selectedEntType === "Assets"
+                      ? allVariationsResults
+                      : films.results
+                  }
+                  loading={
+                    selectedEntType === "Assets"
+                      ? allVariationsLoading
+                      : filmLoading
+                  }
                   collapseWidth={"w-full"}
                   setAddressbar={setAddressbar}
                   showPreview={showPreview.show}
@@ -366,6 +446,8 @@ const TaskOverviewPage = () => {
                   setSelectedTasksOutside={setSelectedTasksOutside}
                   deleteTheTask={deleteTheTask}
                   fetchEntities={fetchEntities}
+                  handleCreateGlobalTaskModal={handleCreateGlobalTaskModal}
+                  isSmallView={isSmallView}
                 />
               )}
             </>
@@ -393,22 +475,24 @@ const TaskOverviewPage = () => {
             className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/30  ${
               showPreview.show ? "translate-x-[100%]" : "translate-x-0"
             }`}
-            // style={{ width: previewWidth }}
+            style={{ width: !showPreview.show && previewWidth }}
             onMouseDown={(e) => {
               if (!isResizing.current) hidePrev();
             }}
           >
             <div
               className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
-              style={{ width: previewWidth }}
+              style={{ width: !showPreview.show && previewWidth }}
               ref={wrapperRef}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {/* Drag handle */}
-              <div
-                className="absolute -left-2 top-0 w-2 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600 z-[100] transition"
-                onMouseDown={startResizing}
-              />
+              {!showPreview.show && (
+                <div
+                  className="absolute -left-2 top-0 w-2 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600 z-[100] transition"
+                  onMouseDown={startResizing}
+                />
+              )}
 
               <PreviewMain
                 addressbar={addressbar}
@@ -429,6 +513,7 @@ const TaskOverviewPage = () => {
                 handleCreateTaskModal={handleCreateTaskModal}
                 clearVersionPreview={clearVersionPreview}
                 taskId={taskId}
+                typeId={typeId}
               />
             </div>
           </div>
@@ -446,7 +531,18 @@ const TaskOverviewPage = () => {
             title={"Create Entity"}
             setCreateModal={setCreateEntityModal}
             selectedProject={selectedProject}
-            fetchData={getTheEntities}
+          />
+        </div>
+      </GlobalPureModal>
+      {/* CREATE ASSET  */}
+      <GlobalPureModal open={createAssetModal} setOpen={setCreateAssetModal}>
+        <div
+          className="w-full max-w-[700px] h-fit"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CreateAssetModal
+            setCreateAssetModal={setCreateAssetModal}
+            selectedProject={selectedProject}
           />
         </div>
       </GlobalPureModal>
@@ -460,6 +556,19 @@ const TaskOverviewPage = () => {
           setCreateModal={setCreateTaskModal}
           createTaskModal={createTaskModal}
           fetchData={fetchEntities}
+        />
+      </GlobalPureModal>
+      {/* CREATE GLOBAL TASK MODAL  */}
+      <GlobalPureModal
+        open={createGlobalTaskModal}
+        setOpen={setCreateGlobalTaskModal}
+      >
+        <CreateTaskForm
+          // id={entityId}
+          selectedProject={selectedProject}
+          setCreateModal={setCreateGlobalTaskModal}
+          fetchData={fetchEntities}
+          selectedEntType={selectedEntType}
         />
       </GlobalPureModal>
 

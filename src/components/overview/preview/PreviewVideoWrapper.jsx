@@ -21,19 +21,11 @@ const PreviewVideoWrapper = ({
   versionId,
   versionPreviewData,
   versionPreviewLoading,
-  fetchVersionPreview,
+  fetchAllVersions,
+  getAllComments,
   taskId,
 }) => {
   const [open, setOpen] = useState(false);
-
-  // FETCH SINGLE VERSION
-  // useEffect(() => {
-  //   console.log(versionId);
-  //   if (versionId && versionId.id) {
-  //     fetchVersionPreview(versionId.id);
-  //   }
-  //   // getAllComments(versionId.id);
-  // }, [versionId]); // Added versionResults to dependencies
 
   return (
     <div
@@ -45,36 +37,6 @@ const PreviewVideoWrapper = ({
       <div className=" w-full h-[40px] flex items-center gap-2 justify-between">
         {/* variations  */}
         <div className="flex items-center gap-1">
-          {!versionLoading &&
-            versionPreviewData &&
-            Object.keys(versionPreviewData).length > 0 && (
-              <TheDropDown
-                cClass="!bg-[var(--overview-color-three)]"
-                init={
-                  versionId && versionId.name
-                    ? "Ver " + versionId.name
-                    : versionResults && versionResults?.versions?.[0]
-                    ? "Ver " + versionResults.versions[0].version
-                    : "Ver 0"
-                }
-                items={
-                  versionResults?.versions?.map((version) => {
-                    return {
-                      id: version.id,
-                      name: version.version, // Just the version number, "Ver" will be added in display
-                    };
-                  }) || []
-                }
-                width={"w-[100px]"}
-                funcAfter={(selectedVersion) => {
-                  setVersionId({
-                    id: selectedVersion.id,
-                    name: selectedVersion.name,
-                  });
-                }}
-              />
-            )}
-
           <TheIcon
             cClass=" !border-none"
             onClick={() => {
@@ -83,6 +45,45 @@ const PreviewVideoWrapper = ({
           >
             <FaPlus />
           </TheIcon>
+          {!versionLoading &&
+            versionPreviewData &&
+            Object.keys(versionPreviewData).length > 0 && (
+              <>
+                <TheDropDown
+                  cClass="!bg-[var(--overview-color-three)]"
+                  init={
+                    versionId && versionId.name
+                      ? "V " + versionId.name
+                      : versionResults && versionResults?.versions?.[0]
+                      ? "V " + versionResults.versions[0].version
+                      : "V"
+                  }
+                  // items={
+                  //   versionResults?.versions?.map((version) => {
+                  //     return {
+                  //       id: version.id,
+                  //       name: version.version, // Just the version number, "Ver" will be added in display
+                  //     };
+                  //   }) || []
+                  // }
+                  items={
+                    versionResults?.versions
+                      ?.filter((v) => v.version !== 0)
+                      .map((v) => ({
+                        id: v.id,
+                        name: v.version,
+                      })) || []
+                  }
+                  width={"w-[100px]"}
+                  funcAfter={(selectedVersion) => {
+                    setVersionId({
+                      id: selectedVersion.id,
+                      name: selectedVersion.name,
+                    });
+                  }}
+                />
+              </>
+            )}
         </div>
         <div className="flex items-center gap-2">
           <TheButton
@@ -123,7 +124,14 @@ const PreviewVideoWrapper = ({
 
       {/* add version modal  */}
       <GlobalPureModal open={open} setOpen={setOpen}>
-        <CreateVersionForm open={open} setOpen={setOpen} taskId={taskId} />
+        <CreateVersionForm
+          open={open}
+          setOpen={setOpen}
+          taskId={taskId}
+          fetchAllVersions={fetchAllVersions}
+          getAllComments={getAllComments}
+          versionId={versionId}
+        />
       </GlobalPureModal>
     </div>
   );

@@ -21,6 +21,10 @@ const OnlyCreateMultiTaskModal = ({
 }) => {
   const { addTask, createTaskLoading, taskSuccess } = useTasks();
 
+  useEffect(() => {
+    console.log(entityIdies);
+  }, [entityIdies]);
+
   // const create = async () => {
   //   if (!entityIdies.length) return;
 
@@ -48,11 +52,12 @@ const OnlyCreateMultiTaskModal = ({
     try {
       // Collect promises for all addTask calls
       const promises = entityIdies.map((ent) => {
+        // console.log(ent);
         const newData = {
-          type: typeId,
+          type: ent.type,
           parent_type: parentType,
           status,
-          parent: ent,
+          parent: ent.entId,
         };
 
         // make sure addTask returns a Promise

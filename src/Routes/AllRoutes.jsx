@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
   useParams,
@@ -47,21 +47,29 @@ const AllRoutes = () => {
       <Router>
         <Routes>
           {/* Public routes - no permissions needed */}
-          <Route path="/" element={<HomePage />} />
+
+          <Route
+            path="/"
+            element={
+              // <PrivateRoute>
+              <HomePage />
+              // </PrivateRoute>
+            }
+          />
           <Route
             path="/login"
             element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
+              // <PublicRoute>
+              <LoginPage />
+              // </PublicRoute>
             }
           />
           <Route
             path="/register"
             element={
-              <PublicRoute>
-                <RegisterPage />
-              </PublicRoute>
+              // <PublicRoute>
+              <RegisterPage />
+              // </PublicRoute>
             }
           />
 
@@ -70,14 +78,14 @@ const AllRoutes = () => {
             path="/projects"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.VIEW_PROJECTS}
                   fallback={
                     <UnauthorizedPage message="You need project viewing permissions to access this page." />
                   }
-                >
-                  <ProjectsPage />
-                </PermissionGuard>
+                > */}
+                <ProjectsPage />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           >
@@ -85,14 +93,14 @@ const AllRoutes = () => {
               path="create"
               element={
                 <PrivateRoute>
-                  <PermissionGuard
+                  {/* <PermissionGuard
                     permission={PERMISSIONS.CREATE_PROJECT}
                     fallback={
                       <UnauthorizedPage message="You need project creation permissions to access this page." />
                     }
-                  >
-                    <CreateProjectPage />
-                  </PermissionGuard>
+                  > */}
+                  <CreateProjectPage />
+                  {/* </PermissionGuard> */}
                 </PrivateRoute>
               }
             />
@@ -100,14 +108,14 @@ const AllRoutes = () => {
               path="select"
               element={
                 <PrivateRoute>
-                  <PermissionGuard
+                  {/* <PermissionGuard
                     permission={PERMISSIONS.VIEW_PROJECTS}
                     fallback={
                       <UnauthorizedPage message="You need project viewing permissions to access this page." />
                     }
-                  >
-                    <SelectProjectPage />
-                  </PermissionGuard>
+                  > */}
+                  <SelectProjectPage />
+                  {/* </PermissionGuard> */}
                 </PrivateRoute>
               }
             />
@@ -118,14 +126,14 @@ const AllRoutes = () => {
             path="/register-configs"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.MANAGE_SETTINGS}
                   fallback={
                     <UnauthorizedPage message="You need settings management permissions to access this page." />
                   }
-                >
-                  <EmptyPage title="Register Configs Page" />
-                </PermissionGuard>
+                > */}
+                <EmptyPage title="Register Configs Page" />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />
@@ -134,14 +142,14 @@ const AllRoutes = () => {
             path="/settings"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.MANAGE_SETTINGS}
                   fallback={
                     <UnauthorizedPage message="You need settings management permissions to access this page." />
                   }
-                >
-                  <EmptyPage title="Settings Page" />
-                </PermissionGuard>
+                > */}
+                <EmptyPage title="Settings Page" />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />
@@ -150,48 +158,34 @@ const AllRoutes = () => {
             path="/dashboard"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.VIEW_ANALYTICS}
                   fallback={
                     <UnauthorizedPage message="You need analytics viewing permissions to access this page." />
                   }
-                >
-                  <EmptyPage title="Dashboard Page" />
-                </PermissionGuard>
+                > */}
+                <EmptyPage title="Dashboard Page" />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />
 
           {/* User management - requires VIEW_USERS permission */}
-          <Route
-            path="/users"
-            element={
-              <PrivateRoute>
-                <PermissionGuard
-                  permission={PERMISSIONS.VIEW_USERS}
-                  fallback={
-                    <UnauthorizedPage message="You need user viewing permissions to access this page." />
-                  }
-                >
-                  <UsersPage />
-                </PermissionGuard>
-              </PrivateRoute>
-            }
-          />
+          <Route path="/users" element={<UsersPage />} />
 
           {/* Overview - requires content viewing permissions */}
           <Route
             path="/overview"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.VIEW_CONTENT}
                   fallback={
                     <UnauthorizedPage message="You need content viewing permissions to access this page." />
                   }
-                >
-                  <TaskOverviewPage />
-                </PermissionGuard>
+                > */}
+                <TaskOverviewPage />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />
@@ -201,14 +195,14 @@ const AllRoutes = () => {
             path="/gun-chart"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.VIEW_ANALYTICS}
                   fallback={
                     <UnauthorizedPage message="You need analytics viewing permissions to access this page." />
                   }
-                >
-                  <EmptyPage title="Gun Chart Page" />
-                </PermissionGuard>
+                > */}
+                <EmptyPage title="Gun Chart Page" />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />
@@ -218,14 +212,14 @@ const AllRoutes = () => {
             path="/productivity"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.VIEW_ANALYTICS}
                   fallback={
                     <UnauthorizedPage message="You need analytics viewing permissions to access this page." />
                   }
-                >
-                  <EmptyPage title="Productivity Page" />
-                </PermissionGuard>
+                > */}
+                <EmptyPage title="Productivity Page" />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />
@@ -245,7 +239,7 @@ const AllRoutes = () => {
             path="/file-manager/production"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permissions={[
                     PERMISSIONS.VIEW_CONTENT,
                     PERMISSIONS.EDIT_CONTENT,
@@ -253,9 +247,9 @@ const AllRoutes = () => {
                   fallback={
                     <UnauthorizedPage message="You need content permissions to access the production file manager." />
                   }
-                >
-                  <ProductionTaskManager />
-                </PermissionGuard>
+                > */}
+                <ProductionTaskManager />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           >
@@ -263,7 +257,7 @@ const AllRoutes = () => {
               path=":id"
               element={
                 <PrivateRoute>
-                  <PermissionGuard
+                  {/* <PermissionGuard
                     permissions={[
                       PERMISSIONS.VIEW_CONTENT,
                       PERMISSIONS.EDIT_CONTENT,
@@ -271,9 +265,9 @@ const AllRoutes = () => {
                     fallback={
                       <UnauthorizedPage message="You need content permissions to view these files." />
                     }
-                  >
-                    <FilesContent />
-                  </PermissionGuard>
+                  > */}
+                  <FilesContent />
+                  {/* </PermissionGuard> */}
                 </PrivateRoute>
               }
             />
@@ -284,7 +278,7 @@ const AllRoutes = () => {
             path="/file-manager/assets"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permissions={[
                     PERMISSIONS.VIEW_CONTENT,
                     PERMISSIONS.EDIT_CONTENT,
@@ -292,9 +286,9 @@ const AllRoutes = () => {
                   fallback={
                     <UnauthorizedPage message="You need content permissions to access the assets file manager." />
                   }
-                >
-                  <AssetsTaskManager />
-                </PermissionGuard>
+                > */}
+                <AssetsTaskManager />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           >
@@ -302,7 +296,7 @@ const AllRoutes = () => {
               path=":id"
               element={
                 <PrivateRoute>
-                  <PermissionGuard
+                  {/* <PermissionGuard
                     permissions={[
                       PERMISSIONS.VIEW_CONTENT,
                       PERMISSIONS.EDIT_CONTENT,
@@ -310,9 +304,9 @@ const AllRoutes = () => {
                     fallback={
                       <UnauthorizedPage message="You need content permissions to view these files." />
                     }
-                  >
-                    <FilesContent />
-                  </PermissionGuard>
+                  > */}
+                  <FilesContent />
+                  {/* </PermissionGuard> */}
                 </PrivateRoute>
               }
             />
@@ -323,14 +317,14 @@ const AllRoutes = () => {
             path="/file-manager/preview/:version_id"
             element={
               <PrivateRoute>
-                <PermissionGuard
+                {/* <PermissionGuard
                   permission={PERMISSIONS.VIEW_CONTENT}
                   fallback={
                     <UnauthorizedPage message="You need content viewing permissions to preview files." />
                   }
-                >
-                  <PreviewPage />
-                </PermissionGuard>
+                > */}
+                <PreviewPage />
+                {/* </PermissionGuard> */}
               </PrivateRoute>
             }
           />

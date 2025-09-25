@@ -23,6 +23,8 @@ export const useTableFunctions = ({
   setEditMode,
   loading,
   handleAddUserTaskModal = () => {},
+  handleCreateGlobalTaskModal = () => {},
+  selectedEntType,
 }) => {
   const {
     statusClasses,
@@ -31,7 +33,7 @@ export const useTableFunctions = ({
     DEFAULT_WIDTHS,
     dynamicDepartments,
     REAL_DATA,
-  } = useTableData({ tableItems });
+  } = useTableData({ tableItems, selectedEntType });
 
   // Initialize with REAL_DATA instead of SAMPLE_DATA
   const [data, setData] = useState(REAL_DATA);
@@ -81,8 +83,10 @@ export const useTableFunctions = ({
                 } bg-[var(--overview-color-three)]/20 object-contain aspect-[16/9] object-left`}
                 alt="thumb"
               />
-              <div className="flex flex-col">
-                <div className="font-[500] h-lg">{r.name}</div>
+              <div className="flex flex-col overflow-hidden">
+                <div className="font-[500] h-lg">
+                  {r.name.length > 12 ? r.name.slice(0, 12) + "..." : r.name}
+                </div>
               </div>
             </div>
           );
@@ -123,6 +127,7 @@ export const useTableFunctions = ({
     const deptCols = dynamicDepartments.map((dept) => ({
       id: dept.name,
       type_id: dept.id,
+      short_name: dept.short_name,
       header: dept.name,
       cell: ({ row }) => {
         const val = row?.original?.departments?.[dept.name];
@@ -130,7 +135,7 @@ export const useTableFunctions = ({
         // console.log(val);
         // console.log(row?.original?.departments);
         // console.log(val);
-        if (!val || !val.status || !row.original.tasks) {
+        if (!val || !val.status.name || !row.original.tasks) {
           return (
             <div className="flex items-center justify-center text-gray-400">
               No data
@@ -139,8 +144,8 @@ export const useTableFunctions = ({
         }
 
         const { className, style } = statusClasses(
-          val?.status,
-          val?.type?.color
+          val?.status?.name,
+          val?.status?.color
         );
         return (
           <div
@@ -158,7 +163,7 @@ export const useTableFunctions = ({
               } h-regular font-[500] flex items-center justify-center text-center text-white ${className}`}
               style={style}
             >
-              {val?.status || "No Status"}
+              {val?.status?.name || "No Status"}
             </div>
 
             {showAssignees && val?.assignees?.length > 0 && (
@@ -207,11 +212,32 @@ export const useTableFunctions = ({
       type: "tasks",
     }));
 
+    const addTask = {
+      id: "add_task",
+      header: () => {
+        return (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCreateGlobalTaskModal();
+            }}
+            className="flex items-center w-full  h-full h-regular gap-2 cursor-pointer"
+          >
+            <span>Add Task</span>
+            <FaPlus />
+          </button>
+        );
+      },
+      cell: () => {
+        return null;
+      },
+      type: "tasks",
+    };
+
     // 3️⃣ Combine base + dynamic department columns
-    const allCols = [...base, ...deptCols];
-    return showMeta
-      ? allCols
-      : allCols.filter((col) => col.type.name !== "meta");
+    const allCols = [...base, ...deptCols, addTask];
+
+    return showMeta ? allCols : allCols.filter((col) => col.type !== "meta");
   }, [
     // Fixed dependency array - removed nested arrays
     REAL_DATA,
@@ -320,7 +346,9 @@ export const useTableFunctions = ({
     }
 
     // Meta data columns → fixed between 100–150
-    if (["episode", "duration", "deadline", "other"].includes(col?.id)) {
+    if (
+      ["episode", "duration", "deadline", "other", "add_task"].includes(col?.id)
+    ) {
       return 100; // will be clamped in resize between 100–150
     }
 

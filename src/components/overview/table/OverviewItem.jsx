@@ -71,7 +71,8 @@ const OverviewItem = ({
       row: { id: rowId, original },
     } = cell;
 
-    setTypeId(cell.column.columnDef.type_id);
+    const typeId = cell.column.columnDef.type_id;
+    setTypeId(typeId);
 
     if (!validCells.includes(cellId) || editMode) return;
 
@@ -90,7 +91,8 @@ const OverviewItem = ({
           allRows,
           isShiftClick,
           isCtrlClick,
-          original?.id // <- pass entityId
+          original?.id, // <- pass entityId
+          typeId // Pass typeId here
         )
       : selectedMultipleTasks(
           cellId,
@@ -99,11 +101,13 @@ const OverviewItem = ({
           allRows,
           isShiftClick,
           isCtrlClick,
-          original?.id
+          original?.id,
+          typeId // Pass typeId here
         );
 
     // Only show preview for normal clicks (no modifiers)
     if (!isShiftClick && !isCtrlClick && shouldShowPreview) {
+      // console.log(cell.column.columnDef.id);
       showPreview(
         e,
         cellId,
@@ -111,7 +115,7 @@ const OverviewItem = ({
         original?.name,
         cell.id,
         original?.id,
-        cell?.column?.columnDef.header
+        cell?.column?.columnDef.id
       );
     }
 
@@ -122,10 +126,18 @@ const OverviewItem = ({
     }
   };
 
+  const visibleCells = row.getVisibleCells();
+  const nontaskCells = visibleCells.filter(
+    (c) => !validCells.includes(c.column.id)
+  );
+  const taskCells = visibleCells.filter((c) =>
+    validCells.includes(c.column.id)
+  );
+
   return (
     <div
       key={item.id}
-      className={`grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg ${
+      className={`w-full grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg ${
         !tableItemsSize ? "h-[40px]" : "h-[120px]"
       } shrink-0 radius overflow-hidden cursor-pointer ${
         isSelected
@@ -135,11 +147,11 @@ const OverviewItem = ({
       style={{
         gridTemplateColumns,
         userSelect: editMode ? "none" : "auto",
-        width: theShowPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
+        // width: theShowPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
       }}
       onMouseUp={taskHandleMouseUp}
     >
-      {row.getVisibleCells().map((cell) => {
+      {visibleCells.map((cell) => {
         const isValidTaskCell = validCells.includes(cell?.column.id);
 
         const hoverEffect =
@@ -160,7 +172,10 @@ const OverviewItem = ({
             key={cell.id}
             className={`px-0 ${hoverEffect} ${isActive} ${
               cell.column.id !== "entity" &&
-              "h-full flex items-center justify-center border-l border-r border-[var(--overview-color-three)]/50 px-2"
+              `h-full flex items-center justify-center ${
+                !cell.id.includes("add_task") &&
+                "border-l border-r border-[var(--overview-color-three)]/50"
+              }  px-2`
             } ${isValidTaskCell ? "select-none" : ""}`} // Prevent text selection on task cells
             onClick={(e) => handleCellClick(e, cell)}
             onContextMenu={(e) => {

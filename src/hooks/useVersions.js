@@ -62,11 +62,16 @@ export const useVersions = () => {
     setActiveVersion(versionId);
   };
 
-  const createNewVersion = async (data, closeModal = () => {}) => {
+  const createNewVersion = async (
+    data,
+    closeModal = () => {},
+    setSuccess = () => {}
+  ) => {
     dispatch(createVersion(data)).then((res) => {
       if (res.payload) {
         // setTimeout(() => {
-        //   // closeModal();
+        closeModal();
+        setSuccess(true);
         //   fetchSingleVersionPreview(res.payload.id);
         // }, 1000);
       }

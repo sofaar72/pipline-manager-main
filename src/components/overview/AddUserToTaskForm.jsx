@@ -45,6 +45,7 @@ const AddUserToTaskForm = ({
   const [checked, setChecked] = useState(false);
   const [taskTypes, setTaskTypes] = useState([]);
   const [assignees, setAssignees] = useState([]);
+  const [success, setSuccess] = useState(false);
 
   const submitForm = (values) => {
     // console.log(id);
@@ -56,7 +57,7 @@ const AddUserToTaskForm = ({
       status: 540,
     };
 
-    updateTheTask(taskId, newData, setCreateModal);
+    updateTheTask(taskId, newData, setCreateModal, setSuccess);
   };
 
   // fetch Types
@@ -90,8 +91,10 @@ const AddUserToTaskForm = ({
   }, [userResults]);
 
   useEffect(() => {
-    fetchData();
-  }, [taskUpdateSuccess]);
+    if (success) {
+      fetchData();
+    }
+  }, [success]);
 
   return (
     <>

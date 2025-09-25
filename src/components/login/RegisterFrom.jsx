@@ -42,7 +42,7 @@ const RegisterFrom = () => {
   // const animationData = "/lottie/ghost.json";
 
   return (
-    <div className="basis-1/3 max-w-[600px] h-full flex items-center justify-center relative">
+    <div className="w-[600px] max-w-[600px] h-full flex items-center justify-center relative">
       <div className="absolute top-[100px] right-1/2 translate-x-1/2 ">
         {/* <Lottie animationData={animationData} loop={true} /> */}
       </div>

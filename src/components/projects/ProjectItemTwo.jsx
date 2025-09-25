@@ -9,7 +9,8 @@ const ProjectItemTwo = ({ project, selectProject, selectedProject }) => {
 
   const handleSelectProject = (item) => {
     selectProject(item);
-    navigate("/task-manager/production");
+    // navigate("/task-manager/production");
+    navigate("/overview");
   };
 
   // console.log(selectedProject.id, project.id);

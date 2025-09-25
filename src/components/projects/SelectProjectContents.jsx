@@ -58,7 +58,8 @@ const SelectProjectContents = () => {
   const navigate = useNavigate();
 
   const goToFileManager = () => {
-    navigate("/task-manager/production/");
+    // navigate("/task-manager/production/");
+    navigate("/overview/");
   };
 
   return (
@@ -77,7 +78,7 @@ const SelectProjectContents = () => {
             height="h-[40px]"
           >
             <span className="text-[12px] font-semibold text-white">
-              File Manager
+              Overview
             </span>
           </CbuttonOne>
 
@@ -125,14 +126,14 @@ const SelectProjectContents = () => {
         </div>
         {/* scrollable projects  */}
         <div
-          className={`w-full h-full grow-[670px] flex-1 shrink-0 overflow-hidden bg-[var(--select-project-header)] radius p-4`}
+          className={`w-full h-full grow-[670px] flex-1 shrink-0 overflow-hidden bg-[var(--select-project-header)] radius p-4 overflow-y-auto`}
         >
           <motion.div
             key={viewType} // 🔥 This triggers animation on Grid/List switch
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className={`w-full h-[690px] transition flex-col gap-4 overflow-y-auto ${
+            className={`w-full flex-1 transition flex-col gap-4  ${
               viewType === "List" ? "flex" : "grid grid-cols-3 gap-4"
             }`}
           >

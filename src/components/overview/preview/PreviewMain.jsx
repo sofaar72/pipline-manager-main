@@ -20,6 +20,7 @@ const PreviewMain = ({
   versionLoading,
   versionResults,
   fetchVersionPreview,
+
   versionPreviewData,
   versionPreviewLoading,
   versionId,
@@ -27,8 +28,10 @@ const PreviewMain = ({
   handleCreateTaskModal,
   clearVersionPreview,
   taskId,
+  typeId,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
+
   const {
     getAllComments,
     getAllCommentReplies,
@@ -50,6 +53,12 @@ const PreviewMain = ({
   //     fetchAllVersions(taskResults[0]?.id, setVersionId);
   //   }
   // }, [taskResults]);
+
+  useEffect(() => {
+    if (taskResults) {
+      console.log(taskResults);
+    }
+  }, [taskResults]);
 
   // FETCH SINGLE VERSION
   useEffect(() => {
@@ -95,27 +104,30 @@ const PreviewMain = ({
             versionResults={versionResults}
             versionPreviewData={versionPreviewData}
             versionPreviewLoading={versionPreviewLoading}
-            fetchVersionPreview={fetchVersionPreview}
+            fetchAllVersions={fetchAllVersions}
+            getAllComments={getAllComments}
             taskId={taskId}
           />
 
-          <PreviewFilesAndComments
-            switcher={switcher}
-            setSwitcher={setSwitcher}
-            versionPreviewData={versionPreviewData}
-            comments={comments}
-            sendComment={sendTheComment}
-            createCommentLoading={createLoading}
-            versionId={versionId}
-            createResult={createResult}
-            getAllComments={getAllComments}
-            getAllCommentReplies={getAllCommentReplies}
-            taskId={taskId}
-            deleteCommentData={deleteCommentData}
-            deleteComment={deleteTheComment}
-            deleteLoading={deleteLoading}
-            deleteError={deleteError}
-          />
+          {Object.keys(versionPreviewData).length !== 0 && (
+            <PreviewFilesAndComments
+              switcher={switcher}
+              setSwitcher={setSwitcher}
+              versionPreviewData={versionPreviewData}
+              comments={comments}
+              sendComment={sendTheComment}
+              createCommentLoading={createLoading}
+              versionId={versionId}
+              createResult={createResult}
+              getAllComments={getAllComments}
+              getAllCommentReplies={getAllCommentReplies}
+              taskId={taskId}
+              deleteCommentData={deleteCommentData}
+              deleteComment={deleteTheComment}
+              deleteLoading={deleteLoading}
+              deleteError={deleteError}
+            />
+          )}
         </>
       ) : (
         <PreviewNoTask openCreateTask={handleCreateTaskModal} />

@@ -3,11 +3,76 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron/main.js",
+  "homepage": "./",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "start": "npm run build && electron .",
+    "preview": "vite preview",
+    "format": "prettier --write ./src",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build-win": "npm run build && electron-builder --win",
+    "electron:build-mac": "npm run build && electron-builder --mac",
+    "electron:build-linux": "npm run build && electron-builder --linux",
+    "dist": "npm run build && electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.dreamfarm.pipelinemanager",
+    "productName": "Your App Name",
+    "directories": {
+      "output": "release-builds"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "app",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "publisherName": "Your Company Name",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Your App Name"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png"
+    }
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -39,10 +104,12 @@
     "react-redux": "^9.2.0",
     "react-resizable": "^3.0.5",
     "react-resizable-panels": "^3.0.5",
+    "react-responsive": "^10.0.1",
     "react-router-dom": "^7.6.3",
     "react-toastify": "^11.0.5",
     "react-tooltip": "^5.29.1",
     "swiper": "^11.2.10",
+    "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss": "^4.1.11",
     "tus-js-client": "^4.3.1",
     "use-image": "^1.1.4",
@@ -55,6 +122,10 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "^38.1.2",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

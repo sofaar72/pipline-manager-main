@@ -1,7 +1,11 @@
 // hooks/useAssets.js
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAssets } from "../store/Slices/AssetSlice";
+import {
+  createAssets,
+  fetchAssets,
+  fetchAssetTypes,
+} from "../store/Slices/AssetSlice";
 import { useTasks } from "./useTasks";
 import { useNavigate } from "react-router-dom";
 
@@ -18,30 +22,52 @@ export const useAssets = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 5;
 
-  const { assets, loading, error } = useSelector((state) => state.asset);
+  const { assets, loading, error, createRes, assetTypes } = useSelector(
+    (state) => state.asset
+  );
   const { results = [], total = 0 } = assets || {};
+  const { AssetTypeResults, assetTypeLoading, assetTypeError } =
+    assetTypes || {};
+  const {
+    results: createAssetResults,
+    loading: createAssetLoading,
+    error: createAssetError,
+  } = createRes || {};
   const totalPages = Math.ceil(total / perPage);
 
-  const fetchAllAssets = () => {
+  const fetchAllAssets = (type = null) => {
     const project = localStorage.getItem("project_id");
     if (project) {
       dispatch(
         fetchAssets({
           project: project,
-          type:
-            selectedAssetType === "Episodes"
-              ? "EP"
-              : selectedAssetType === "Sequence"
-              ? "SQ"
-              : selectedAssetType === "Shot"
-              ? "SH"
-              : undefined,
+          type: type ? type : undefined,
           name: search || undefined,
           page: currentPage,
           page_size: perPage,
         })
       );
     }
+  };
+  const fetchAllAssetTypes = () => {
+    dispatch(fetchAssetTypes());
+  };
+
+  const createTheAsset = async (data, setStep, setHead) => {
+    await dispatch(
+      createAssets({
+        ...data,
+      })
+    )
+      .then((res) => {
+        if (res.payload.name) {
+          setStep("2");
+          setHead(res.payload.id);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const navigateToDefaultEntity = () => {
@@ -62,6 +88,10 @@ export const useAssets = () => {
     assetResults: results,
     assetLoading: loading,
     assetError: error,
+    createAssetResults,
+    createAssetLoading,
+    createAssetError,
+    createTheAsset,
     search,
     setSearch,
     currentPage,
@@ -70,6 +100,10 @@ export const useAssets = () => {
     fetchAllAssets,
     fetchAssetTasks,
     selectAssetType,
+    fetchAllAssetTypes,
+    AssetTypeResults,
+    assetTypeLoading,
+    assetTypeError,
     selectedAssetType,
     navigateToDefaultEntity,
   };

@@ -47,6 +47,8 @@ const TheDropDown = ({
 
   const selectHandler = (e, item) => {
     // e.preventDefault();
+    // console.log("selected", item.name);
+
     setSelected(item.name);
     funcAfter(item);
   };
@@ -100,7 +102,7 @@ const TheDropDown = ({
       </MenuButton>
 
       {type === "default" ? (
-        <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col">
+        <MenuItems className="overflow-y-auto max-h-[150px] absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col">
           {items.map((item) => (
             <MenuItem key={item.name}>
               {({ active }) => (
@@ -123,7 +125,7 @@ const TheDropDown = ({
           ))}
         </MenuItems>
       ) : type === "visual" ? (
-        <MenuItems className="overflow-hidden absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col gap-4 px-2 py-2">
+        <MenuItems className="overflow-y-auto max-h-[150px] absolute z-[9999] left-0 z-20 mt-2 w-full !min-w-26 origin-top-right rounded-md bg-primary shadow-lg ring-1 ring-black/5 text-white focus:outline-none flex flex-col gap-4 px-2 py-2">
           {items.map((item) => (
             <MenuItem key={item.name} onClick={(e) => selectVisulHandler()}>
               {({ active }) => (

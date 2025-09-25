@@ -4,6 +4,7 @@
 /* Scrollbar Track */
 ::-webkit-scrollbar {
   width: 10px; /* for vertical scrollbars */
+  height: 10px;
   background: transparent !important;
 }
 

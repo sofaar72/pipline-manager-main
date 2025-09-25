@@ -29,16 +29,23 @@ const OverviewItems = ({
   setTaskType,
   setSelectedTasks,
   selectedMultipleTasks,
-  selectSingleTask, // Add this prop
-  addToSelection, // Add this prop (legacy)
-  handleTaskSelection, // Add this new prop from the hook
+  selectSingleTask,
+  addToSelection,
+  handleTaskSelection,
   typeId,
   setTypeId,
   selectedTasks,
 }) => {
   return (
-    <div className="w-full h-full flex-1 ">
-      <div className="w-full h-full flex flex-col gap-0  overflow-auto pr-[10px] pb-[20px]">
+    <div className="w-full h-[700px] flex-1">
+      <div
+        className="w-full h-full flex flex-col gap-0 pr-[10px] pb-[20px]"
+        style={{
+          // Ensure consistent width with header
+          width: "100%",
+          minWidth: "fit-content",
+        }}
+      >
         {grouped.map((g, gIndex) => (
           <div key={g.groupName}>
             <GroupTitle
@@ -50,9 +57,10 @@ const OverviewItems = ({
             />
 
             {!collapsedGroups[g.groupName] && (
-              <div className="flex flex-col gap-[5px]">
+              <div className="w-full flex flex-col gap-[5px]">
                 {g?.items?.map((item, i) => {
                   const row = rowById.get(item.id);
+
                   if (!row) return null;
                   return (
                     <OverviewItem
@@ -81,10 +89,10 @@ const OverviewItems = ({
                       setTaskType={setTaskType}
                       setSelectedTasks={setSelectedTasks}
                       selectedMultipleTasks={selectedMultipleTasks}
-                      selectSingleTask={selectSingleTask} // Pass the function
-                      addToSelection={addToSelection} // Pass the function (legacy)
-                      handleTaskSelection={handleTaskSelection} // Pass the new main handler
-                      allRows={g?.items} // This allows range selection within the group
+                      selectSingleTask={selectSingleTask}
+                      addToSelection={addToSelection}
+                      handleTaskSelection={handleTaskSelection}
+                      allRows={g?.items}
                       typeId={typeId}
                       setTypeId={setTypeId}
                       selectedTasks={selectedTasks}

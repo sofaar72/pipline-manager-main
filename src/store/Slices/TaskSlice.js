@@ -7,20 +7,17 @@ import { toast } from "react-toastify";
 export const fetchTasks = createAsyncThunk(
   "task/fetchTasks",
   async ({ id, queryParams }, thunkAPI) => {
-    // console.log(queryParams);
     try {
-      // console.log(id);
-      // await new Promise((resolve) => setTimeout(resolve, 200));
       const response = await axiosInstance.get(`/film/${id}/tasks`, {
         params: queryParams,
       });
-
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
     }
   }
 );
+
 // Fetch assets tasks
 export const fetchAssetsTasks = createAsyncThunk(
   "task/fetchAssetsTasks",
@@ -39,23 +36,26 @@ export const fetchAssetsTasks = createAsyncThunk(
   }
 );
 
-// CREATE TASK
-export const createTask = createAsyncThunk("task/createTask", async (data) => {
-  try {
-    const response = await axiosInstance.post(`/tasks/`, data);
+// CREATE TASK - FIXED: Added thunkAPI parameter
+export const createTask = createAsyncThunk(
+  "task/createTask",
+  async (data, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post(`/tasks/`, data);
 
-    if (response.status == 201) {
-      // toast.success("Task Created!");
+      if (response.status == 201) {
+        // toast.success("Task Created!");
+      }
+      return response.data;
+    } catch (error) {
+      toast.error(error.response.data.error || "something went wrong!");
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.error || { error: "Server error" }
+      );
     }
-    return response.data;
-  } catch (error) {
-    // console.log("Error response:", error.response);
-    toast.error(error.response.data.error || "something went wrong!");
-    return thunkAPI.rejectWithValue(
-      error.response?.data?.error || { error: "Server error" }
-    );
   }
-});
+);
+
 // UPDATE TASK
 export const updateTask = createAsyncThunk(
   "task/updateTask",
@@ -66,10 +66,8 @@ export const updateTask = createAsyncThunk(
       if (response.status == 200) {
         toast.success("Task UPDATED!");
       }
-      // Return both the updated task and its ID
       return { id, ...response.data };
     } catch (error) {
-      // console.log("Error response:", error.response);
       toast.error(error.response.data.error || "something went wrong!");
       return thunkAPI.rejectWithValue(
         error.response?.data?.error || { error: "Server error" }
@@ -77,24 +75,34 @@ export const updateTask = createAsyncThunk(
     }
   }
 );
+
 // DELETE TASK
 export const deleteTask = createAsyncThunk(
   "task/deleteTask",
   async ({ id }, thunkAPI) => {
     try {
       const response = await axiosInstance.delete(`/tasks/${id}/`);
-
-      // if (response.status == 204) {
-      //   toast.success("Task REMOVED!");
-      // }
-      // Return both the updated task and its ID
       return { id, ...response.data };
     } catch (error) {
-      // console.log("Error response:", error.response);
       toast.error(error.response.data.error || "something went wrong!");
       return thunkAPI.rejectWithValue(
         error.response?.data?.error || { error: "Server error" }
       );
+    }
+  }
+);
+
+// FETCH TASK STATUSES - FIXED: Now accepts filmId parameter
+export const fetchTaskStatuses = createAsyncThunk(
+  "task/fetchTaskStatuses",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get("/task_status/");
+      if (response.status === 200) {
+      }
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
     }
   }
 );
@@ -117,11 +125,17 @@ const taskSlice = createSlice({
       loading: false,
       error: null,
       success: false,
+      updateResults: {},
     },
     deleteStatus: {
       loading: false,
       error: null,
       success: false,
+    },
+    taskStatuses: {
+      statusesLoading: false,
+      statusesError: null,
+      statusesResults: [],
     },
   },
   reducers: {},
@@ -155,6 +169,7 @@ const taskSlice = createSlice({
         state.tasks.loading = false;
         state.tasks.error = action.payload;
       });
+
     // CREATE TASK
     builder
       .addCase(createTask.pending, (state) => {
@@ -168,14 +183,14 @@ const taskSlice = createSlice({
       })
       .addCase(createTask.rejected, (state, action) => {
         state.createStatus.loading = false;
-        // state.createStatus.error = action.payload.error || "Unknown error";
+        state.createStatus.error = action.payload?.error || "Unknown error";
       });
+
     // UPDATE TASK
     builder
       .addCase(updateTask.pending, (state) => {
         state.updateStatus.loading = true;
         state.updateStatus.error = null;
-        state.updateStatus.success = false;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
         const updatedTask = action.payload;
@@ -189,10 +204,11 @@ const taskSlice = createSlice({
         state.updateStatus.loading = false;
         state.updateStatus.success = true;
         state.updateStatus.error = null;
+        state.updateStatus.updateResults = updatedTask;
       })
       .addCase(updateTask.rejected, (state, action) => {
         state.updateStatus.loading = false;
-        state.updateStatus.error = action.payload.error || "Unknown error";
+        state.updateStatus.error = action.payload?.error || "Unknown error";
         state.updateStatus.success = false;
       });
 
@@ -210,8 +226,23 @@ const taskSlice = createSlice({
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.deleteStatus.loading = false;
-        state.deleteStatus.error = action.payload.error || "Unknown error";
+        state.deleteStatus.error = action.payload?.error || "Unknown error";
         state.deleteStatus.success = false;
+      });
+
+    // FETCH TASK STATUSES
+    builder
+      .addCase(fetchTaskStatuses.pending, (state) => {
+        state.taskStatuses.statusesLoading = true;
+        state.taskStatuses.statusesError = null;
+      })
+      .addCase(fetchTaskStatuses.fulfilled, (state, action) => {
+        state.taskStatuses.statusesLoading = false;
+        state.taskStatuses.statusesResults = action.payload.results;
+      })
+      .addCase(fetchTaskStatuses.rejected, (state, action) => {
+        state.taskStatuses.statusesLoading = false;
+        state.taskStatuses.statusesError = action.payload;
       });
   },
 });

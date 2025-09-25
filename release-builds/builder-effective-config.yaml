@@ -1,0 +1,17 @@
+directories:
+  output: release-builds
+  buildResources: build
+appId: com.company.pipelinemanager
+productName: Pipeline Manager
+files:
+  - filter:
+      - dist/**/*
+      - electron/**/*
+win:
+  target: nsis
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+electronVersion: 38.1.2

@@ -6,18 +6,19 @@ import {
   deleteTask,
   fetchAssetsTasks,
   fetchTasks,
+  fetchTaskStatuses,
   updateTask,
 } from "../store/Slices/TaskSlice";
 import { useVersions } from "./useVersions";
+import { fetchAllUsers } from "../store/Slices/userSlice";
 
 export const useTasks = ({ dataType = "production" } = {}) => {
   const [activeTask, setActiveTask] = useState(null);
   const { fetchAllVersions } = useVersions();
   const dispatch = useDispatch();
 
-  const { tasks, createStatus, updateStatus, deleteStatus } = useSelector(
-    (state) => state.task
-  );
+  const { tasks, createStatus, updateStatus, deleteStatus, taskStatuses } =
+    useSelector((state) => state.task);
   const {
     results: taskResults,
     loading: taskLoading,
@@ -33,12 +34,15 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     success: taskUpdateSuccess,
     loading: updateTaskLoading,
     error: updateTaskError,
+    updateResults,
   } = updateStatus || {};
   const {
     success: taskDeleteSuccess,
     loading: deleteTaskLoading,
     error: deleteTaskError,
   } = deleteStatus || {};
+  const { statusesLoading, statusesError, statusesResults } =
+    taskStatuses || {};
 
   const fetchAllTasks = (entityId, taskType) => {
     if (dataType === "production") {
@@ -73,16 +77,20 @@ export const useTasks = ({ dataType = "production" } = {}) => {
       }
     });
   };
-  const updateTheTask = async (id, taskData, closeModal = () => {}) => {
-    // console.log(taskData);
-    dispatch(updateTask({ id: id, data: { ...taskData } })).then((res) => {
-      if (res.payload) {
-        if (dataType === "production") {
+  const updateTheTask = async (
+    id,
+    taskData,
+    closeModal = () => {},
+    setSuccess = () => {}
+  ) => {
+    dispatch(updateTask({ id: id, data: { ...taskData } }))
+      .then((res) => {
+        if (res.payload) {
+          setSuccess(true);
           closeModal(false);
-        } else {
         }
-      }
-    });
+      })
+      .catch((err) => console.log(err));
   };
 
   const deleteTheTask = async (id, fetch, closeModal = () => {}) => {
@@ -97,6 +105,11 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     });
   };
 
+  // task statuses
+  const fetchAllTaskStatuses = () => {
+    dispatch(fetchTaskStatuses());
+  };
+
   return {
     taskResults,
     taskLoading,
@@ -108,6 +121,7 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     taskUpdateSuccess,
     updateTaskLoading,
     updateTaskError,
+    updateResults,
     taskDeleteSuccess,
     deleteTaskLoading,
     deleteTaskError,
@@ -116,7 +130,10 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     fetchAllTasks,
     updateTheTask,
     deleteTheTask,
-
+    fetchAllTaskStatuses,
+    statusesLoading,
+    statusesError,
+    statusesResults,
     addTask,
     fetchAllAssetsTasks,
   };
