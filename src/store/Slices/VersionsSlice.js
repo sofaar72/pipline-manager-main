@@ -71,6 +71,23 @@ export const updateVersion = createAsyncThunk(
   }
 );
 
+export const fetchOnlyVersions = createAsyncThunk(
+  "task/fetchOnlyVersions",
+  async (queryParams, thunkAPI) => {
+    try {
+      // console.log(id);
+      // await new Promise((resolve) => setTimeout(resolve, 200));
+      const response = await axiosInstance.get(`/versions/`, {
+        params: queryParams,
+      });
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 // Step 2: Slice
 const versionSlice = createSlice({
   name: "version",
@@ -80,6 +97,7 @@ const versionSlice = createSlice({
     versionPreview: { data: {}, loading: false, error: null },
     createVersionData: { data: {}, loading: false, error: null },
     updatedVersion: { data: {}, loading: false, error: null },
+    onlyVersions: { onlyVerRes: {}, onlyVerLoading: false, onlyVerError: null },
   },
   reducers: {
     resetVersionPreview: (state) => {
@@ -115,6 +133,20 @@ const versionSlice = createSlice({
       .addCase(fetchVersionPreview.rejected, (state, action) => {
         state.versionPreview.loading = false;
         state.versionPreview.error = action.payload;
+      });
+    // only verosons
+    builder
+      .addCase(fetchOnlyVersions.pending, (state) => {
+        state.onlyVersions.onlyVerLoading = true;
+        state.onlyVersions.onlyVerError = null;
+      })
+      .addCase(fetchOnlyVersions.fulfilled, (state, action) => {
+        state.onlyVersions.onlyVerLoading = false;
+        state.onlyVersions.onlyVerRes = action.payload; // ✅ Correct path
+      })
+      .addCase(fetchOnlyVersions.rejected, (state, action) => {
+        state.onlyVersions.onlyVerLoading = false;
+        state.onlyVersions.onlyVerError = action.payload;
       });
 
     // create version

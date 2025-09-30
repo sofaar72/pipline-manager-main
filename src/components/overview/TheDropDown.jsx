@@ -88,7 +88,7 @@ const TheDropDown = ({
     <Menu as="div" className="relative inline-block text-left shrink-0">
       <MenuButton
         as={CbuttonTwo}
-        cClass={`${cClass} !h-[35px] bg-[var(--overview-color-two)] ${
+        cClass={`${cClass} h-[35px] bg-[var(--overview-color-two)] ${
           width ? width : "w-[150px]"
         }  p-2 h-lg flex !justify-between`}
       >

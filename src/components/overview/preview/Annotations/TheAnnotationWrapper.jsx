@@ -13,6 +13,7 @@ const TheAnnotationWrapper = ({
   isResizing,
   versionPreviewData,
   setFullScreenOverview,
+  entityValidTaskTypes,
 }) => {
   const {
     videoRef,
@@ -85,6 +86,8 @@ const TheAnnotationWrapper = ({
     getAnnotationLoading,
     clearAnnotations, // Add this function to clear annotations
     setCurrentFrameIndex,
+    isCompare,
+    setIsCompare,
   } = useStageControl({
     containerRef: videoRef,
     frames,
@@ -162,7 +165,7 @@ const TheAnnotationWrapper = ({
 
   const containerClass = isFullScreen
     ? "!fixed top-0 left-0 w-full h-full z-[999999] flex flex-col gap-0 justify-between bg-blue-500 overflow-hidden"
-    : "w-full flex-1 flex flex-col gap-0 justify-between bg-blue-500 relative overflow-hidden";
+    : "w-full flex-1 flex flex-col gap-0 justify-between bg-blue-500 relative ";
 
   if (
     versionPreviewData &&
@@ -268,6 +271,9 @@ const TheAnnotationWrapper = ({
             allPreviews={versionPreviewData.previews}
             setIndex={setIndex}
             index={index}
+            isCompare={isCompare}
+            setIsCompare={setIsCompare}
+            entityValidTaskTypes={entityValidTaskTypes}
           />
         </div>
         {/* )} */}

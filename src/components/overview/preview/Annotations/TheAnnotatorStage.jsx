@@ -116,7 +116,6 @@ const TheAnnotatorStage = ({
 
           {/* Shapes */}
           {currentFrame()?.shapes?.map((shape) => {
-            console.log(shape);
             const shapeId = shape.id;
             const nodeRef = (n) => (shapeRefs.current[shapeId] = n);
 
@@ -280,7 +279,6 @@ const TheAnnotatorStage = ({
               case "text": {
                 const s = denormalizeText(shape);
 
-                console.log(shape);
                 return (
                   <Text
                     ref={nodeRef}

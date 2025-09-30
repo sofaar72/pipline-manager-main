@@ -25,6 +25,7 @@ const PreviewVideoWrapper = ({
   getAllComments,
   taskId,
   setFullScreenOverview,
+  entityValidTaskTypes,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -121,6 +122,7 @@ const PreviewVideoWrapper = ({
           isResizing={isResizing}
           versionPreviewData={versionPreviewData}
           setFullScreenOverview={setFullScreenOverview}
+          entityValidTaskTypes={entityValidTaskTypes}
         />
       )}
 

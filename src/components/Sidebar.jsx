@@ -87,14 +87,14 @@ const Sidebar = () => {
         {/* icons  */}
 
         <div className="w-full h-full  flex-1 flex flex-col items-center gap-[25px] text-white ">
-          {/* <NavLink
+          <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             to={"/dashboard"}
           >
             <FaHome className="w-full h-full" />
-          </NavLink> */}
+          </NavLink>
           <NavLink
             title="Users"
             className={

@@ -30,6 +30,8 @@ import { BiSelection } from "react-icons/bi";
 import { ACTIONS } from "./Actions";
 import TheButton from "../../TheButton";
 import { RiFullscreenLine, RiText } from "react-icons/ri";
+import TheDropDown from "../../TheDropDown";
+import { useVersions } from "../../../../hooks/useVersions";
 
 const TheToolbar = ({
   isLoope,
@@ -54,8 +56,26 @@ const TheToolbar = ({
   prevVideoData,
   setIndex,
   index,
+  isCompare,
+  setIsCompare,
+  entityValidTaskTypes,
 }) => {
   const [openShapes, setOpenShapes] = useState(false);
+  const [selectedEntType, setSelectedEntType] = useState({});
+  const { fetchTheOnlyVersions, onlyVerLoading, onlyVerRes, onlyVerError } =
+    useVersions();
+
+  useEffect(() => {
+    // console.log(entityValidTaskTypes[Object.keys(entityValidTaskTypes)[0]]);
+    setSelectedEntType({
+      id: 0,
+      name: entityValidTaskTypes[Object.keys(entityValidTaskTypes)[0]]?.type
+        .name,
+      taskId:
+        entityValidTaskTypes[Object.keys(entityValidTaskTypes)[0]]?.taskId,
+    });
+    // setSelectedEntType(entityValidTaskTypes)[0])
+  }, [entityValidTaskTypes]);
 
   useEffect(() => {
     // console.log(allPreviews);
@@ -77,6 +97,22 @@ const TheToolbar = ({
     if (index + 1 <= 1) return;
     setIndex(index - 1);
   };
+
+  // useEffect(() => {
+  //   console.log(isCompare);
+  // }, [isCompare]);
+
+  useEffect(() => {
+    if (previewWidth < 900) {
+      setIsCompare(false);
+    }
+  }, [previewWidth]);
+
+  // useEffect(() => {
+  //   if (selectedEntType && selectedEntType.taskId) {
+  //     fetchTheOnlyVersions({ task: selectedEntType.taskId });
+  //   }
+  // }, [selectedEntType]);
 
   return (
     <div className="w-full h-[25px] shrink-0 bg-[#1D1B37] flex justify-between gap-2 text-white">
@@ -103,8 +139,51 @@ const TheToolbar = ({
           </TheIcon>
         </div>
       )}
+      {/* Compare Part  */}
+      {/* Compare Switcher  */}
+      {previewWidth >= 900 && (
+        <TheIcon
+          onClick={() => setIsCompare(!isCompare)}
+          cClass={`!w-[30px] !h-full   !rounded-none !border-none
+          ${
+            isCompare
+              ? "!bg-[var(--overview-color-three)]"
+              : "!bg-[var(--overview-color-two)] "
+          } 
+            `}
+        >
+          <MdCompare />
+        </TheIcon>
+      )}
+
+      {/* Compare tools  */}
+      {isCompare && (
+        // entityValidTaskTypes
+
+        <div className="flex gap-2 items-center">
+          <TheDropDown
+            cClass="!bg-[var(--overview-color-three)] !h-[25px] !bg-transparent"
+            init={Object.keys(entityValidTaskTypes)[0]}
+            items={Object.keys(entityValidTaskTypes).map((item, i) => {
+              return {
+                id: i,
+                name: item,
+              };
+            })}
+            width={"w-[100px]"}
+            funcAfter={(selected) => {
+              setSelectedEntType({
+                id: selected.id,
+                name: selected.name,
+                taskId: entityValidTaskTypes[selected.name].taskId,
+              });
+            }}
+          />
+        </div>
+      )}
+
       {/* select previews  */}
-      <div className="h-full flex items-center gap-2 h-small mx-auto">
+      <div className="h-full flex items-center gap-2 h-small ml-auto">
         {/* arrow left */}
         <span className="h-lg" onClick={() => prevItem()}>
           <IoMdArrowDropleft />

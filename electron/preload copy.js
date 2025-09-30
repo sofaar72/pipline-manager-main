@@ -4,10 +4,6 @@ const Store = require("electron-store");
 const store = new Store();
 
 contextBridge.exposeInMainWorld("electronStore", {
-  sendTcp: (opts) => ipcRenderer.invoke("send-tcp", opts),
-  sendUdp: (opts) => ipcRenderer.invoke("send-udp", opts),
-  sendSerial: (opts) => ipcRenderer.invoke("send-serial", opts),
-
   get: (key) => store.get(key),
   set: (key, value) => store.set(key, value),
   delete: (key) => store.delete(key),

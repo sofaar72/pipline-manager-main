@@ -109,6 +109,7 @@
     "react-router-dom": "^7.6.3",
     "react-toastify": "^11.0.5",
     "react-tooltip": "^5.29.1",
+    "serialport": "^13.0.0",
     "swiper": "^11.2.10",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss": "^4.1.11",

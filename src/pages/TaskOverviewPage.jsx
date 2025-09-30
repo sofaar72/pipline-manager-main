@@ -103,6 +103,8 @@ const TaskOverviewPage = () => {
     allVariationsResults,
     allVariationsLoading,
     allVariationsError,
+    entityValidTaskTypes,
+    setEntityValidTaskTypes,
   } = useOverview();
 
   const [showPreview, setShowPreview] = useState({
@@ -303,7 +305,7 @@ const TaskOverviewPage = () => {
       setTaskId(taskResults[0]?.id);
       fetchAllVersions(taskResults[0]?.id);
     }
-    console.log(taskResults);
+    // console.log(taskResults);
   }, [taskResults]);
 
   useEffect(() => {
@@ -333,13 +335,17 @@ const TaskOverviewPage = () => {
   // };
 
   useEffect(() => {
-    console.log(fullScreenOverView);
+    // console.log(fullScreenOverView);
   }, [entityId]);
 
   // hide the show modal
   useEffect(() => {
     hidePrev();
   }, [allVariationsResults, films]);
+
+  // useEffect(() => {
+  //   console.log(entityValidTaskTypes);
+  // }, [entityValidTaskTypes]);
 
   return (
     <LayoutOne>
@@ -449,6 +455,7 @@ const TaskOverviewPage = () => {
                   fetchEntities={fetchEntities}
                   handleCreateGlobalTaskModal={handleCreateGlobalTaskModal}
                   isSmallView={isSmallView}
+                  setEntityValidTaskTypes={setEntityValidTaskTypes}
                 />
               )}
             </>
@@ -523,6 +530,7 @@ const TaskOverviewPage = () => {
                 taskId={taskId}
                 typeId={typeId}
                 setFullScreenOverview={setFullScreenOverview}
+                entityValidTaskTypes={entityValidTaskTypes}
               />
             </div>
           </div>

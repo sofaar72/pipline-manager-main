@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaDownload } from "react-icons/fa";
 import TheIcon from "../../TheIcon";
 import { MdDelete } from "react-icons/md";
+import { FaCopy } from "react-icons/fa6";
 
 const FileItem = ({
   filename = "File Name",
@@ -16,22 +17,33 @@ const FileItem = ({
   fetchVersionPreview,
   versionId,
 }) => {
-  const testFunc = () => {
-    console.log("test");
+  const [copied, setCopied] = useState(false);
+
+  // ✅ Copy file ID to clipboard
+  const copyFileId = async (e) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(file?.media_id || "");
+      setCopied(true);
+      // Hide popup after 1.5 seconds
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
+
   return (
     <div
       className={`relative w-full h-[30px] radius border border-[var(--overview-color-one)]  ${
         isMasterFile
           ? "bg-[var(--overview-color-three)]/50"
           : "bg-[var(--overview-color-one)]"
-      }  flex gap-10 h-regular text-white/60`}
+      } flex gap-10 h-regular text-white/60`}
     >
       <div className="w-1/2 flex items-center gap-2">
         <span className="px-2 h-full flex items-center" title={file?.name}>
           {file?.name?.length > 30 ? file.name.slice(0, 30) + "..." : file.name}
         </span>
-        {/* the badge  */}
         {isMasterFile && (
           <div className="px-2 py-[2px] h-fit flex items-center radius justify-center bg-[var(--color-purple-normal-light)]">
             Master
@@ -53,12 +65,29 @@ const FileItem = ({
           </div>
         )}
       </div>
+
       <div className="w-[1px] h-full bg-white"></div>
       <span className="px-2 h-full flex items-center">{file.size} KB</span>
 
-      <div className="w-fit flex items-center gap-2 ml-auto pr-2">
-        {/* the download icon  */}
+      <div className="w-fit flex items-center gap-2 ml-auto pr-2 relative">
+        {/* ✅ Copy to clipboard with popup */}
+        <div className="relative">
+          <TheIcon
+            cClass="!border-none !p-0 !h-[20px] !w-[20px] cursor-pointer"
+            onClick={copyFileId}
+          >
+            <FaCopy />
+          </TheIcon>
 
+          {/* Popup */}
+          {copied && (
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-[2px] rounded-md shadow-md whitespace-nowrap">
+              File Id Copied!
+            </div>
+          )}
+        </div>
+
+        {/* Download file */}
         <a
           href={file.download_url}
           target="_blank"
@@ -70,7 +99,8 @@ const FileItem = ({
             <FaDownload />
           </TheIcon>
         </a>
-        {/* delete file  */}
+
+        {/* Delete file */}
         <TheIcon
           cClass="!border-none !p-0 !h-[20px] !w-[20px] cursor-pointer"
           onClick={(e) => {

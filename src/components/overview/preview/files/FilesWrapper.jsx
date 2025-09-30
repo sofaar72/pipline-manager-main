@@ -27,13 +27,17 @@ const FilesWrapper = ({
           checkedFiles={checkedFiles}
           setCheckedFiles={setCheckedFiles}
         />
-        {files && files.length > 0 && (
+        {files && files.length > 0 ? (
           <FilesList
             files={files}
             checkedFiles={checkedFiles}
             fetchVersionPreview={fetchVersionPreview}
             versionId={versionId}
           />
+        ) : (
+          <div className="w-full flex-1 flex items-center justify-center text-white radius bg-[var(--overview-color-three)]/50">
+            No data
+          </div>
         )}
       </div>
       {/* add the upload file modal  */}

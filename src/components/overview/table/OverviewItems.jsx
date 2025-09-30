@@ -35,6 +35,7 @@ const OverviewItems = ({
   typeId,
   setTypeId,
   selectedTasks,
+  setEntityValidTaskTypes,
 }) => {
   return (
     <div className="w-full h-[700px] flex-1">
@@ -96,6 +97,7 @@ const OverviewItems = ({
                       typeId={typeId}
                       setTypeId={setTypeId}
                       selectedTasks={selectedTasks}
+                      setEntityValidTaskTypes={setEntityValidTaskTypes}
                     />
                   );
                 })}

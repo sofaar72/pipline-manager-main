@@ -27,6 +27,7 @@ export const useStageControl = ({
   const [selecting, setSelecting] = useState(false);
   const selectionStart = useRef({ x: 0, y: 0 });
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isCompare, setIsCompare] = useState(false);
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const maxHistory = 5;
@@ -37,12 +38,13 @@ export const useStageControl = ({
   const [annotations, setAnnotations] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    if (containerRef) {
-      // console.log(containerRef.current?.videoWidth);
-      // console.log(containerRef.current?.videoHeight);
-    }
-  }, [isFullScreen]);
+  // useEffect(() => {
+  //   if (containerRef) {
+  //     console.log(containerRef.current?.videoWidth);
+  //     console.log(containerRef.current?.videoHeight);
+  //   }
+  //   console.log(containerRef);
+  // }, [containerRef]);
 
   // SEND ANNOTAIONS EVERY 3 SECONDs
   const {
@@ -67,13 +69,29 @@ export const useStageControl = ({
   };
 
   // ---------- helpers: video size / transform ----------
+  // const getVideoNaturalSize = () => {
+  //   const video = containerRef?.current;
+  //   const vw = (video && video.videoWidth) || stageSize.width || 1;
+  //   const vh = (video && video.videoHeight) || stageSize.height || 1;
+  //   return { vw, vh };
+  // };
   const getVideoNaturalSize = () => {
-    const video = containerRef?.current;
-    const vw = (video && video.videoWidth) || stageSize.width || 1;
-    const vh = (video && video.videoHeight) || stageSize.height || 1;
-    return { vw, vh };
-  };
+    const el = containerRef?.current;
+    if (!el) return { vw: 1, vh: 1 };
 
+    if (el.tagName === "VIDEO") {
+      return {
+        vw: el.videoWidth || 1,
+        vh: el.videoHeight || 1,
+      };
+    } else if (el.tagName === "IMG") {
+      return {
+        vw: el.naturalWidth || 1,
+        vh: el.naturalHeight || 1,
+      };
+    }
+    return { vw: 1, vh: 1 };
+  };
   const getVideoTransform = () => {
     const { vw, vh } = getVideoNaturalSize();
     // protect from zero
@@ -1046,5 +1064,7 @@ export const useStageControl = ({
     annotationResults,
     getAnnotationLoading,
     clearAnnotations, // Export the clearAnnotations function
+    isCompare,
+    setIsCompare,
   };
 };

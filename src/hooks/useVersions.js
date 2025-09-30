@@ -2,6 +2,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import {
+  fetchOnlyVersions,
   fetchTaskVersions,
   fetchVersionPreview,
   resetVersionPreview,
@@ -13,9 +14,8 @@ import { useTasks } from "./useTasks";
 export const useVersions = () => {
   const dispatch = useDispatch();
   const [activeVersion, setActiveVersion] = useState(null);
-  const { versions, versionPreview, createVersionData } = useSelector(
-    (state) => state.version
-  );
+  const { versions, versionPreview, createVersionData, onlyVersions } =
+    useSelector((state) => state.version);
   const {
     results: versionResults = [],
     loading: versionLoading,
@@ -31,6 +31,7 @@ export const useVersions = () => {
     loading: createVersionLoading,
     error: createVersionError,
   } = createVersionData || {};
+  const { onlyVerRes, onlyVerLoading, onlyVerError } = onlyVersions || {};
 
   const fetchAllVersions = (taskId, setVersionId = () => {}) => {
     return dispatch(fetchTaskVersions({ id: taskId }));
@@ -49,6 +50,10 @@ export const useVersions = () => {
     //   console.error("❌ Failed to fetch versions:", err);
     //   throw err;
     // })
+  };
+
+  const fetchTheOnlyVersions = (task) => {
+    return dispatch(fetchOnlyVersions({ task: task }));
   };
 
   const clearVersionPreview = () => {
@@ -111,5 +116,9 @@ export const useVersions = () => {
     createVersionError,
     clearVersionPreview,
     patchVersion,
+    fetchTheOnlyVersions,
+    onlyVerRes,
+    onlyVerLoading,
+    onlyVerError,
   };
 };

@@ -64,6 +64,7 @@ export default function OverviewTable({
   handleCreateGlobalTaskModal,
   selectedEntType,
   isSmallView,
+  setEntityValidTaskTypes,
 }) {
   const [createTasksModal, setCreateTasksModal] = useState(false);
   const [updateTaskModal, setUpdateTasksModal] = useState(false);
@@ -338,6 +339,7 @@ export default function OverviewTable({
                       typeId={typeId}
                       setTypeId={setTypeId}
                       selectedTasks={selectedTasks}
+                      setEntityValidTaskTypes={setEntityValidTaskTypes}
                     />
                   </div>
                 </div>

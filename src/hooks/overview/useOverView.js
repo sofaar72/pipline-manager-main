@@ -21,6 +21,7 @@ export const useOverview = () => {
   const [taskType, setTaskType] = useState("");
   const [taskId, setTaskId] = useState(null);
   const [typeId, setTypeId] = useState(null);
+  const [entityValidTaskTypes, setEntityValidTaskTypes] = useState([]);
 
   const [versionId, setVersionId] = useState(null);
 
@@ -190,5 +191,7 @@ export const useOverview = () => {
     allVariationsResults,
     allVariationsLoading,
     allVariationsError,
+    setEntityValidTaskTypes,
+    entityValidTaskTypes,
   };
 };

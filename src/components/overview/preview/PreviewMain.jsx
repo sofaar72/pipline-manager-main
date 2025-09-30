@@ -30,6 +30,7 @@ const PreviewMain = ({
   taskId,
   typeId,
   setFullScreenOverview,
+  entityValidTaskTypes,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
 
@@ -114,6 +115,7 @@ const PreviewMain = ({
             getAllComments={getAllComments}
             taskId={taskId}
             setFullScreenOverview={setFullScreenOverview}
+            entityValidTaskTypes={entityValidTaskTypes}
           />
 
           {Object.keys(versionPreviewData).length !== 0 && (

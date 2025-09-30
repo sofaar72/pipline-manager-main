@@ -31,6 +31,7 @@ const OverviewItem = ({
   typeId,
   setTypeId,
   selectedTasks,
+  setEntityValidTaskTypes,
 }) => {
   const validCells = [
     "texturing",
@@ -70,6 +71,8 @@ const OverviewItem = ({
       column: { id: cellId, type_id },
       row: { id: rowId, original },
     } = cell;
+
+    setEntityValidTaskTypes(cell.row.original.departments);
 
     const typeId = cell.column.columnDef.type_id;
     setTypeId(typeId);
