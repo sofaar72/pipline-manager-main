@@ -16,6 +16,9 @@ const CommentWrapper = ({
   deleteComment,
   deleteLoading,
   deleteError,
+  updateComment,
+  updateLoading,
+  updateError,
 }) => {
   return (
     <div className="w-full h-full flex-1 flex flex-col gap-[10px]">
@@ -40,6 +43,9 @@ const CommentWrapper = ({
         deleteComment={deleteComment}
         deleteLoading={deleteLoading}
         deleteError={deleteError}
+        updateComment={updateComment}
+        updateLoading={updateLoading}
+        updateError={updateError}
       />
     </div>
   );

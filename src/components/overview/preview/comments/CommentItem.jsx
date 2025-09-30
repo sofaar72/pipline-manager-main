@@ -6,6 +6,8 @@ import CreateComment from "./CreateComment";
 import TheIcon from "../../TheIcon";
 import GlobalPureModal from "../../../golbals/GlobalPureModal";
 import OnlyRemoveCommentModal from "./OnlyRemoveCommentModal";
+import { FaEdit } from "react-icons/fa";
+import CustomInput from "../../CustomInput";
 
 const CommentItem = ({
   comment,
@@ -19,9 +21,18 @@ const CommentItem = ({
   deleteComment,
   deleteLoading,
   deleteError,
+  updateComment,
+  updateLoading,
+  updateError,
 }) => {
   const [replyPart, setReplyPart] = useState(false);
   const [openRemove, setOpenRemove] = useState(false);
+  const [updateMode, setUpdateMode] = useState(false);
+  const [commentInput, setComentInput] = useState(comment.text || "");
+
+  useEffect(() => {
+    setComentInput(comment.text || "");
+  }, [updateMode]);
 
   const convertDate = (date) => {
     const sentDate = new Date(date);
@@ -109,14 +120,56 @@ const CommentItem = ({
           )}
         </div>
 
-        <div className="h-sm">
+        <div className="flex items-center gap-2 h-sm">
+          <TheIcon
+            cClass="border-none"
+            onClick={() => setUpdateMode(!updateMode)}
+          >
+            <FaEdit />
+          </TheIcon>
           <TheIcon cClass="border-none" onClick={openTheRemoveComment}>
             <MdDelete />
           </TheIcon>
         </div>
       </div>
       {/* description  */}
-      {comment?.text && <p className="h-small">{comment.text}</p>}
+      {comment?.text && (
+        <>
+          {updateMode ? (
+            <div className="flex flex-col  gap-2 h-small">
+              <div className="w-full h-fit">
+                <CustomInput
+                  name="comment"
+                  label=""
+                  noLabel
+                  onChange={(e) => setComentInput(e.target.value)}
+                  type="description"
+                  inputClass="w-full !h-[40px]"
+                  value={commentInput}
+                  // handleBlur={handleBlur}
+                  // error={touched.entity_name && errors.entity_name}
+                />
+              </div>
+              <TheButton
+                cClass="!h-[40px] h-small"
+                onClick={() =>
+                  updateComment(
+                    comment.id,
+                    { text: commentInput },
+                    getAllTheComments,
+                    setUpdateMode
+                  )
+                }
+                loading={updateLoading}
+              >
+                update
+              </TheButton>
+            </div>
+          ) : (
+            <p className="h-small">{comment.text}</p>
+          )}
+        </>
+      )}
       <div className="w-full flex justify-end items-center">
         <TheButton
           cClass="flex items-center justify-between gap-2 h-regular !p-2 !bg-black/80 hover:!bg-black !w-fit !h-[11px]"

@@ -51,17 +51,17 @@ const AllRoutes = () => {
           <Route
             path="/"
             element={
-              // <PrivateRoute>
-              <HomePage />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <HomePage />
+              </PrivateRoute>
             }
           />
           <Route
             path="/login"
             element={
-              // <PublicRoute>
-              <LoginPage />
-              // </PublicRoute>
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
             }
           />
           <Route
@@ -171,7 +171,14 @@ const AllRoutes = () => {
           />
 
           {/* User management - requires VIEW_USERS permission */}
-          <Route path="/users" element={<UsersPage />} />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute>
+                <UsersPage />
+              </PrivateRoute>
+            }
+          />
 
           {/* Overview - requires content viewing permissions */}
           <Route

@@ -45,6 +45,21 @@ export const deleteComment = createAsyncThunk(
   }
 );
 
+export const updateComment = createAsyncThunk(
+  "file/updateComment",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.patch(`/comment/${id}/`, data);
+      if (response.status === 200) {
+        toast.success("Comment updated successfully");
+      }
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
+
 export const sendAnnotations = createAsyncThunk(
   "annotation/sendAnnotation",
   async (data, thunkAPI) => {
@@ -92,6 +107,11 @@ const CommentsSlice = createSlice({
     annotationError: false,
     getAnnotationLoading: false,
     getAnnotationError: false,
+    updateComment: {
+      updateLoading: false,
+      updateError: null,
+      updateRes: {},
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -133,6 +153,19 @@ const CommentsSlice = createSlice({
     builder.addCase(deleteComment.rejected, (state, action) => {
       state.deleteLoading = false;
       state.deleteError = action.payload;
+    });
+    // update comment
+    builder.addCase(updateComment.pending, (state) => {
+      state.updateComment.updateLoading = true;
+      state.updateComment.updateError = null;
+    });
+    builder.addCase(updateComment.fulfilled, (state, action) => {
+      state.updateComment.updateLoading = false;
+      state.updateComment.updateRes = action.payload;
+    });
+    builder.addCase(updateComment.rejected, (state, action) => {
+      state.updateComment.updateLoading = true;
+      state.updateComment.updateError = "error";
     });
     // send annotations
     builder.addCase(sendAnnotations.pending, (state) => {

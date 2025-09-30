@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import SearchOne from "./golbals/SearchOne";
 import CbuttonOne from "./golbals/Buttons/CbuttonOne";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../assets/context/AuthContext";
+
 // icons
 import { FaChartPie, FaHome } from "react-icons/fa";
 import { AiFillProduct } from "react-icons/ai";
@@ -35,17 +35,19 @@ const Sidebar = () => {
   const project = useSelector((state) => state.project);
 
   const navigate = useNavigate();
-  // const { logout } = useAuth();
   const { logout } = useUser();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const logoutHandler = async (e) => {
-    // e.preventDefault();
-    await logout();
-    navigate("/login", { replace: true });
+  const logoutHandler = async () => {
+    try {
+      await logout();
+      // Don't navigate manually - PrivateRoute will handle redirect
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   const selectProjectItem = (proj) => {

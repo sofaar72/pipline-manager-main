@@ -115,6 +115,7 @@ const TaskOverviewPage = () => {
   const [activeTask, setActiveTask] = useState({ collId: "", rowId: "" });
   const [previewWidth, setPreviewWidth] = useState(600); // default width
   const isResizing = useRef(false);
+  const [fullScreenOverView, setFullScreenOverview] = useState(false);
 
   const stopResizing = () => {
     isResizing.current = false;
@@ -331,9 +332,9 @@ const TaskOverviewPage = () => {
   //   setCreateGlobalTaskModal(true);
   // };
 
-  // useEffect(() => {
-  //   console.log(entityId);
-  // }, [entityId]);
+  useEffect(() => {
+    console.log(fullScreenOverView);
+  }, [entityId]);
 
   // hide the show modal
   useEffect(() => {
@@ -475,7 +476,14 @@ const TaskOverviewPage = () => {
             className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/30  ${
               showPreview.show ? "translate-x-[100%]" : "translate-x-0"
             }`}
-            style={{ width: !showPreview.show && previewWidth }}
+            style={{
+              width:
+                !showPreview.show && fullScreenOverView
+                  ? "100%"
+                  : fullScreenOverView
+                  ? "100%"
+                  : previewWidth,
+            }}
             onMouseDown={(e) => {
               if (!isResizing.current) hidePrev();
             }}
@@ -514,6 +522,7 @@ const TaskOverviewPage = () => {
                 clearVersionPreview={clearVersionPreview}
                 taskId={taskId}
                 typeId={typeId}
+                setFullScreenOverview={setFullScreenOverview}
               />
             </div>
           </div>

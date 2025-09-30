@@ -12,6 +12,7 @@ const TheAnnotationWrapper = ({
   previewWidth,
   isResizing,
   versionPreviewData,
+  setFullScreenOverview,
 }) => {
   const {
     videoRef,
@@ -73,6 +74,9 @@ const TheAnnotationWrapper = ({
     normalizeLine,
     denormalizeLine,
     normalizedToVideoLine,
+    normalizeText,
+    denormalizeText,
+    normalizedToVideoText,
     handleTransformEnd,
     isPainting,
     fetchAllAnnotations,
@@ -80,6 +84,7 @@ const TheAnnotationWrapper = ({
     annotationResults,
     getAnnotationLoading,
     clearAnnotations, // Add this function to clear annotations
+    setCurrentFrameIndex,
   } = useStageControl({
     containerRef: videoRef,
     frames,
@@ -88,6 +93,10 @@ const TheAnnotationWrapper = ({
     media_id: prevVideoData.media_id,
     prevVideoData,
   });
+
+  useEffect(() => {
+    setFullScreenOverview(isFullScreen);
+  }, [isFullScreen]);
 
   // setvideo url
 
@@ -152,12 +161,8 @@ const TheAnnotationWrapper = ({
   }, [previewWidth]);
 
   const containerClass = isFullScreen
-    ? "fixed top-0 left-0 w-full h-full z-[999999] flex flex-col gap-0 justify-between bg-blue-500 overflow-hidden"
+    ? "!fixed top-0 left-0 w-full h-full z-[999999] flex flex-col gap-0 justify-between bg-blue-500 overflow-hidden"
     : "w-full flex-1 flex flex-col gap-0 justify-between bg-blue-500 relative overflow-hidden";
-
-  useEffect(() => {
-    // console.log(prevVideoData);
-  }, [prevVideoData]);
 
   if (
     versionPreviewData &&
@@ -171,112 +176,58 @@ const TheAnnotationWrapper = ({
           className="w-full flex-1 relative overflow-hidden bg-black"
           style={{ height: `${height}px` }}
         >
-          {prevVideoData.type === "Video" ? (
-            <>
-              <TheVideo
-                ref={videoRef}
-                previewWidth={previewWidth}
-                isMuted={isMuted}
-                isLoope={isLoope}
-                videoUrl={prevVideoData?.url}
-                type={prevVideoData?.type}
-              />
+          <TheVideo
+            ref={videoRef}
+            previewWidth={previewWidth}
+            isMuted={isMuted}
+            isLoope={isLoope}
+            videoUrl={prevVideoData?.url}
+            type={prevVideoData?.type}
+          />
 
-              {getAnnotationLoading ? (
-                <Loading />
-              ) : (
-                <TheAnnotatorStage
-                  stageSize={stageSize}
-                  handleMouseDown={handleMouseDown}
-                  handleMouseMove={handleMouseMove}
-                  handleMouseUp={handleMouseUp}
-                  annotations={annotations}
-                  currentFrameIndex={currentFrameIndex}
-                  selectionRect={selectionRect}
-                  selecting={selecting}
-                  updateShape={updateShape}
-                  deleteSelectedShapes={deleteSelectedShapes}
-                  stageRef={stageRef}
-                  fillColor={fillColor}
-                  action={action}
-                  isDraggable={isDraggable}
-                  transformerRef={transformerRef}
-                  transformActive={transformActive}
-                  handleStageMouseDown={handleStageMouseDown}
-                  handleStageMouseMove={handleStageMouseMove}
-                  handleStageMouseUp={handleStageMouseUp}
-                  isFullScreen={isFullScreen}
-                  getShapesForFrame={getShapesForFrame}
-                  stageToVideoCoords={stageToVideoCoords}
-                  normalizeRect={normalizeRect}
-                  denormalizeRect={denormalizeRect}
-                  normalizedToVideoRect={normalizedToVideoRect}
-                  normalizeCircle={normalizeCircle}
-                  denormalizeCircle={denormalizeCircle}
-                  normalizedToVideoCircle={normalizedToVideoCircle}
-                  normalizeArrow={normalizeArrow}
-                  denormalizeArrow={denormalizeArrow}
-                  normalizedToVideoArrow={normalizedToVideoArrow}
-                  normalizeLine={normalizeLine}
-                  denormalizeLine={denormalizeLine}
-                  normalizedToVideoLine={normalizedToVideoLine}
-                  handleTransformEnd={handleTransformEnd}
-                />
-              )}
-            </>
+          {getAnnotationLoading ? (
+            <Loading />
           ) : (
-            <>
-              <TheVideo
-                ref={videoRef}
-                previewWidth={previewWidth}
-                isMuted={isMuted}
-                isLoope={isLoope}
-                videoUrl={prevVideoData?.url}
-                type={prevVideoData?.type}
-              />
-
-              {getAnnotationLoading ? (
-                <Loading />
-              ) : (
-                <TheAnnotatorStage
-                  stageSize={stageSize}
-                  handleMouseDown={handleMouseDown}
-                  handleMouseMove={handleMouseMove}
-                  handleMouseUp={handleMouseUp}
-                  annotations={annotations}
-                  currentFrameIndex={currentFrameIndex}
-                  selectionRect={selectionRect}
-                  selecting={selecting}
-                  updateShape={updateShape}
-                  deleteSelectedShapes={deleteSelectedShapes}
-                  stageRef={stageRef}
-                  fillColor={fillColor}
-                  action={action}
-                  isDraggable={isDraggable}
-                  transformerRef={transformerRef}
-                  transformActive={transformActive}
-                  handleStageMouseDown={handleStageMouseDown}
-                  handleStageMouseMove={handleStageMouseMove}
-                  handleStageMouseUp={handleStageMouseUp}
-                  isFullScreen={isFullScreen}
-                  getShapesForFrame={getShapesForFrame}
-                  stageToVideoCoords={stageToVideoCoords}
-                  normalizeRect={normalizeRect}
-                  denormalizeRect={denormalizeRect}
-                  normalizedToVideoRect={normalizedToVideoRect}
-                  normalizeCircle={normalizeCircle}
-                  denormalizeCircle={denormalizeCircle}
-                  normalizedToVideoCircle={normalizedToVideoCircle}
-                  normalizeArrow={normalizeArrow}
-                  denormalizeArrow={denormalizeArrow}
-                  normalizedToVideoArrow={normalizedToVideoArrow}
-                  normalizeLine={normalizeLine}
-                  denormalizeLine={denormalizeLine}
-                  normalizedToVideoLine={normalizedToVideoLine}
-                  handleTransformEnd={handleTransformEnd}
-                />
-              )}
-            </>
+            <TheAnnotatorStage
+              stageSize={stageSize}
+              handleMouseDown={handleMouseDown}
+              handleMouseMove={handleMouseMove}
+              handleMouseUp={handleMouseUp}
+              annotations={annotations}
+              currentFrameIndex={currentFrameIndex}
+              selectionRect={selectionRect}
+              selecting={selecting}
+              updateShape={updateShape}
+              deleteSelectedShapes={deleteSelectedShapes}
+              stageRef={stageRef}
+              fillColor={fillColor}
+              action={action}
+              isDraggable={isDraggable}
+              transformerRef={transformerRef}
+              transformActive={transformActive}
+              handleStageMouseDown={handleStageMouseDown}
+              handleStageMouseMove={handleStageMouseMove}
+              handleStageMouseUp={handleStageMouseUp}
+              isFullScreen={isFullScreen}
+              getShapesForFrame={getShapesForFrame}
+              stageToVideoCoords={stageToVideoCoords}
+              normalizeRect={normalizeRect}
+              denormalizeRect={denormalizeRect}
+              normalizedToVideoRect={normalizedToVideoRect}
+              normalizeCircle={normalizeCircle}
+              denormalizeCircle={denormalizeCircle}
+              normalizedToVideoCircle={normalizedToVideoCircle}
+              normalizeArrow={normalizeArrow}
+              denormalizeArrow={denormalizeArrow}
+              normalizedToVideoArrow={normalizedToVideoArrow}
+              normalizeLine={normalizeLine}
+              denormalizeLine={denormalizeLine}
+              normalizedToVideoLine={normalizedToVideoLine}
+              normalizeText={normalizeText}
+              denormalizeText={denormalizeText}
+              normalizedToVideoText={normalizedToVideoText}
+              handleTransformEnd={handleTransformEnd}
+            />
           )}
         </div>
 

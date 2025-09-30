@@ -154,6 +154,18 @@ export const useStageControl = ({
     };
   };
 
+  // Add these helper functions for text normalization/denormalization
+  const normalizeText = (text) => {
+    const { x, y, fontSize } = text;
+    const { vw, vh } = getVideoNaturalSize();
+    return {
+      ...text,
+      x: x / vw,
+      y: y / vh,
+      fontSize: fontSize / ((vw + vh) / 2), // normalize fontSize relative to average dimension
+    };
+  };
+
   const denormalizeRect = (normRect) => {
     const { vw, vh, scale, offsetX, offsetY } = getVideoTransform();
     const vx = normRect.x * vw;
@@ -211,6 +223,19 @@ export const useStageControl = ({
     };
   };
 
+  const denormalizeText = (normText) => {
+    const { vw, vh, scale, offsetX, offsetY } = getVideoTransform();
+    const x = normText.x * vw * scale + offsetX;
+    const y = normText.y * vh * scale + offsetY;
+    const fontSize = normText.fontSize * ((vw + vh) / 2) * scale;
+    return {
+      ...normText,
+      x,
+      y,
+      fontSize,
+    };
+  };
+
   const normalizedToVideoRect = (normRect) => {
     const { vw, vh } = getVideoNaturalSize();
     return {
@@ -251,6 +276,16 @@ export const useStageControl = ({
     };
   };
 
+  const normalizedToVideoText = (normText) => {
+    const { vw, vh } = getVideoNaturalSize();
+    return {
+      ...normText,
+      x: normText.x * vw,
+      y: normText.y * vh,
+      fontSize: normText.fontSize * ((vw + vh) / 2),
+    };
+  };
+
   // helper: make rect from two video points (ensures positive width/height)
   const makeVideoRectFromPoints = (x1, y1, x2, y2) => {
     const x = Math.min(x1, x2);
@@ -268,14 +303,17 @@ export const useStageControl = ({
     const pos = { x: node.x(), y: node.y() };
     const videoPos = stageToVideoCoords(pos);
 
+    // ✅ Get the transform values
+    const { scale, offsetX, offsetY } = getVideoTransform();
+
     let updatedShape;
 
     switch (shape.type) {
       case "rect": {
-        const widthVideo = (node.width() * node.scaleX()) / scale;
-        const heightVideo = (node.height() * node.scaleY()) / scale;
-        const xVideo = (stageX - offsetX) / scale;
-        const yVideo = (stageY - offsetY) / scale;
+        const stageWidth = node.width() * scaleX;
+        const stageHeight = node.height() * scaleY;
+        const widthVideo = stageWidth / scale;
+        const heightVideo = stageHeight / scale;
 
         node.scaleX(1);
         node.scaleY(1);
@@ -283,8 +321,8 @@ export const useStageControl = ({
         updateShape(frameIndex, shapeId, () =>
           normalizeRect({
             ...shape,
-            x: xVideo,
-            y: yVideo,
+            x: videoPos.x,
+            y: videoPos.y,
             width: widthVideo,
             height: heightVideo,
           })
@@ -293,13 +331,25 @@ export const useStageControl = ({
       }
 
       case "circle": {
-        const shVideo = normalizedToVideoCircle(shape); // in video px
-        const scale = Math.max(scaleX, scaleY); // node scale
+        const shVideo = normalizedToVideoCircle(shape);
+        const scaleAvg = Math.max(scaleX, scaleY);
         updatedShape = normalizeCircle({
           ...shVideo,
           x: videoPos.x,
           y: videoPos.y,
-          radius: shVideo.radius * scale, // remove extra getVideoTransform().scale
+          radius: shVideo.radius * scaleAvg,
+        });
+        break;
+      }
+
+      case "text": {
+        const shVideo = normalizedToVideoText(shape);
+        const fontScale = Math.max(scaleX, scaleY);
+        updatedShape = normalizeText({
+          ...shVideo,
+          x: videoPos.x,
+          y: videoPos.y,
+          fontSize: shVideo.fontSize * fontScale,
         });
         break;
       }
@@ -334,9 +384,12 @@ export const useStageControl = ({
         return;
     }
 
-    pushUndo(); // save state after transformation
-    updateShape(frameIndex, shapeId, () => updatedShape);
-    // reset node scale
+    if (updatedShape) {
+      pushUndo();
+      updateShape(frameIndex, shapeId, () => updatedShape);
+    }
+
+    // Reset node scale
     node.scaleX(1);
     node.scaleY(1);
   };
@@ -529,6 +582,17 @@ export const useStageControl = ({
           width: denCircle.radius * 2,
           height: denCircle.radius * 2,
         };
+      case "text":
+        const denText = denormalizeText(shape);
+        // Approximate text bounds (you might want to calculate actual text width/height)
+        const textWidth = (shape.text?.length || 10) * (denText.fontSize * 0.6); // rough estimate
+        const textHeight = denText.fontSize * 1.2; // rough estimate
+        return {
+          x: denText.x,
+          y: denText.y - textHeight, // text y is baseline, so subtract height
+          width: textWidth,
+          height: textHeight,
+        };
       case "arrow":
       case "line": {
         const denArrow =
@@ -649,6 +713,22 @@ export const useStageControl = ({
           selected: false,
         };
         addShapeToFrame(currentFrameIndex, normalizeLine(lineShape));
+        break;
+      case ACTIONS.TEXT:
+        const textShape = {
+          id,
+          x: videoPos.x,
+          y: videoPos.y,
+          text: "New Text", // default text
+          fontSize: prevVideoData?.type === "Video" ? 60 : 30, // default font size in video pixels
+          fill: fillColor,
+          type: "text",
+          selected: false,
+          fontFamily: "Arial", // optional: default font family
+        };
+        addShapeToFrame(currentFrameIndex, normalizeText(textShape));
+        // For text, we don't need continued mouse movement, so end painting immediately
+        isPainting.current = false;
         break;
     }
   };
@@ -956,6 +1036,9 @@ export const useStageControl = ({
     normalizeLine,
     denormalizeLine,
     normalizedToVideoLine,
+    normalizeText,
+    denormalizeText,
+    normalizedToVideoText,
     handleTransformEnd,
     isPainting,
     fetchAllAnnotations,

@@ -70,7 +70,7 @@ export const useTableData = ({ tableItems = [], selectedEntType }) => {
     const depts = [];
     tableItems.forEach((item) => {
       (item.tasks || []).forEach((task) => {
-        console.log(task);
+        // console.log(task);
         if (
           task.type.name &&
           !depts.some((dept) => dept.name === task.type.name)

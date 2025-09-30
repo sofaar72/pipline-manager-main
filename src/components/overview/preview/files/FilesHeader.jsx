@@ -3,14 +3,29 @@ import React from "react";
 import CheckBoxItem from "../../../golbals/CheckBoxItem";
 import TheButton from "../../TheButton";
 
-const FilesHeader = ({ setOpen }) => {
+const FilesHeader = ({ setOpen, checkedFiles, setCheckedFiles }) => {
   return (
     <div className="w-full flex items- justify-between bg-[var(--overview-color-two)] text-white h-[25px]">
       {/* filters  */}
       <div className="flex items-center gap-8">
-        <CheckBoxItem label="All" isChecked={true} />
-        <CheckBoxItem label="Exports" />
-        <CheckBoxItem label="Dependencies" />
+        <CheckBoxItem
+          label="All"
+          isChecked={checkedFiles.isAll}
+          setChecked={setCheckedFiles}
+          type={"isAll"}
+        />
+        <CheckBoxItem
+          label="Exports"
+          isChecked={checkedFiles.isExport}
+          setChecked={setCheckedFiles}
+          type={"isExport"}
+        />
+        <CheckBoxItem
+          label="Dependencies"
+          isChecked={checkedFiles.isRecource}
+          setChecked={setCheckedFiles}
+          type={"isRecource"}
+        />
       </div>
       <div className="flex items-center gap-8">
         <TheButton

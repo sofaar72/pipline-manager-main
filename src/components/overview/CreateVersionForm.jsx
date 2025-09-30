@@ -14,18 +14,6 @@ const CreateVersionForm = ({
   getAllComments,
   versionId,
 }) => {
-  const [success, setSuccess] = useState(false);
-  console.log(taskId);
-
-  useEffect(() => {
-    if (success) {
-      if (taskId) {
-        fetchAllVersions(taskId);
-      }
-      setSuccess(false);
-    }
-  }, [success]);
-
   return (
     <UploadFileForm
       createVersion
@@ -33,7 +21,7 @@ const CreateVersionForm = ({
       openModal={open}
       setOpenModal={setOpen}
       taskId={taskId}
-      setSuccess={setSuccess}
+      fetchAllVersions={fetchAllVersions}
     />
   );
 };

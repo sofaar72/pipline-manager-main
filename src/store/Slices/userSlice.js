@@ -1,37 +1,26 @@
-// src/features/film/filmSlice.js
+// store/Slices/userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/AxiosInstance";
 import { toast } from "react-toastify";
 
-// Step 1: Async thunk to fetch films
+// ... (keep all your existing async thunks: loginUser, registerUser, etc.)
+
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (userData, thunkAPI) => {
     try {
-      // Simulate 2-second delay
-      // await new Promise((resolve) => setTimeout(resolve, 200));
-      const response = await axiosInstance.post(
-        "/auth/login/",
-        //   {
-        //   ...userData,
-        // }
-        { username: userData.email, password: userData.password }
-      );
-      // console.log(response);
+      const response = await axiosInstance.post("/auth/login/", {
+        username: userData.email,
+        password: userData.password,
+      });
 
       if (response.status === 200) {
-        // Store authentication tokens
-        // if (response.data.access && response.data.refresh) {
-        //   localStorage.setItem("access_token", response.data.access);
-        //   localStorage.setItem("refresh_token", response.data.refresh);
-        // }
+        // Store role and user data in localStorage
 
-        // Handle role data with improved logic
+        console.log(response.data);
         if (response.data.user?.role) {
           const roleData = response.data.user.role;
-
           if (typeof roleData === "object") {
-            // Store complete role object
             localStorage.setItem(
               "first_name",
               JSON.stringify(response.data.user.first_name)
@@ -40,56 +29,44 @@ export const loginUser = createAsyncThunk(
               "last_name",
               JSON.stringify(response.data.user.last_name)
             );
+            localStorage.setItem("user_id", JSON.stringify(response.data.id));
             localStorage.setItem(
-              "user_id",
-              JSON.stringify(response.data.user.id)
+              "access_token",
+              JSON.stringify(response.data.access_token)
+            );
+            localStorage.setItem(
+              "refresh_token",
+              JSON.stringify(response.data.refresh_token)
             );
             localStorage.setItem("role", JSON.stringify(roleData));
             localStorage.setItem("role_id", roleData.id);
             localStorage.setItem("role_name", roleData.name);
           } else if (typeof roleData === "string") {
-            // Store role as string
             localStorage.setItem("role", roleData);
             localStorage.setItem("role_name", roleData);
           }
         }
-
-        // Store additional user info
-        // if (response.data.user) {
-        //   localStorage.setItem("user_id", response.data.user.id);
-        //   localStorage.setItem("username", response.data.user.username);
-        //   localStorage.setItem("user_data", JSON.stringify(response.data.user));
-        // }
-
         return response.data;
       }
     } catch (error) {
-      // console.log(error.response?.data);
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
     }
   }
 );
 
-// register
 export const registerUser = createAsyncThunk(
   "user/registerUser",
   async (userData, thunkAPI) => {
     try {
-      // Simulate 2-second delay
-      // await new Promise((resolve) => setTimeout(resolve, 200));
-      const response = await axiosInstance.post("/auth/register/", {
-        ...userData,
-      });
+      const response = await axiosInstance.post("/auth/register/", userData);
       if (response.status === 201) {
         toast.success("User is Registered");
       }
       return response.data;
     } catch (error) {
-      // console.log(error.response?.data.email[0]);
       if (error.response?.data.email) {
         toast.error(error.response?.data.email[0]);
       }
-
       if (error.response?.data.password) {
         toast.error(error.response?.data.password[0]);
       }
@@ -104,36 +81,27 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// logout
 export const logoutUser = createAsyncThunk(
   "user/logoutUser",
   async (_, thunkAPI) => {
     try {
       const response = await axiosInstance.post("/auth/logout/");
       if (response.status === 200) {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("role");
-        localStorage.removeItem("first_name");
-        localStorage.removeItem("last_name");
         toast.success("User is logged out");
       }
       return response.data;
     } catch (error) {
+      // Even if the API fails, we should still logout locally
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
     }
   }
 );
 
-// user Roles
 export const fetchUserRoles = createAsyncThunk(
   "user/fetchUserRole",
   async (_, thunkAPI) => {
     try {
       const response = await axiosInstance.get("/users/role");
-      if (response.status === 200) {
-      }
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -141,14 +109,11 @@ export const fetchUserRoles = createAsyncThunk(
   }
 );
 
-// users
 export const fetchAllUsers = createAsyncThunk(
   "user/fetchUsers",
   async (_, thunkAPI) => {
     try {
       const response = await axiosInstance.get("/users");
-      if (response.status === 200) {
-      }
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Server error");
@@ -156,46 +121,56 @@ export const fetchAllUsers = createAsyncThunk(
   }
 );
 
-// Step 2: Slice
-const userSlice = createSlice({
-  name: "user",
-  initialState: {
-    user: {},
+// INITIAL STATE
+const initialState = {
+  user: {},
+  loading: false,
+  error: null,
+  success: false,
+  accessToken: null,
+  refreshToken: null,
+  registerLoading: false,
+  registerError: null,
+  registerSuccess: false,
+  registerUserResponse: {},
+  logoutLoading: false,
+  logoutError: null,
+  logoutSuccess: false,
+  userRoles: {
+    results: [],
     loading: false,
     error: null,
-    success: false,
-    accessToken: null,
-    refreshToken: null,
-    registerLoading: false,
-    registerError: null,
-    registerSuccess: false,
-    registerUserResponse: {},
-    logoutLoading: false,
-    logoutError: null,
-    logoutSuccess: false,
-    userRoles: {
-      results: [],
-      loading: false,
-      error: null,
-    },
+  },
+  users: {
+    results: [],
+    loading: false,
+    error: null,
+  },
+};
 
-    users: {
-      results: [],
-      loading: false,
-      error: null,
+// SLICE
+const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    // Add manual reset action (in case you need it)
+    resetUserState: () => initialState,
+
+    // Clear any login errors
+    clearError: (state) => {
+      state.error = null;
+      state.registerError = null;
+      state.logoutError = null;
     },
   },
-  reducers: {},
   extraReducers: (builder) => {
+    // LOGIN
     builder
-      // user
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        // console.log(action.payload);
-        // console.log(action.payload);
         state.loading = false;
         state.user = action.payload;
         state.accessToken = action.payload.access_token;
@@ -206,9 +181,10 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = "somthing went wrong";
+        state.error = "Something went wrong";
       });
-    // register
+
+    // REGISTER
     builder
       .addCase(registerUser.pending, (state) => {
         state.registerLoading = true;
@@ -221,54 +197,55 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.registerLoading = false;
-        state.registerError = "somthing went wrong";
+        state.registerError = "Something went wrong";
       });
-    // user Roles
+
+    // USER ROLES
     builder
       .addCase(fetchUserRoles.pending, (state) => {
         state.userRoles.loading = true;
         state.userRoles.error = null;
       })
       .addCase(fetchUserRoles.fulfilled, (state, action) => {
-        // console.log(action.payload);
-        state.userRoles.loading = true;
+        state.userRoles.loading = false;
         state.userRoles.results = action.payload?.results;
       })
       .addCase(fetchUserRoles.rejected, (state, action) => {
-        state.userRoles.loading = true;
-        state.userRoles.error = "somthing went wrong";
+        state.userRoles.loading = false;
+        state.userRoles.error = "Something went wrong";
       });
-    // fetch users
+
+    // FETCH USERS
     builder
       .addCase(fetchAllUsers.pending, (state) => {
         state.users.loading = true;
         state.users.error = null;
       })
       .addCase(fetchAllUsers.fulfilled, (state, action) => {
-        // console.log(action.payload);
         state.users.loading = false;
         state.users.results = action.payload?.results;
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.users.loading = false;
-        state.users.error = "somthing went wrong";
+        state.users.error = "Something went wrong";
       });
 
-    // logout
+    // LOGOUT - CRITICAL FIX HERE
     builder
       .addCase(logoutUser.pending, (state) => {
         state.logoutLoading = true;
         state.logoutError = null;
       })
-      .addCase(logoutUser.fulfilled, (state, action) => {
-        state.logoutLoading = false;
-        state.logoutSuccess = true;
+      .addCase(logoutUser.fulfilled, (state) => {
+        // RESET ENTIRE STATE TO INITIAL VALUES
+        return initialState;
       })
-      .addCase(logoutUser.rejected, (state, action) => {
-        state.logoutLoading = false;
-        state.logoutError = "somthing went wrong";
+      .addCase(logoutUser.rejected, (state) => {
+        // EVEN IF API FAILS, RESET STATE LOCALLY
+        return initialState;
       });
   },
 });
 
+export const { resetUserState, clearError } = userSlice.actions;
 export default userSlice.reducer;

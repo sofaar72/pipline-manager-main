@@ -5,6 +5,7 @@ import {
   fetchTaskVersions,
   fetchVersionPreview,
   resetVersionPreview,
+  updateVersion,
 } from "../store/Slices/VersionsSlice";
 import { createVersion } from "../store/Slices/VersionsSlice";
 import { useTasks } from "./useTasks";
@@ -77,6 +78,22 @@ export const useVersions = () => {
       }
     });
   };
+  const patchVersion = async (
+    id,
+    data,
+    closeModal = () => {},
+    setSuccess = () => {}
+  ) => {
+    // console.log(data);
+    const files = { files: data };
+
+    dispatch(updateVersion({ id: id, data: files })).then((res) => {
+      if (res.payload) {
+        closeModal();
+        setSuccess(true);
+      }
+    });
+  };
 
   return {
     versionResults,
@@ -93,5 +110,6 @@ export const useVersions = () => {
     createVersionLoading,
     createVersionError,
     clearVersionPreview,
+    patchVersion,
   };
 };

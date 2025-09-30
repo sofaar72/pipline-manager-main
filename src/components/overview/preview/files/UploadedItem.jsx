@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { FaPlus } from "react-icons/fa";
 import { IoIosRefresh } from "react-icons/io";
@@ -32,6 +32,10 @@ const UploadedItem = ({
     addSuffix(e, index, type, suffix);
     toggleSuffix();
   };
+
+  useEffect(() => {
+    console.log(uploadProgress);
+  }, [uploadProgress]);
   return (
     <div className="w-full flex flex-col gap-2 cursor-pointer">
       {/* file itself  */}

@@ -7,6 +7,7 @@ import {
   Line,
   Transformer,
   Arrow,
+  Text,
 } from "react-konva";
 import { ACTIONS } from "./Actions";
 
@@ -44,6 +45,9 @@ const TheAnnotatorStage = ({
   normalizeLine,
   denormalizeLine,
   normalizedToVideoLine,
+  normalizeText = () => {},
+  denormalizeText = () => {},
+  normalizedToVideoText = () => {},
   handleTransformEnd,
 }) => {
   const currentFrame = () =>
@@ -77,7 +81,7 @@ const TheAnnotatorStage = ({
         ref={stageRef}
         width={stageSize.width}
         height={stageSize.height}
-        className="bg-green-500/20"
+        // className="bg-green-500/20"
         onPointerDown={handleMouseDown}
         onPointerMove={handleMouseMove}
         onPointerUp={handleMouseUp}
@@ -90,6 +94,7 @@ const TheAnnotatorStage = ({
             ACTIONS.CIRCLE,
             ACTIONS.ARROW,
             ACTIONS.LINE,
+            ACTIONS.TEXT,
           ].includes(action)
             ? "crosshair"
             : "default",
@@ -110,7 +115,8 @@ const TheAnnotatorStage = ({
           )}
 
           {/* Shapes */}
-          {currentFrame().shapes.map((shape) => {
+          {currentFrame()?.shapes?.map((shape) => {
+            console.log(shape);
             const shapeId = shape.id;
             const nodeRef = (n) => (shapeRefs.current[shapeId] = n);
 
@@ -254,6 +260,130 @@ const TheAnnotatorStage = ({
                       updateShape(currentFrameIndex, shapeId, () =>
                         normalizeLine({
                           ...normalizedToVideoLine(shape),
+                          x: videoPos.x,
+                          y: videoPos.y,
+                        })
+                      );
+                    }}
+                    onTransformEnd={(e) =>
+                      handleTransformEnd(
+                        currentFrameIndex,
+                        shape.id,
+                        e.target,
+                        shape
+                      )
+                    }
+                  />
+                );
+              }
+
+              case "text": {
+                const s = denormalizeText(shape);
+
+                console.log(shape);
+                return (
+                  <Text
+                    ref={nodeRef}
+                    key={shapeId}
+                    id={shapeId}
+                    x={s?.x}
+                    y={s?.y}
+                    text={shape.text || "Text"}
+                    fontSize={s?.fontSize}
+                    fontFamily={shape.fontFamily || "Arial"}
+                    fill={shape.fill || shape.stroke || "#000"}
+                    draggable={isDraggable}
+                    onClick={transformActive}
+                    onDblClick={(e) => {
+                      // Double-click to edit text
+                      const textNode = e.target;
+                      const stage = textNode.getStage();
+                      const stageContainer = stage.container();
+                      const textPosition = textNode.absolutePosition();
+                      const stageRect = stageContainer.getBoundingClientRect();
+
+                      // Create textarea for editing
+                      const textarea = document.createElement("textarea");
+                      stageContainer.appendChild(textarea);
+
+                      textarea.value = shape.text || "";
+                      textarea.style.position = "absolute";
+                      textarea.style.top = textPosition.y + "px";
+                      textarea.style.left = textPosition.x + "px";
+                      textarea.style.width =
+                        Math.max(200, textNode.width() + 50) + "px";
+                      textarea.style.height =
+                        Math.max(100, textNode.height() + 50) + "px";
+                      textarea.style.fontSize = s.fontSize + "px";
+                      textarea.style.fontFamily = shape.fontFamily || "Arial";
+                      textarea.style.border = "3px solid #3b82f6";
+                      textarea.style.borderRadius = "8px";
+                      textarea.style.padding = "12px";
+                      textarea.style.background = "white";
+                      textarea.style.boxShadow =
+                        "0 4px 12px rgba(0, 0, 0, 0.15)";
+                      textarea.style.zIndex = "9999";
+                      textarea.style.resize = "none";
+                      textarea.style.outline = "none";
+                      textarea.style.color = "#000";
+
+                      // Ensure textarea stays within stage bounds
+                      const maxRight =
+                        stageContainer.offsetWidth -
+                        parseInt(textarea.style.width);
+                      const maxBottom =
+                        stageContainer.offsetHeight -
+                        parseInt(textarea.style.height);
+
+                      if (textPosition.x > maxRight) {
+                        textarea.style.left = maxRight + "px";
+                      }
+                      if (textPosition.y > maxBottom) {
+                        textarea.style.top = maxBottom + "px";
+                      }
+
+                      textarea.focus();
+                      textarea.select();
+
+                      const removeTextarea = () => {
+                        const newText = textarea.value;
+                        if (stageContainer.contains(textarea)) {
+                          stageContainer.removeChild(textarea);
+                        }
+
+                        // Update the text shape
+                        updateShape(currentFrameIndex, shapeId, (sh) => ({
+                          ...sh,
+                          text: newText,
+                        }));
+                      };
+
+                      textarea.addEventListener("keydown", (e) => {
+                        // Prevent arrow keys from propagating to window (frame navigation)
+                        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                          e.stopPropagation();
+                        }
+                        if (e.key === "Backspace") {
+                          e.stopPropagation();
+                        }
+
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          removeTextarea();
+                        }
+                        if (e.key === "Escape") {
+                          removeTextarea();
+                        }
+                      });
+
+                      textarea.addEventListener("blur", removeTextarea);
+                    }}
+                    onDragEnd={(e) => {
+                      const pos = e.target.position();
+                      const videoPos = stageToVideoCoords(pos);
+                      updateShape(currentFrameIndex, shapeId, (sh) =>
+                        normalizeText({
+                          ...normalizedToVideoText(sh),
                           x: videoPos.x,
                           y: videoPos.y,
                         })

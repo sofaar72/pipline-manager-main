@@ -29,7 +29,7 @@ import TheIcon from "../../TheIcon";
 import { BiSelection } from "react-icons/bi";
 import { ACTIONS } from "./Actions";
 import TheButton from "../../TheButton";
-import { RiFullscreenLine } from "react-icons/ri";
+import { RiFullscreenLine, RiText } from "react-icons/ri";
 
 const TheToolbar = ({
   isLoope,
@@ -81,28 +81,30 @@ const TheToolbar = ({
   return (
     <div className="w-full h-[25px] shrink-0 bg-[#1D1B37] flex justify-between gap-2 text-white">
       {/* Video Tools  */}
-      <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
-        <TheIcon
-          onClick={() => pauseOrPlay()}
-          cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
-        >
-          {!isPlaying ? <FaPlay /> : <FaPause />}
-        </TheIcon>
-        <TheIcon
-          onClick={() => loopOrNot()}
-          cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
-        >
-          {!isLoope ? <MdAirlineStops /> : <IoMdRefresh />}
-        </TheIcon>
-        <TheIcon
-          onClick={() => muteOrNot()}
-          cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
-        >
-          {!isMuted ? <IoVolumeMediumSharp /> : <IoVolumeMute />}
-        </TheIcon>
-      </div>
+      {prevVideoData.type === "Video" && (
+        <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
+          <TheIcon
+            onClick={() => pauseOrPlay()}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            {!isPlaying ? <FaPlay /> : <FaPause />}
+          </TheIcon>
+          <TheIcon
+            onClick={() => loopOrNot()}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            {!isLoope ? <MdAirlineStops /> : <IoMdRefresh />}
+          </TheIcon>
+          <TheIcon
+            onClick={() => muteOrNot()}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            {!isMuted ? <IoVolumeMediumSharp /> : <IoVolumeMute />}
+          </TheIcon>
+        </div>
+      )}
       {/* select previews  */}
-      <div className="h-full flex items-center gap-2 h-small">
+      <div className="h-full flex items-center gap-2 h-small mx-auto">
         {/* arrow left */}
         <span className="h-lg" onClick={() => prevItem()}>
           <IoMdArrowDropleft />
@@ -183,6 +185,17 @@ const TheToolbar = ({
             } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
           >
             <FaPenAlt className="text-sm" />
+          </TheIcon>
+          {/* TEXT  */}
+          <TheIcon
+            onClick={() => setAction(ACTIONS.TEXT)}
+            cClass={`!w-[30px] !h-full shrink-0 !border-none ${
+              action === ACTIONS.TEXT
+                ? "!bg-[var(--overview-color-three)]"
+                : "!bg-[var(--overview-color-two)] "
+            } !hover:!bg-[var(--overview-color-three)] !rounded-none`}
+          >
+            <RiText className="text-sm" />
           </TheIcon>
 
           <TheIcon

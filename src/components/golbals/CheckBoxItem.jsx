@@ -2,12 +2,24 @@ import React, { useState } from "react";
 import { IoCheckbox } from "react-icons/io5";
 import { MdCheckBoxOutlineBlank } from "react-icons/md";
 
-const CheckBoxItem = ({ label = "text", isChecked = false }) => {
-  const [checked, setChecked] = useState(isChecked);
+const CheckBoxItem = ({
+  label = "text",
+  isChecked = false,
+  setChecked,
+  type,
+}) => {
+  // const [checked, setChecked] = useState(isChecked);
   return (
     <div className="flex items-center gap-2 cursor-pointer">
-      <span className="text-lg" onClick={() => setChecked(!checked)}>
-        {checked ? <IoCheckbox /> : <MdCheckBoxOutlineBlank />}
+      <span
+        className="text-lg"
+        onClick={() =>
+          setChecked((prev) => {
+            return { ...prev, [type]: !isChecked };
+          })
+        }
+      >
+        {isChecked ? <IoCheckbox /> : <MdCheckBoxOutlineBlank />}
       </span>
       <label
         for="hs-default-checkbox"

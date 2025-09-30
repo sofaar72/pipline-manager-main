@@ -22,10 +22,10 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (success && accessToken && refreshToken) {
-      setToken(accessToken, refreshToken, user?.id);
+      setToken(accessToken, refreshToken, user?.id || user?._id);
       navigate("/overview", { replace: true });
     }
-  }, [success, accessToken, refreshToken, user, navigate, setToken]);
+  }, [success, accessToken, refreshToken]);
 
   return (
     <div className="w-[600px] max-w-[600px] flex justify-center items-center">

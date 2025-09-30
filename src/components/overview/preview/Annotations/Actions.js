@@ -4,4 +4,5 @@ export const ACTIONS = {
   CIRCLE: "CIRCLE",
   LINE: "LINE",
   ARROW: "ARROW",
+  TEXT: "TEXT",
 };

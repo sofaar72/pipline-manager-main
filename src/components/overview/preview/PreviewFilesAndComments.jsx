@@ -18,6 +18,11 @@ const PreviewFilesAndComments = ({
   deleteComment,
   deleteLoading,
   deleteError,
+  updateComment,
+  updateLoading,
+  updateError,
+  fetchAllVersions,
+  fetchVersionPreview,
 }) => {
   const [files, setFiles] = useState([]);
 
@@ -28,7 +33,13 @@ const PreviewFilesAndComments = ({
   return (
     <div className="w-full flex-1 radius bg-[var(--overview-color-two)] text-white h-lg flex items-center p-2 justify-center shrink-0">
       {switcher === "file" ? (
-        <FilesWrapper files={files} versionId={versionId} />
+        <FilesWrapper
+          files={files}
+          taskId={taskId}
+          versionId={versionId}
+          fetchAllVersions={fetchAllVersions}
+          fetchVersionPreview={fetchVersionPreview}
+        />
       ) : (
         <CommentWrapper
           comments={comments}
@@ -43,6 +54,9 @@ const PreviewFilesAndComments = ({
           deleteComment={deleteComment}
           deleteLoading={deleteLoading}
           deleteError={deleteError}
+          updateComment={updateComment}
+          updateLoading={updateLoading}
+          updateError={updateError}
         />
       )}
     </div>

@@ -8,6 +8,7 @@ import {
   sendComment,
   deleteComment,
   getAnnotations,
+  updateComment,
 } from "../store/Slices/CommentsSlice";
 
 export const useComments = () => {
@@ -22,6 +23,9 @@ export const useComments = () => {
     deleteCommentData,
     deleteLoading,
     deleteError,
+    updateLoading,
+    updateError,
+    updateRes,
     annotations,
     annotationLoading,
     annotationError,
@@ -63,6 +67,17 @@ export const useComments = () => {
       }
     });
   };
+  const updateTheComment = (id, data, getComments, close = () => {}) => {
+    // console.log(id);
+    // console.log(data);
+    dispatch(updateComment({ id: id, data: data })).then((response) => {
+      if (response?.payload) {
+        // getComments();
+        getComments();
+        close(false);
+      }
+    });
+  };
 
   const sendAllAnnotations = (data) => {
     dispatch(sendAnnotations(data));
@@ -86,6 +101,10 @@ export const useComments = () => {
     deleteTheComment,
     deleteLoading,
     deleteError,
+    updateLoading,
+    updateError,
+    updateRes,
+    updateTheComment,
     sendAllAnnotations,
     fetchAllAnnotations,
     annotations,

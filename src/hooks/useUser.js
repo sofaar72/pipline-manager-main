@@ -1,4 +1,3 @@
-// hooks/useTasks.js
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -9,10 +8,12 @@ import {
   fetchAllUsers,
 } from "../store/Slices/userSlice";
 import bcrypt from "bcryptjs";
+import { useAuth } from "../assets/context/AuthContext";
 
 const saltRounds = 5;
 
 export const useUser = () => {
+  const { logout: authLogout } = useAuth();
   const dispatch = useDispatch();
 
   const {
@@ -48,12 +49,29 @@ export const useUser = () => {
 
   const register = async (userData) => {
     // const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
-    // console.log(hashedPassword);
     dispatch(registerUser({ ...userData }));
   };
 
   const logout = async () => {
-    dispatch(logoutUser());
+    try {
+      await dispatch(logoutUser()).unwrap();
+      await authLogout();
+      // 2. Clear localStorage items
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("first_name");
+      localStorage.removeItem("last_name");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("role");
+      localStorage.removeItem("role_id");
+      localStorage.removeItem("role_name");
+
+      // 3. Dispatch Redux logout (calls API + resets Redux state)
+      return { success: true };
+    } catch (err) {
+      console.error("Logout error:", error);
+      return { success: true }; // Still return success since local logout worked
+    }
   };
 
   const getUserRoles = () => {

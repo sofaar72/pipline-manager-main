@@ -52,6 +52,25 @@ export const createVersion = createAsyncThunk(
   }
 );
 
+export const updateVersion = createAsyncThunk(
+  "version/updateVersion",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.patch(`/versions/${id}/`, data);
+
+      // if (response.status == 200) {
+      //   toast.success("Task UPDATED!");
+      // }
+      return { id, ...response.data };
+    } catch (error) {
+      toast.error(error.response.data.error || "something went wrong!");
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.error || { error: "Server error" }
+      );
+    }
+  }
+);
+
 // Step 2: Slice
 const versionSlice = createSlice({
   name: "version",
@@ -60,6 +79,7 @@ const versionSlice = createSlice({
     versions: { results: [], loading: false, error: null },
     versionPreview: { data: {}, loading: false, error: null },
     createVersionData: { data: {}, loading: false, error: null },
+    updatedVersion: { data: {}, loading: false, error: null },
   },
   reducers: {
     resetVersionPreview: (state) => {
@@ -111,6 +131,21 @@ const versionSlice = createSlice({
       .addCase(createVersion.rejected, (state, action) => {
         state.createVersionData.loading = false;
         state.createVersionData.error = action.payload;
+      });
+    // update version
+    builder
+      .addCase(updateVersion.pending, (state) => {
+        state.updatedVersion.loading = true;
+        state.updatedVersion.error = null;
+      })
+      .addCase(updateVersion.fulfilled, (state, action) => {
+        state.updatedVersion.loading = false;
+        state.updatedVersion.success = true;
+        // state.versions.results.push(action.payload); // Optionally update local task list
+      })
+      .addCase(updateVersion.rejected, (state, action) => {
+        state.updatedVersion.loading = false;
+        state.updatedVersion.error = action.payload;
       });
   },
 });

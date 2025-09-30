@@ -7,7 +7,6 @@ import { Formik } from "formik";
 import { useUploadFile } from "../../../../hooks/useUploadFile";
 import Loading from "../../../golbals/Loading";
 import TheIcon from "../../TheIcon";
-import { useVersions } from "../../../../hooks/useVersions";
 
 const UploadFileForm = ({
   header = "Add File",
@@ -17,44 +16,25 @@ const UploadFileForm = ({
   openModal,
   setOpenModal,
   createVersion = false,
-  fetchAllVersions = () => {},
-  fetchVersionPreview = () => {},
+  setSuccess,
 }) => {
-  const [success, setSuccess] = useState(false);
-  console.log(taskId);
-
-  useEffect(() => {
-    if (success) {
-      if (taskId) {
-        fetchAllVersions(taskId);
-      } else {
-        fetchVersionPreview(versionId.id);
-      }
-
-      setSuccess(false);
-    }
-  }, [success]);
+  // const {} = useVersionFormSchema();
 
   const {
     uploadSmallSize,
-    uploadSmallResults,
     smallLoading,
-    uploadLargeResults,
-    largeLoading,
     uploadLargeSize,
     uploadProgress,
     pauseUpload,
     resumeUpload,
     retryUpload,
     handleCreateVersion,
-    setUploadProgress,
   } = useUploadFile();
 
   const [workfileItem, setWorkfileItem] = useState(null);
   const [resourceItems, setResourceItems] = useState([]);
   const [previewItems, setPreviewItems] = useState([]);
   const [exportItems, setExportItems] = useState([]);
-  const { patchVersion } = useVersions();
 
   const initialValues = createVersion
     ? {
@@ -71,8 +51,6 @@ const UploadFileForm = ({
     const file = e.target.files[0];
     const id = Date.now();
     if (!file) return;
-
-    setUploadProgress({});
 
     if (type === "preview") {
       setPreviewItems((prev) => {
@@ -187,182 +165,145 @@ const UploadFileForm = ({
 
   const submitForm = async (values) => {
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+    const smallFilesFormData = new FormData();
+    const largeFilesFormData = [];
+
     const allItems = [...previewItems, ...exportItems, ...resourceItems].filter(
       (item) => item.name || item.size
     );
 
-    try {
-      const allMediaIds = [];
-      // ✅ Create an array of promises for *all* uploads
-      const uploadPromises = allItems.flatMap((item) => {
-        const metadata = {
-          name: item.name ?? "test",
-          is_export: item.type === "export",
+    allItems.forEach((item, index) => {
+      item.files.forEach((file) => {
+        const metadata = JSON.stringify({
+          is_exported: item.type === "export",
           is_preview: item.type === "preview",
           is_resource: item.type === "resource",
           version: values.version ?? null,
-        };
-
-        return item.files.map((file) => {
-          if (file.size > MAX_FILE_SIZE) {
-            // Large file upload
-            const lgfd = new FormData();
-            lgfd.append("name", metadata.name);
-            lgfd.append("size", file.size);
-            lgfd.append("is_preview", metadata.is_preview);
-            lgfd.append("version", metadata.version);
-            lgfd.append("is_export", metadata.is_export);
-            lgfd.append("is_resource", metadata.is_resource);
-
-            return uploadLargeSize(lgfd, file)
-              .then((result) => {
-                allMediaIds.push(result);
-                console.log(`Large file uploaded: ${file.name}`);
-              })
-              .catch((error) => {
-                console.error(
-                  `Failed to upload large file ${file.name}:`,
-                  error
-                );
-                // ✅ Return null so Promise.all doesn't reject early
-                return null;
-              });
-          } else {
-            // Small file upload
-            const fd = new FormData();
-            fd.append("file", file);
-            fd.append("name", metadata.name);
-            fd.append("size", file.size);
-            fd.append("is_preview", metadata.is_preview);
-            fd.append("version", metadata.version);
-            fd.append("is_export", metadata.is_export);
-            fd.append("is_resource", metadata.is_resource);
-            return uploadSmallSize(fd)
-              .then((result) => {
-                allMediaIds.push(result);
-                console.log(`Small file uploaded: ${file.name}`);
-              })
-              .catch((error) => {
-                console.error(
-                  `Failed to upload small file ${file.name}:`,
-                  error
-                );
-                return null;
-              });
-          }
         });
+
+        if (file.size > MAX_FILE_SIZE) {
+          // large files
+          largeFilesFormData.push({
+            file: file,
+            name: file.name,
+            size: file.size,
+            version: values.version,
+            is_exported: item.type === "export",
+            is_preview: item.type === "preview",
+            is_resource: item.type === "resource",
+          });
+        } else {
+          // small files
+          smallFilesFormData.append(`files_${index}`, file);
+          smallFilesFormData.append(`metadata_${index}`, metadata);
+        }
       });
+    });
 
-      // ✅ Wait until *all* uploads (small & large) are done
-      await Promise.all(uploadPromises);
+    try {
+      // ✅ Send small files
+      if ([...smallFilesFormData].length > 0) {
+        await uploadSmallSize(smallFilesFormData);
+      }
 
-      // ✅ After ALL uploads succeed (or errors handled), call PATCH method
-      patchVersion(versionId.id, allMediaIds, setOpenModal, setSuccess);
+      // ✅ Send large files
+      if (largeFilesFormData.length > 0) {
+        await uploadLargeSize(largeFilesFormData);
+      }
 
-      console.log("Patch method called after all uploads");
-
-      // ✅ Clear state
+      // ✅ Clear items AFTER everything is done
       setPreviewItems([]);
       setExportItems([]);
       setResourceItems([]);
     } catch (err) {
-      console.error("Unexpected error during upload:", err);
+      console.error("Upload failed:", err);
     }
   };
 
   const submitVersionForm = async (values) => {
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+    const smallFilesFormData = new FormData();
+    const largeFilesFormData = [];
+
     const allItems = [
       ...previewItems,
       ...exportItems,
       ...resourceItems,
       workfileItem,
-    ].filter((item) => item.name || item.size);
+    ].filter((item) => item?.name || item?.size);
 
-    try {
-      const allMediaIds = [];
-      // ✅ Create an array of promises for *all* uploads
-      const uploadPromises = allItems.flatMap((item) => {
-        const metadata = {
-          name: item.name ?? "test",
-          is_export: item.type === "export",
+    // console.log(allItems);
+
+    // Build form data for small and large files
+    allItems.forEach((item, index) => {
+      item.files.forEach((file) => {
+        const metadata = JSON.stringify({
+          is_exported: item.type === "export",
           is_preview: item.type === "preview",
           is_resource: item.type === "resource",
           task: values.task ?? null,
-        };
-
-        return item.files.map((file) => {
-          if (file.size > MAX_FILE_SIZE) {
-            // Large file upload
-            const lgfd = new FormData();
-            lgfd.append("name", metadata.name);
-            lgfd.append("size", file.size);
-            lgfd.append("is_preview", metadata.is_preview);
-            lgfd.append("task", metadata.task);
-            lgfd.append("is_export", metadata.is_export);
-            lgfd.append("is_resource", metadata.is_resource);
-
-            return uploadLargeSize(lgfd, file)
-              .then((result) => {
-                allMediaIds.push(result);
-                console.log(`Large file uploaded: ${file.name}`);
-              })
-              .catch((error) => {
-                console.error(
-                  `Failed to upload large file ${file.name}:`,
-                  error
-                );
-                // ✅ Return null so Promise.all doesn't reject early
-                return null;
-              });
-          } else {
-            // Small file upload
-            const fd = new FormData();
-            fd.append("file", file);
-            fd.append("name", metadata.name);
-            fd.append("size", file.size);
-            fd.append("is_preview", metadata.is_preview);
-            fd.append("task", metadata.task);
-            fd.append("is_export", metadata.is_export);
-            fd.append("is_resource", metadata.is_resource);
-            return uploadSmallSize(fd)
-              .then((result) => {
-                allMediaIds.push(result);
-                console.log(`Small file uploaded: ${file.name}`);
-              })
-              .catch((error) => {
-                console.error(
-                  `Failed to upload small file ${file.name}:`,
-                  error
-                );
-                return null;
-              });
-          }
         });
+
+        if (file.size > MAX_FILE_SIZE) {
+          // large files
+          largeFilesFormData.push({
+            file,
+            name: file.name,
+            size: file.size,
+            task: values.task,
+            is_exported: item.type === "export",
+            is_preview: item.type === "preview",
+            is_resource: item.type === "resource",
+          });
+        } else {
+          // small files
+          smallFilesFormData.append(`files_${index}`, file);
+          smallFilesFormData.append(`metadata_${index}`, metadata);
+        }
       });
+    });
 
-      // ✅ Wait until *all* uploads (small & large) are done
-      await Promise.all(uploadPromises);
+    try {
+      let uploadedFileIds = [];
 
-      // ✅ After ALL uploads succeed (or errors handled), call PATCH method
+      // ✅ 1. Send small files
+      if ([...smallFilesFormData].length > 0) {
+        const smallFileIds = await uploadSmallSize(smallFilesFormData);
+        uploadedFileIds = [...uploadedFileIds, ...smallFileIds];
+      }
+
+      // ✅ 2. Send large files
+      if (largeFilesFormData.length > 0) {
+        const largeFileIds = await uploadLargeSize(largeFilesFormData);
+        uploadedFileIds = [...uploadedFileIds, ...largeFileIds];
+      }
+
+      // console.log({
+      //   task: values.task,
+      //   note: values.note || null,
+      //   files: uploadedFileIds, // 🔑 associate uploaded files
+      // });
+
+      // ✅ 3. Create version AFTER uploads
       await handleCreateVersion(
         {
           task: values.task,
           note: values.note || null,
-          files: allMediaIds, // 🔑 associate uploaded files
+          files: uploadedFileIds, // 🔑 associate uploaded files
         },
         setOpenModal,
         setSuccess
       );
 
-      console.log("Patch method called after all uploads");
-
-      // ✅ Clear state
+      // ✅ 4. Clear items AFTER everything is done
+      setWorkfileItem(null);
       setPreviewItems([]);
       setExportItems([]);
       setResourceItems([]);
     } catch (err) {
-      console.error("Unexpected error during upload:", err);
+      console.error("Upload failed:", err);
     }
   };
 
@@ -541,7 +482,7 @@ const UploadFileForm = ({
                       type="submit"
                       loading={smallLoading}
                     >
-                      <span>Upload</span>
+                      <span>Create</span>
                     </TheButton>
                     <TheButton
                       cClass="flex items-center justify-between gap-2 h-regular "

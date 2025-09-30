@@ -29,6 +29,7 @@ const PreviewMain = ({
   clearVersionPreview,
   taskId,
   typeId,
+  setFullScreenOverview,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
 
@@ -45,6 +46,10 @@ const PreviewMain = ({
     deleteTheComment,
     deleteLoading,
     deleteError,
+    updateTheComment,
+    updateLoading,
+    updateError,
+    updateRes,
   } = useComments();
 
   // FETCH VERSIONS OF THE TASK
@@ -54,14 +59,15 @@ const PreviewMain = ({
   //   }
   // }, [taskResults]);
 
-  useEffect(() => {
-    if (taskResults) {
-      console.log(taskResults);
-    }
-  }, [taskResults]);
+  // useEffect(() => {
+  //   if (taskResults) {
+  //     console.log(taskResults);
+  //   }
+  // }, [taskResults]);
 
   // FETCH SINGLE VERSION
   useEffect(() => {
+    console.log(versionId);
     if (versionId && versionId.id) {
       fetchVersionPreview(versionId.id);
     } else {
@@ -70,9 +76,9 @@ const PreviewMain = ({
     getAllComments(versionId?.id, taskId);
   }, [versionId]); // Added versionResults to dependencies
 
-  useEffect(() => {
-    console.log(versionId);
-  }, [versionId]);
+  // useEffect(() => {
+  //   console.log(versionId);
+  // }, [versionId]);
 
   if (loading) {
     return <PreviewLoading />;
@@ -107,6 +113,7 @@ const PreviewMain = ({
             fetchAllVersions={fetchAllVersions}
             getAllComments={getAllComments}
             taskId={taskId}
+            setFullScreenOverview={setFullScreenOverview}
           />
 
           {Object.keys(versionPreviewData).length !== 0 && (
@@ -126,6 +133,11 @@ const PreviewMain = ({
               deleteComment={deleteTheComment}
               deleteLoading={deleteLoading}
               deleteError={deleteError}
+              updateComment={updateTheComment}
+              updateLoading={updateLoading}
+              updateError={updateError}
+              fetchAllVersions={fetchAllVersions}
+              fetchVersionPreview={fetchVersionPreview}
             />
           )}
         </>
