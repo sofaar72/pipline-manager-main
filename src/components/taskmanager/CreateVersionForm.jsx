@@ -13,7 +13,7 @@ import UploadFileForm from "./UploadFileForm";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFiles } from "../../store/Slices/FileSlice";
 import VersionsFileTogglerBox from "./VersionsFileTogglerBox";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
 
 const CreateVersionForm = ({

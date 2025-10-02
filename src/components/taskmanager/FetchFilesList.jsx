@@ -1,7 +1,6 @@
 import React from "react";
 import Loading from "../golbals/Loading";
 import FilesItemExport from "../golbals/FilesItemExport";
-import { ToastContainer } from "react-toastify";
 
 const FetchFilesList = ({ files, filesLoading, setVersionFiles }) => {
   return (
@@ -29,13 +28,6 @@ const FetchFilesList = ({ files, filesLoading, setVersionFiles }) => {
           </div>
         )}
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-      />
     </>
   );
 };

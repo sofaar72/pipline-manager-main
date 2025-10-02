@@ -4,7 +4,7 @@ import { DropDownModalWrapper } from "../taskmanager/DropDownModalWrapper";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { useProject } from "../../hooks/useProject";
 import Loading from "../golbals/Loading";
-import { ToastContainer } from "react-toastify";
+
 import { useNavigate } from "react-router-dom";
 import { usecreateProjectSchema } from "../../hooks/useFormSchema";
 import { Formik } from "formik";
@@ -371,7 +371,6 @@ const CreateProjectForm = () => {
           </form>
         )}
       </Formik>
-      <ToastContainer />
     </div>
   );
 };

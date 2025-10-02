@@ -9,7 +9,6 @@ import { useTypes } from "../../hooks/useTypes";
 import Loading from "../golbals/Loading";
 import { useEntityFormSchema } from "../../hooks/useFormSchema";
 
-import { ToastContainer } from "react-toastify";
 import CustomInput from "./CustomInput";
 import TheButton from "./TheButton";
 import TheDropDown from "./TheDropDown";
@@ -117,8 +116,6 @@ const CreateTaskForm = ({
 
   return (
     <>
-      {/* show the toasts  */}
-      <ToastContainer />
       <div
         className="w-[700px] h-fit px-[10px] py-[20px] radius bg-[var(--overview-color-one)] flex flex-col gap-[20px] justify-between transition"
         onClick={(e) => e.stopPropagation()}

@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { useTypes } from "../../hooks/useTypes";
 import FormPLaceHolder from "../golbals/PlaceHolders.jsx/FormPlaceHolder";
 import { useEpisodeManagerContext } from "../../assets/context/EpisodeManagerContext";
-import { toast, ToastContainer } from "react-toastify";
+
 import { useEntities } from "../../hooks/useEntities";
 import { useParams } from "react-router-dom";
 import { useVariations } from "../../hooks/useVariations";
@@ -105,11 +105,6 @@ const CreateTaskForm = ({
   const selectVariation = (variation) => {
     setSelectedVariation(variation);
   };
-
-  // if (createTaskError) {
-  //   notify("test");
-  //   return <ToastContainer />
-  // }
 
   if (typeLoading) {
     return (
@@ -224,7 +219,6 @@ const CreateTaskForm = ({
           </>
         )}
       </Formik>
-      <ToastContainer />
     </div>
   );
 };

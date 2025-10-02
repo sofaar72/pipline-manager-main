@@ -9,7 +9,6 @@ import { useTypes } from "../../hooks/useTypes";
 import Loading from "../golbals/Loading";
 import { useEntityFormSchema } from "../../hooks/useFormSchema";
 
-import { ToastContainer } from "react-toastify";
 import CustomInput from "./CustomInput";
 import TheButton from "./TheButton";
 import TheDropDown from "./TheDropDown";

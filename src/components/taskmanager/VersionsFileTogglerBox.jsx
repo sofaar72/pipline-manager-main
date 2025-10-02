@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FetchFilesList from "./FetchFilesList";
 import UploadFileForm from "./UploadFileForm";
-import { ToastContainer } from "react-toastify";
 
 const VersionsFileTogglerBox = ({
   versionFiles,

@@ -9,7 +9,6 @@ import { useTypes } from "../../../hooks/useTypes";
 import Loading from "../../golbals/Loading";
 import { useEntityFormSchema } from "../../../hooks/useFormSchema";
 
-import { ToastContainer } from "react-toastify";
 import CustomInput from "../CustomInput";
 import TheButton from "../TheButton";
 import TheDropDown from "../TheDropDown";
@@ -135,8 +134,6 @@ const UpdateTaskForm = ({
 
   return (
     <>
-      <ToastContainer />
-      {/* show the toasts  */}
       <div
         className="w-full h-fit flex flex-col gap-[20px] justify-between transition"
         onClick={(e) => e.stopPropagation()}

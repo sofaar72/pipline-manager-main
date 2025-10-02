@@ -8,7 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useUser } from "../../hooks/useUser";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import * as tus from "tus-js-client";
 
@@ -203,14 +203,6 @@ const UploadFileForm = ({
           </span>
         )}
       </CbuttonOne>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        theme="dark"
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-      />
     </div>
   );
 };

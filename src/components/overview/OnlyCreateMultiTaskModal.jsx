@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { ToastContainer } from "react-toastify";
-
 import TheButton from "./TheButton";
 
 import { useTasks } from "../../hooks/useTasks";
@@ -76,8 +74,6 @@ const OnlyCreateMultiTaskModal = ({
 
   return (
     <>
-      {/* show the toasts  */}
-      <ToastContainer />
       <div
         className="w-[700px] h-fit px-[10px] py-[20px] radius bg-[var(--overview-color-one)] flex flex-col gap-[20px] justify-between transition"
         onClick={(e) => e.stopPropagation()}

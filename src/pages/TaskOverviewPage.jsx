@@ -15,7 +15,7 @@ import { useComments } from "../hooks/useComments";
 import CreateTaskForm from "../components/overview/CreateTaskForm";
 import OnlyCreateTaskModal from "../components/overview/OnlyCreateTaskModal";
 import Loading from "../components/golbals/Loading";
-import { ToastContainer } from "react-toastify";
+
 import AddUserToTaskForm from "../components/overview/AddUserToTaskForm";
 import CreateAssetForm from "../components/overview/CreateAssetForm";
 import CreateAssetModal from "../components/overview/table/CreateAssetModal";
@@ -349,7 +349,6 @@ const TaskOverviewPage = () => {
 
   return (
     <LayoutOne>
-      <ToastContainer style={{ zIndex: 999999999999999 }} />
       <div className="w-full h-full flex gap-4 p-4 relative radius overflow-hidden">
         {/* OVERVIEW PART */}
         <div

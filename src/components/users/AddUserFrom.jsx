@@ -4,8 +4,7 @@ import FormInputC from "../golbals/FormInputC";
 import CbuttonOne from "../golbals/Buttons/CbuttonOne";
 import { userAddFormSchema } from "../../hooks/useFormSchema";
 import { useUser } from "../../hooks/useUser";
-import { toast, ToastContainer } from "react-toastify";
-import ToastBox from "../golbals/ToastBox";
+
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../assets/context/AuthContext";
 import Lottie from "lottie-react";
@@ -187,8 +186,6 @@ const AddUserForm = ({ openModal }) => {
           </form>
         )}
       </Formik>
-
-      <ToastContainer />
     </div>
   );
 };

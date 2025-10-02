@@ -4,7 +4,7 @@ import FormInputC from "../golbals/FormInputC";
 import CbuttonOne from "../golbals/Buttons/CbuttonOne";
 import { useRegisterFormSchema } from "../../hooks/useFormSchema";
 import { useUser } from "../../hooks/useUser";
-import { toast, ToastContainer } from "react-toastify";
+
 import ToastBox from "../golbals/ToastBox";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../assets/context/AuthContext";
@@ -124,8 +124,6 @@ const RegisterFrom = () => {
           </form>
         )}
       </Formik>
-
-      <ToastContainer />
     </div>
   );
 };

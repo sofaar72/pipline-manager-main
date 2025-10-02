@@ -1,7 +1,6 @@
 import React from "react";
 import { useEntities } from "../../hooks/useEntities";
 import Loading from "../golbals/Loading";
-import { ToastContainer } from "react-toastify";
 
 const DeleteEntityModal = ({ id, closeModal }) => {
   const { deleteFilmEntity, deleteLoading } = useEntities();
@@ -34,7 +33,6 @@ const DeleteEntityModal = ({ id, closeModal }) => {
           </button>
         </div>
       </div>
-      <ToastContainer />
     </>
   );
 };

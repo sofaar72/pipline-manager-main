@@ -9,7 +9,6 @@ import { useTypes } from "../../hooks/useTypes";
 import Loading from "../golbals/Loading";
 import { useEntityFormSchema } from "../../hooks/useFormSchema";
 import { useEntities } from "../../hooks/useEntities";
-import { ToastContainer } from "react-toastify";
 
 const EditEntityForm = ({
   title = "Edit Entity",
@@ -148,7 +147,6 @@ const EditEntityForm = ({
           </>
         )}
       </Formik>
-      <ToastContainer />
     </div>
   );
 };
