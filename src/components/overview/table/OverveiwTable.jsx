@@ -35,6 +35,7 @@ import { IoMdAdd } from "react-icons/io";
 import GlobalPureModal from "../../golbals/GlobalPureModal";
 import OnlyCreateMultiTaskModal from "../OnlyCreateMultiTaskModal";
 import UpdateMultipleTasksModal from "../UpdateTaskModal/UpdateMultipleTasksModal";
+import DeleteTaskModal from "../DeleteTaskModal";
 
 export default function OverviewTable({
   tableItemsSize,
@@ -59,7 +60,6 @@ export default function OverviewTable({
   loading,
   handleAddUserTaskModal,
   setSelectedTasksOutside,
-  deleteTheTask,
   fetchEntities,
   handleCreateGlobalTaskModal,
   selectedEntType,
@@ -68,6 +68,7 @@ export default function OverviewTable({
 }) {
   const [createTasksModal, setCreateTasksModal] = useState(false);
   const [updateTaskModal, setUpdateTasksModal] = useState(false);
+  const [deleteTaskModal, setDeleteTasksModal] = useState(false);
 
   // TASK SETTINGS HOOK
   const {
@@ -147,12 +148,7 @@ export default function OverviewTable({
   }, [selectedTasks]);
 
   // remove multiple tasks
-  const removeTheTask = (taskIdies) => {
-    console.log(taskIdies);
-    taskIdies.forEach((id) => {
-      deleteTheTask(id, fetchEntities);
-    });
-  };
+  const [tasksToRemove, setTAsksToRemove] = useState([]);
 
   // check the task is empty or not
   const [tasksWithId, setTasksWithId] = useState([]);
@@ -250,21 +246,10 @@ export default function OverviewTable({
     // console.log("Tasks without ID:", withoutId);
   };
 
-  useEffect(() => {
-    console.log(selectedTasks);
-  }, [selectedTasks]);
-
-  useEffect(() => {
-    console.log(tasksWithId);
-  }, [tasksWithId]);
-  // useEffect(() => {
-  //   console.log(tasksWithoutId);
-  // }, [tasksWithoutId]);
-
   return (
     <>
       <div
-        className={` w-fullh-full p-0 bg-[var(--overview-color-bg)] text-white `}
+        className={` w-full h-full p-0 bg-[var(--overview-color-bg)] text-white `}
         style={{
           width: showPreview
             ? "100%"
@@ -276,8 +261,8 @@ export default function OverviewTable({
         <div className="w-full h-full flex flex-1 gap-0 overflow-hidden">
           <div className="w-full h-full flex-1 rounded-md bg-[#14131a] py-4 overflow-hidden">
             <div className="w-full h-full flex-1 rounded-md  p-0 flex flex-col gap-[10px] overflow-hidden">
-              <div className="w-full h-full flex flex-col gap-4 overflow-x-auto">
-                <div className="w-full h-fit flex-1 ">
+              <div className="w-full h-full flex flex-col gap-4 overflow-x-auto relative">
+                <div className="w-full h-fit ">
                   <TableHeader
                     gridTemplateColumns={gridTemplateColumns}
                     columns={columns}
@@ -298,10 +283,10 @@ export default function OverviewTable({
                     //     ? "100%"
                     //     : `${previewWidth > 800 ? "fit-content" : "100%"} `,
                     // }}
-                    style={{
-                      minWidth: previewWidth > 800 ? "800px" : "100%",
-                      width: showPreview ? "100%" : "fit-content",
-                    }}
+                    // style={{
+                    //   minWidth: previewWidth > 800 ? "800px" : "100%",
+                    //   width: showPreview ? "100%" : "fit-content",
+                    // }}
                   >
                     <OverviewItems
                       handleShowPrev={handleShowPrev}
@@ -362,10 +347,16 @@ export default function OverviewTable({
                                 <>
                                   <button
                                     className="text-lg cursor-pointer"
-                                    onClick={() =>
-                                      removeTheTask(
-                                        tasksWithId.map((task) => task.taskId)
-                                      )
+                                    onClick={
+                                      () => {
+                                        setDeleteTasksModal(true);
+                                        setTAsksToRemove(
+                                          tasksWithId.map((task) => task.taskId)
+                                        );
+                                      }
+
+                                      // removeTheTask(
+                                      // )
                                     }
                                     title="Delete selected tasks"
                                   >
@@ -492,6 +483,14 @@ export default function OverviewTable({
           status={540}
           setModal={setUpdateTasksModal}
           fetchData={fetchEntities}
+        />
+      </GlobalPureModal>
+      {/* delete tasks  */}
+      <GlobalPureModal open={deleteTaskModal} setOpen={setDeleteTasksModal}>
+        <DeleteTaskModal
+          tasksToRemove={tasksToRemove}
+          fetchData={fetchEntities}
+          closeModal={setDeleteTasksModal}
         />
       </GlobalPureModal>
     </>

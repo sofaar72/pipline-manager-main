@@ -14,7 +14,10 @@ const PreviewNoTask = ({ openCreateTask }) => {
         <div className="w-full bg-[var(--overview-color-four)]/50 h-[1px]"></div>
         <TheButton
           cClass="!bg-[var(--overview-color-done)]/80 hover:!bg-[var(--overview-color-done)] h-[50px]"
-          onClick={openCreateTask}
+          onClick={(e) => {
+            e.preventDefault();
+            openCreateTask();
+          }}
         >
           Create Task
         </TheButton>

@@ -142,11 +142,14 @@ const OverviewItem = ({
       key={item.id}
       className={`w-full grid items-center gap-0 px-0 hover:bg-[var(--overview-color-progress)]/20 h-lg ${
         !tableItemsSize ? "h-[40px]" : "h-[120px]"
-      } shrink-0 radius overflow-hidden cursor-pointer ${
+      } shrink-0 radius overflow-hidden cursor-pointer 
+      ${
         isSelected
           ? "bg-[var(--overview-color-select)]"
           : "bg-[var(--overview-color-two)]"
-      } ${editMode && "!bg-[var(--overview-color-four)]"}`}
+      }
+       ${editMode && "!bg-[var(--overview-color-four)]"}
+      `}
       style={{
         gridTemplateColumns,
         userSelect: editMode ? "none" : "auto",

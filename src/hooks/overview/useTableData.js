@@ -4,20 +4,6 @@ export const useTableData = ({ tableItems = [], selectedEntType }) => {
   /**
    * Helper to map status -> Tailwind classes
    */
-  const statusClasses = (status, color) => {
-    switch (status) {
-      case "todo":
-        return { className: "!text-white", style: { backgroundColor: color } };
-      case "In Progress":
-        return { className: "bg-amber-500 text-white" };
-      case "Blocked":
-        return { className: "bg-red-500 text-white" };
-      case "Done":
-        return { className: "bg-emerald-400 text-black" };
-      default:
-        return { className: "bg-gray-600 text-white" };
-    }
-  };
 
   // Departments (Tasks) (demo)
   const DEPARTMENTS = ["Modeling", "Texturing", "Rigging", "Shading"];
@@ -118,6 +104,7 @@ export const useTableData = ({ tableItems = [], selectedEntType }) => {
               name: task.status?.name || "todo",
               id: task.status?.id || null,
               color: task.status?.color,
+              shortName: task.status?.short_name,
             },
             assignees: [...newAssignees],
           };
@@ -187,7 +174,6 @@ export const useTableData = ({ tableItems = [], selectedEntType }) => {
   dynamicDepartments.forEach((d) => (DEFAULT_WIDTHS[d.name] = 200));
 
   return {
-    statusClasses,
     DEPARTMENTS,
     SAMPLE_DATA,
     dynamicDepartments,

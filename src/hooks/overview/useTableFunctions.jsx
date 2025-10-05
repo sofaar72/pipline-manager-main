@@ -27,7 +27,6 @@ export const useTableFunctions = ({
   selectedEntType,
 }) => {
   const {
-    statusClasses,
     DEPARTMENTS,
     SAMPLE_DATA,
     DEFAULT_WIDTHS,
@@ -143,10 +142,6 @@ export const useTableFunctions = ({
           );
         }
 
-        const { className, style } = statusClasses(
-          val?.status?.name,
-          val?.status?.color
-        );
         return (
           <div
             className={`flex transition ${
@@ -160,10 +155,10 @@ export const useTableFunctions = ({
             <div
               className={`${editMode && "pointer-none"} px-3 py-1 radius ${
                 showAssignees ? "w-[100px]" : "flex-1 shrink-0 w-full"
-              } h-regular font-[500] flex items-center justify-center text-center text-white ${className}`}
-              style={style}
+              } h-regular font-[500] flex items-center justify-center text-center text-white `}
+              style={{ backgroundColor: val?.status?.color }}
             >
-              {val?.status?.name || "No Status"}
+              {val?.status?.shortName || "No Status"}
             </div>
 
             {showAssignees && val?.assignees?.length > 0 && (
@@ -247,7 +242,7 @@ export const useTableFunctions = ({
     showAssignees,
     editMode,
     data,
-    statusClasses,
+
     loading,
   ]);
 

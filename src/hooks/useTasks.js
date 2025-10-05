@@ -11,6 +11,7 @@ import {
 } from "../store/Slices/TaskSlice";
 import { useVersions } from "./useVersions";
 import { fetchAllUsers } from "../store/Slices/userSlice";
+import { toast } from "react-toastify";
 
 export const useTasks = ({ dataType = "production" } = {}) => {
   const [activeTask, setActiveTask] = useState(null);
@@ -67,11 +68,16 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     fetchAllVersions(taskId);
   };
 
-  const addTask = async (taskData, closeModal = () => {}, noTask) => {
+  const addTask = async (
+    taskData,
+    closeModal = () => {},
+    setSuccess = () => {}
+  ) => {
     dispatch(createTask({ ...taskData })).then((res) => {
       if (res.payload) {
         if (dataType === "production") {
           closeModal(false);
+          setSuccess(true);
         } else {
         }
       }
@@ -93,15 +99,12 @@ export const useTasks = ({ dataType = "production" } = {}) => {
       .catch((err) => console.log(err));
   };
 
-  const deleteTheTask = async (id, fetch, closeModal = () => {}) => {
-    dispatch(deleteTask({ id: id })).then((res) => {
+  const deleteTheTask = async (id) => {
+    return dispatch(deleteTask({ id })).then((res) => {
       if (res.payload) {
-        fetch();
-        if (dataType === "production") {
-          closeModal(false);
-        } else {
-        }
+        return true; // success
       }
+      return false; // failed
     });
   };
 

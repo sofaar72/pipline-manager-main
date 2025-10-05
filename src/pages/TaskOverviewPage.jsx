@@ -26,16 +26,7 @@ const TaskOverviewPage = () => {
   const wrapperRef = useRef(null);
   const isSmallView = useMediaQuery({ maxWidth: 1400 });
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
-  const {
-    fetchAllTasks,
-    taskResults,
-    taskLoading,
-    taskError,
-    deleteTheTask,
-    taskDeleteSuccess,
-    deleteTaskLoading,
-    deleteTaskError,
-  } = useTasks();
+  const { fetchAllTasks, taskResults, taskLoading } = useTasks();
   const {
     fetchAllVersions,
     versionResults,
@@ -150,8 +141,10 @@ const TaskOverviewPage = () => {
     getTheProjects();
   }, []);
 
-  const fetchEntities = () => {
-    getTheEntities(selectedProject, selectedEntType);
+  const fetchEntities = async () => {
+    await getTheEntities(selectedProject, selectedEntType).then(() => {
+      return "success";
+    });
   };
 
   // // Get episodes when selectedProject changes
@@ -250,6 +243,8 @@ const TaskOverviewPage = () => {
 
   useEffect(() => {
     if (selectedTasksOutside.length > 0) {
+      console.log(selectedTasksOutside);
+      console.log(showPreview);
       // hidePrev();
     }
   }, [selectedTasksOutside]);
@@ -349,7 +344,7 @@ const TaskOverviewPage = () => {
 
   return (
     <LayoutOne>
-      <div className="w-full h-full flex gap-4 p-4 relative radius overflow-hidden">
+      <div className="w-full h-full flex gap-4 p-0 relative radius overflow-hidden">
         {/* OVERVIEW PART */}
         <div
           className={`w-full flex-1 h-full  text-white transition flex flex-col gap-[10px]`}
@@ -450,7 +445,6 @@ const TaskOverviewPage = () => {
                   typeId={typeId}
                   handleAddUserTaskModal={handleAddUserTaskModal}
                   setSelectedTasksOutside={setSelectedTasksOutside}
-                  deleteTheTask={deleteTheTask}
                   fetchEntities={fetchEntities}
                   handleCreateGlobalTaskModal={handleCreateGlobalTaskModal}
                   isSmallView={isSmallView}

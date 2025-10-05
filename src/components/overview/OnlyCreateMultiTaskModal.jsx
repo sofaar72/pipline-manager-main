@@ -17,32 +17,8 @@ const OnlyCreateMultiTaskModal = ({
   // compareType = null,
   fetchData = () => {},
 }) => {
-  const { addTask, createTaskLoading, taskSuccess } = useTasks();
-
-  useEffect(() => {
-    console.log(entityIdies);
-  }, [entityIdies]);
-
-  // const create = async () => {
-  //   if (!entityIdies.length) return;
-
-  //   try {
-  //     for (const ent of entityIdies) {
-  //       const newData = {
-  //         type: typeId,
-  //         parent_type: parentType,
-  //         status: status,
-  //         parent: ent,
-  //       };
-  //       await addTask(newData, setCreateModal);
-  //     }
-
-  //     // Fetch updated data only once after all tasks are added
-  //     fetchData();
-  //   } catch (err) {
-  //     console.error("Error creating tasks:", err);
-  //   }
-  // };
+  const { addTask, createTaskLoading } = useTasks();
+  const [success, setSuccess] = useState(false);
 
   const create = async () => {
     if (!entityIdies.length) return;
@@ -59,18 +35,24 @@ const OnlyCreateMultiTaskModal = ({
         };
 
         // make sure addTask returns a Promise
-        return addTask(newData, setCreateModal);
+        return addTask(newData, setCreateModal, setSuccess);
       });
 
       // Wait for all tasks to finish
       await Promise.all(promises);
 
       // Fetch updated data only once after all tasks are added
-      await fetchData();
     } catch (err) {
       console.error("Error creating tasks:", err);
     }
   };
+
+  useEffect(() => {
+    if (success) {
+      fetchData();
+      setSuccess(false);
+    }
+  }, [success]);
 
   return (
     <>

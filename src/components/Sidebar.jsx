@@ -63,12 +63,12 @@ const Sidebar = () => {
 
   return (
     <div
-      className={` bg-blue-500 max-w-side h-screen flex gap-0 transition-all duration-200 relative ${
+      className={` bg-blue-500 max-w-side h-screen flex gap-0 transition-all duration-200 relative overflow-hidden   p-0 ${
         isCollapsed ? "w-[68px]" : "w-[259px]"
       }`}
     >
       {/* side collapse  */}
-      <div className="w-[68px] h-full bg-[#262437] flex flex-col items-center py-[75px] gap-[25px] px-[13px] absolute top-0 left-0 z-10 h-[121px]">
+      <div className="w-[68px] h-full bg-[#262437] flex flex-col items-center py-[75px] gap-[25px]  absolute top-0 left-0 z-10 h-[121px]">
         {/* collapse icon  */}
         <div
           className={`w-[24px] h-[24px] absolute right-1/2 translate-x-1/2 top-[14px] cursor-pointer transition-2 ${
@@ -87,15 +87,15 @@ const Sidebar = () => {
         {/* icons  */}
 
         <div className="w-full h-full  flex-1 flex flex-col items-center gap-[25px] text-white ">
-          <NavLink
+          {/* <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
             }
             to={"/dashboard"}
           >
             <FaHome className="w-full h-full" />
-          </NavLink>
-          <NavLink
+          </NavLink> */}
+          {/* <NavLink
             title="Users"
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
@@ -103,7 +103,7 @@ const Sidebar = () => {
             to={"/users"}
           >
             <FaUserGroup className="w-full h-full" />
-          </NavLink>
+          </NavLink> */}
           {/* <NavLink
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
@@ -121,7 +121,7 @@ const Sidebar = () => {
           >
             <GrOverview className="w-full h-full" />
           </NavLink>
-          <NavLink
+          {/* <NavLink
             title="Select Projects"
             className={
               "text-sm hover:text-[var(--primary-color-light)] transition w-[30px] h-[30px] flex items-center justify-center p-[3px] rounded-full"
@@ -129,7 +129,7 @@ const Sidebar = () => {
             to={"/projects/select"}
           >
             <FaChartPie className="w-full h-full" />
-          </NavLink>
+          </NavLink> */}
           {/* <div
             className="w-full h-full transition flex  justify-center"
             style={{
@@ -262,14 +262,14 @@ const Sidebar = () => {
             >
               Dashboard
             </NavLink> */}
-            <NavLink
+            {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
               }
               to={"/users"}
             >
               Users
-            </NavLink>
+            </NavLink> */}
             {/* <NavLink
               className={
                 "text-sm hover:text-[var(--primary-color-light)] transition h-[30px] flex items-center  p-[3px] rounded-full"
@@ -287,13 +287,13 @@ const Sidebar = () => {
             >
               Overview
             </NavLink>
-            <SidebarDropdown
+            {/* <SidebarDropdown
               label="Projects"
               links={[
                 { label: "Create Project", to: "/projects/create" },
                 { label: "Select Project", to: "/projects/select" },
               ]}
-            />
+            /> */}
             {/* <SidebarDropdown
               label="File Manager"
               links={[

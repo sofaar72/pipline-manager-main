@@ -85,7 +85,7 @@ export const useOverview = () => {
     fetchEpisodes();
   };
 
-  const getTheEntities = (
+  const getTheEntities = async (
     project,
     type = "All",
     search = "",
@@ -97,7 +97,7 @@ export const useOverview = () => {
       // console.log(project);
 
       if (type === "Assets") {
-        dispatch(
+        await dispatch(
           fetchVariationsForAll()
           // fetchAssets({
           //   project: project.id,
@@ -108,7 +108,7 @@ export const useOverview = () => {
           // })
         );
       } else {
-        dispatch(
+        await dispatch(
           fetchFilms({
             project: project.id,
             type:
