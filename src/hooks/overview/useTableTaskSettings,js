@@ -15,7 +15,6 @@ export const useTableTaskSettings = () => {
     "light",
   ];
 
-  // Updated to store department-specific task data
   const toggleTask = (cellId, rowId, departments, entityId, typeId = null) => {
     if (!validCells.includes(cellId)) return;
 
@@ -25,7 +24,6 @@ export const useTableTaskSettings = () => {
         return prev.filter((item) => item.key !== theKey);
       }
 
-      // Get the specific department task for this cell
       const departmentTask = departments?.[cellId] || {};
 
       return [
@@ -35,9 +33,9 @@ export const useTableTaskSettings = () => {
           cellId,
           rowId,
           entityId,
-          typeId, // Store the task type ID
-          departmentTask, // Store the specific task data
-          allDepartments: departments, // Keep reference to all departments if needed
+          typeId,
+          departmentTask,
+          allDepartments: departments,
         },
       ];
     });
@@ -83,7 +81,7 @@ export const useTableTaskSettings = () => {
           cellId,
           rowId,
           entityId: rowData?.id,
-          typeId, // Add typeId to range selections
+          typeId,
           departmentTask,
           allDepartments: departments,
         });
@@ -105,9 +103,10 @@ export const useTableTaskSettings = () => {
         cellId,
         rowId,
         entityId,
-        typeId, // Store the task type ID
+        typeId,
         departmentTask,
         allDepartments: departments,
+        selectedAt: Date.now(), // Add timestamp for selection order
       },
     ]);
     setLastSelectedCell({ cellId, rowId });
@@ -133,9 +132,10 @@ export const useTableTaskSettings = () => {
             cellId,
             rowId,
             entityId,
-            typeId, // Store the task type ID
+            typeId,
             departmentTask,
             allDepartments: departments,
+            selectedAt: Date.now(), // Add timestamp for selection order
           },
         ];
       }
@@ -184,7 +184,7 @@ export const useTableTaskSettings = () => {
           cellId,
           rowId,
           entityId: allRows.find((r) => r.id.toString() === rowId)?.id,
-          typeId, // Store the task type ID
+          typeId,
           departmentTask,
           allDepartments: departments,
         },
@@ -229,7 +229,7 @@ export const useTableTaskSettings = () => {
               cellId,
               rowId,
               entityId,
-              typeId, // Store the task type ID
+              typeId,
               departmentTask,
               allDepartments: departments,
             },
@@ -243,8 +243,10 @@ export const useTableTaskSettings = () => {
   };
 
   const handleTaskSelection = (
+    e,
     cellId,
     rowId,
+    entName,
     departments,
     allRows,
     isShiftClick,
@@ -252,6 +254,8 @@ export const useTableTaskSettings = () => {
     entityId,
     typeId = null
   ) => {
+    e.stopPropagation();
+    
     if (isShiftClick && isCtrlClick) {
       return extendSelectionRange(cellId, rowId, departments, allRows, typeId);
     } else if (isShiftClick) {
@@ -311,7 +315,6 @@ export const useTableTaskSettings = () => {
     setLastSelectedCell(null);
   };
 
-  // Function to update typeId for all selected tasks
   const setTypeIdForAllSelected = (typeId) => {
     setSelectedTasks((prev) => 
       prev.map((task) => ({
@@ -332,7 +335,7 @@ export const useTableTaskSettings = () => {
           cellId,
           rowId: row.id.toString(),
           entityId: row.id,
-          typeId, // Store the task type ID
+          typeId,
           departmentTask,
           allDepartments: departments,
         });

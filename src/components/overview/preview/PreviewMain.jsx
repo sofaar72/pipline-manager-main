@@ -7,6 +7,9 @@ import { useTasks } from "../../../hooks/useTasks";
 import PreviewNoTask from "./PreviewNoTask";
 import PreviewLoading from "./PreviewLoading";
 import { useComments } from "../../../hooks/useComments";
+import GlobalPureModal from "../../golbals/GlobalPureModal";
+import DeleteTaskModal from "../DeleteTaskModal";
+import UpdateMultipleTasksModal from "../UpdateTaskModal/UpdateMultipleTasksModal";
 
 const PreviewMain = ({
   addressbar,
@@ -18,7 +21,7 @@ const PreviewMain = ({
   loading,
   fetchAllVersions,
   versionLoading,
-  versionResults,
+
   fetchVersionPreview,
 
   versionPreviewData,
@@ -31,8 +34,12 @@ const PreviewMain = ({
   typeId,
   setFullScreenOverview,
   entityValidTaskTypes,
+  fetchEntities,
 }) => {
   const [switcher, setSwitcher] = useState("comment");
+  const [deleteTaskModal, setDeleteTaskModal] = useState(false);
+  const [updateTaskModal, setUpdateTaskModal] = useState(false);
+  const [tasksToRemove, setTasksToRemove] = useState([]);
 
   const {
     getAllComments,
@@ -53,22 +60,8 @@ const PreviewMain = ({
     updateRes,
   } = useComments();
 
-  // FETCH VERSIONS OF THE TASK
-  // useEffect(() => {
-  //   if (taskResults.length > 0) {
-  //     fetchAllVersions(taskResults[0]?.id, setVersionId);
-  //   }
-  // }, [taskResults]);
-
-  // useEffect(() => {
-  //   if (taskResults) {
-  //     console.log(taskResults);
-  //   }
-  // }, [taskResults]);
-
   // FETCH SINGLE VERSION
   useEffect(() => {
-    console.log(versionId);
     if (versionId && versionId.id) {
       fetchVersionPreview(versionId.id);
     } else {
@@ -78,26 +71,50 @@ const PreviewMain = ({
   }, [versionId]); // Added versionResults to dependencies
 
   // useEffect(() => {
-  //   console.log(versionId);
-  // }, [versionId]);
+  //   console.log(previewWidth);
+  // }, [previewWidth]);
 
-  if (loading) {
-    return <PreviewLoading />;
-  } else if (versionPreviewLoading) {
-    return <PreviewLoading />;
-  }
+  // Handler functions for task operations
+  const handleUpdateTask = () => {
+    setUpdateTaskModal(true);
+  };
+
+  const handleDeleteTask = () => {
+    if (taskId) {
+      setTasksToRemove([taskId]);
+      setDeleteTaskModal(true);
+    }
+  };
+
+  // Enhanced refresh function that updates both entities and tasks
+  const handleRefreshAfterTaskUpdate = () => {
+    // Refresh entity data to get updated task information
+    if (fetchEntities) {
+      fetchEntities();
+    }
+  };
+
+  // Check if current task has data
+  const hasTaskData = taskId && Object.keys(taskResults).length > 0;
 
   return (
     <div
       className="w-full h-full flex flex-col gap-[10px] p-[10px] shrink-0"
       onClick={(e) => {
         e.stopPropagation();
+
         // stopResizing();
       }}
     >
-      {taskResults.length > 0 ? (
+      {Object.keys(taskResults).length > 0 ? (
         <>
-          <PreviewTopBar hidePrev={hidePrev} />
+          <PreviewTopBar
+            hidePrev={hidePrev}
+            taskId={taskId}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
+            hasTaskData={hasTaskData}
+          />
           <PreviewAddress addressbar={addressbar} />
 
           <PreviewVideoWrapper
@@ -108,7 +125,7 @@ const PreviewMain = ({
             versionId={versionId}
             setVersionId={setVersionId}
             versionLoading={versionLoading}
-            versionResults={versionResults}
+            versionResults={taskResults}
             versionPreviewData={versionPreviewData}
             versionPreviewLoading={versionPreviewLoading}
             fetchAllVersions={fetchAllVersions}
@@ -146,6 +163,25 @@ const PreviewMain = ({
       ) : (
         <PreviewNoTask openCreateTask={handleCreateTaskModal} />
       )}
+
+      {/* Modals for task operations */}
+      <GlobalPureModal open={deleteTaskModal} setOpen={setDeleteTaskModal}>
+        <DeleteTaskModal
+          tasksToRemove={tasksToRemove}
+          fetchData={handleRefreshAfterTaskUpdate}
+          closeModal={setDeleteTaskModal}
+        />
+      </GlobalPureModal>
+
+      <GlobalPureModal open={updateTaskModal} setOpen={setUpdateTaskModal}>
+        <UpdateMultipleTasksModal
+          selectedTasksNumbers={1}
+          taskIdies={[taskId]}
+          status={540}
+          setModal={setUpdateTaskModal}
+          fetchData={handleRefreshAfterTaskUpdate}
+        />
+      </GlobalPureModal>
     </div>
   );
 };

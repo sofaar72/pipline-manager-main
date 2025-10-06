@@ -137,7 +137,7 @@ const TheAnnotationWrapper = ({
       clearAnnotations();
       // Reset video controls when new video is loaded
       pauseTheVideo();
-      // setCurrentFrameIndex(0);
+      setCurrentFrameIndex(0);
       // Reset video element
       if (prevVideoData.type === "Video") {
         if (videoRef.current) {
@@ -265,17 +265,16 @@ const TheAnnotationWrapper = ({
     return (
       <div className={containerClass}>
         <div
-          className={`w-full flex-1 relative overflow-hidden bg-black ${
+          className={`w-full flex-1 ${
             isCompare ? "flex" : "block"
-          }`}
-          style={{ height: `${height}px` }}
+          } overflow-hidden`}
         >
           {/* Left: primary video/annotation panel */}
           <div
             className={`${
               isCompare ? "w-1/2" : "w-full"
             } relative overflow-hidden bg-black`}
-            style={{ height: `${isFullScreen ? "100%" : height + "px"}` }}
+            style={{ height: `${height}px` }}
           >
             <TheVideo
               key={`video-${prevVideoData?.media_id || prevVideoData?.url}-${
@@ -334,6 +333,17 @@ const TheAnnotationWrapper = ({
               />
             )}
           </div>
+
+          {/* Right: compare slot */}
+          {isCompare && (
+            <div
+              className="w-1/2 relative overflow-hidden bg-black/70 flex items-center justify-center"
+              style={{ height: `${height}px` }}
+            >
+              {/* Placeholder for upcoming compare preview */}
+              <span className="text-gray-300 text-sm">Compare preview</span>
+            </div>
+          )}
         </div>
 
         {/* {previewWidth >= 550 && ( */}

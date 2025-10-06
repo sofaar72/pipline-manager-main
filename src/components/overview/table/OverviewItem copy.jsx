@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useStage } from "../../../hooks/annotationHooks/useStage";
 
 const OverviewItem = ({
   handleShowPrev,
@@ -10,7 +11,10 @@ const OverviewItem = ({
   flexRender,
   gridTemplateColumns,
   tableItemsSize,
+  activeTask,
+  setActiveTask,
   editMode,
+  setEditMode,
   taskHandleMouseDown,
   taskHandleMouseEnter,
   taskHandleMouseUp,
@@ -21,12 +25,11 @@ const OverviewItem = ({
   setEntityId,
   setSelectedTasks,
   selectedMultipleTasks,
-  handleTaskSelection,
-  allRows = [],
+  handleTaskSelection, // New prop for the main handler
+  allRows = [], // Add this prop to pass all rows data for range selection
   setTaskType,
   typeId,
   setTypeId,
-  setTaskId,
   selectedTasks,
   setEntityValidTaskTypes,
 }) => {
@@ -39,19 +42,35 @@ const OverviewItem = ({
     "light",
   ];
 
+  const showPreview = (
+    e,
+    cellId = "",
+    rowId = "",
+    entName,
+    taskId,
+    entId,
+    taskType
+  ) => {
+    // console.log(taskId);
+    e.stopPropagation();
+    setSelectedTasks([]);
+    if (!cellId || !rowId || editMode) return;
+
+    setEntityId(entId);
+    setTaskType(taskType);
+
+    if (validCells.includes(cellId)) {
+      setAddressbar(entName + "/" + (cellId + "-" + rowId));
+      setActiveTask({ collId: cellId, rowId: rowId });
+      handleShowPrev(e, id, groupId, taskId);
+    }
+  };
+
   const handleCellClick = (e, cell) => {
     const {
       column: { id: cellId, type_id },
       row: { id: rowId, original },
     } = cell;
-
-    const departments = original?.departments || {};
-    const departmentTask = departments[cellId] || {};
-    const taskId = departmentTask?.taskId || departmentTask?.id || null;
-
-    // console.log(cellId);
-    // console.log(taskId);
-    setTaskId(taskId);
 
     setEntityValidTaskTypes(cell.row.original.departments);
 
@@ -66,30 +85,40 @@ const OverviewItem = ({
     const isShiftClick = e.shiftKey;
     const isCtrlClick = e.ctrlKey || e.metaKey;
 
-    // Use handleTaskSelection to manage selection
-    if (handleTaskSelection) {
-      handleTaskSelection(
+    // Use the new handleTaskSelection function if available, otherwise fall back to selectedMultipleTasks
+    const shouldShowPreview = handleTaskSelection
+      ? handleTaskSelection(
+          cellId,
+          rowId,
+          original?.departments || [],
+          allRows,
+          isShiftClick,
+          isCtrlClick,
+          original?.id, // <- pass entityId
+          typeId // Pass typeId here
+        )
+      : selectedMultipleTasks(
+          cellId,
+          rowId,
+          original?.departments || [],
+          allRows,
+          isShiftClick,
+          isCtrlClick,
+          original?.id,
+          typeId // Pass typeId here
+        );
+
+    // Only show preview for normal clicks (no modifiers)
+    if (!isShiftClick && !isCtrlClick && shouldShowPreview) {
+      // console.log(cell.column.columnDef.id);
+      showPreview(
         e,
         cellId,
         rowId,
         original?.name,
-        original?.departments || [],
-        allRows,
-        isShiftClick,
-        isCtrlClick,
+        cell.id,
         original?.id,
-        typeId
-      );
-    } else {
-      selectedMultipleTasks(
-        cellId,
-        rowId,
-        original?.departments || [],
-        allRows,
-        isShiftClick,
-        isCtrlClick,
-        original?.id,
-        typeId
+        cell?.column?.columnDef.id
       );
     }
 
@@ -101,6 +130,12 @@ const OverviewItem = ({
   };
 
   const visibleCells = row.getVisibleCells();
+  const nontaskCells = visibleCells.filter(
+    (c) => !validCells.includes(c.column.id)
+  );
+  const taskCells = visibleCells.filter((c) =>
+    validCells.includes(c.column.id)
+  );
 
   return (
     <div
@@ -118,6 +153,7 @@ const OverviewItem = ({
       style={{
         gridTemplateColumns,
         userSelect: editMode ? "none" : "auto",
+        // width: theShowPreview ? "100%" : `calc(100% - ${previewWidth}px)`,
       }}
       onMouseUp={taskHandleMouseUp}
     >
@@ -130,7 +166,12 @@ const OverviewItem = ({
             : "";
 
         const selected = isTaskSelected(cell.column.id, cell.row.id);
-        const isActive = selected ? "bg-[var(--overview-color-progress)]" : "";
+        const isActive =
+          selected ||
+          (activeTask.collId === cell.column.id &&
+            activeTask.rowId === cell.row.id)
+            ? "bg-[var(--overview-color-progress)]"
+            : "";
 
         return (
           <div
@@ -141,11 +182,13 @@ const OverviewItem = ({
                 !cell.id.includes("add_task") &&
                 "border-l border-r border-[var(--overview-color-three)]/50"
               }  px-2`
-            } ${isValidTaskCell ? "select-none" : ""}`}
+            } ${isValidTaskCell ? "select-none" : ""}`} // Prevent text selection on task cells
             onClick={(e) => handleCellClick(e, cell)}
             onContextMenu={(e) => {
+              // Optional: Right-click context menu
               if (isValidTaskCell) {
                 e.preventDefault();
+                // You can add context menu logic here
               }
             }}
           >

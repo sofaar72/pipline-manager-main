@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { clearTask } from "../store/Slices/TaskSlice";
 import LayoutOne from "../layout/LayoutOne";
 import VideoAnnotationTwo from "../components/previewPage/videoAnnotationTwo/VideoAnnotationTwo";
 import OverviewHeader from "../components/overview/OverviewHeader";
@@ -25,12 +23,14 @@ import { useMediaQuery } from "react-responsive";
 import OverviewHeaderMobile from "../components/overview/OverviewHeaderMobile";
 
 const TaskOverviewPage = () => {
-  const dispatch = useDispatch();
   const wrapperRef = useRef(null);
   const isSmallView = useMediaQuery({ maxWidth: 1400 });
   const { width, height, aspectRatio } = useElementAspect(wrapperRef);
-  const { taskResults, taskLoading, fetchTheTask } = useTasks();
+  const { fetchAllTasks, taskResults, taskLoading } = useTasks();
   const {
+    fetchAllVersions,
+    versionResults,
+    versionLoading,
     fetchSingleVersionPreview,
     versionPreviewData,
     versionPreviewLoading,
@@ -96,34 +96,31 @@ const TaskOverviewPage = () => {
     allVariationsError,
     entityValidTaskTypes,
     setEntityValidTaskTypes,
-    entitiesPage,
-    setEntitiesPage,
-    entitiesPageSize,
-    setEntitiesPageSize,
-    entitiesTotalPages,
   } = useOverview();
 
+  const [showPreview, setShowPreview] = useState({
+    id: null,
+    groupId: null,
+    taskID: null,
+    show: true,
+  });
   const [selectedTasksOutside, setSelectedTasksOutside] = useState([]);
-  const [previewWidth, setPreviewWidth] = useState(600);
+  const [activeTask, setActiveTask] = useState({ collId: "", rowId: "" });
+  const [previewWidth, setPreviewWidth] = useState(600); // default width
   const isResizing = useRef(false);
   const [fullScreenOverView, setFullScreenOverview] = useState(false);
-
-  // New state to track if preview should be shown
-  const [shouldShowPreview, setShouldShowPreview] = useState(false);
 
   const stopResizing = () => {
     isResizing.current = false;
   };
-  // useEffect(() => {
-  //   console.log(entityId);
-  // }, [entityId]);
 
+  // // Start resizing
   const startResizing = (e) => {
     e.stopPropagation();
     isResizing.current = true;
 
     const resizeMouseMove = (eMove) => {
-      const newWidth = window.innerWidth - eMove.clientX - 20;
+      const newWidth = window.innerWidth - eMove.clientX - 20; // 20px padding
       if (newWidth > 600 && newWidth < 1000) {
         setPreviewWidth(newWidth);
       }
@@ -139,73 +136,55 @@ const TaskOverviewPage = () => {
     window.addEventListener("mouseup", resizeMouseUp);
   };
 
+  // // Initial data loading - get projects first
   useEffect(() => {
     getTheProjects();
   }, []);
 
   const fetchEntities = async () => {
-    await getTheEntities(
-      selectedProject,
-      selectedEntType,
-      searchItem,
-      entitiesPage,
-      entitiesPageSize
-    ).then(() => {
-      // If a task is currently selected, also refresh the task data
-      if (taskId && shouldShowPreview) {
-        fetchTheTask(taskId);
-      }
+    await getTheEntities(selectedProject, selectedEntType).then(() => {
       return "success";
     });
   };
 
-  // pagination handlers to ensure immediate refreshes
-  const handlePageChange = (page) => {
-    setEntitiesPage(page);
-    getTheEntities(
-      selectedProject,
-      selectedEntType,
-      searchItem,
-      page,
-      entitiesPageSize
-    );
-  };
-  const handlePageSizeChange = (size) => {
-    setEntitiesPage(1);
-    setEntitiesPageSize(size);
-    getTheEntities(selectedProject, selectedEntType, searchItem, 1, size);
-  };
-
+  // // Get episodes when selectedProject changes
   useEffect(() => {
     if (selectedProject) {
       getEpisodes();
-      if (typeof setEntitiesPage === "function") setEntitiesPage(1);
-      // fetch first page explicitly after project changes
-      getTheEntities(
-        selectedProject,
-        selectedEntType,
-        searchItem,
-        1,
-        entitiesPageSize
-      );
+      // Also get entities when project is selected
+      fetchEntities();
     }
   }, [selectedProject]);
 
+  // // Get entities when selectedEntType changes (but only if we have a selected project)
   useEffect(() => {
     if (selectedProject && selectedEntType) {
-      if (typeof setEntitiesPage === "function") setEntitiesPage(1);
-      // fetch first page explicitly after entity type changes
-      getTheEntities(selectedProject, selectedEntType, "", 1, entitiesPageSize);
+      fetchEntities();
     }
     setSearchItem("");
   }, [selectedEntType]);
 
-  // Removed redundant auto-refetch on project/type change to avoid race conditions
+  // useEffect(() => {
+  //   if (!selectedProject || !selectedEntType) return;
+
+  //   getTheEntities(selectedProject, selectedEntType);
+  // }, [selectedEntType]);
+
+  // // Additional effect to ensure entities are loaded if we have both project and type
+  useEffect(() => {
+    if (
+      selectedProject &&
+      selectedEntType &&
+      (!films || !films.results || assetResults)
+    ) {
+      fetchEntities();
+    }
+  }, [selectedProject, selectedEntType]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizing.current) return;
-      const newWidth = window.innerWidth - e.clientX - 20;
+      const newWidth = window.innerWidth - e.clientX - 20; // 20 for padding
       if (newWidth > 400 && newWidth < 800) {
         setPreviewWidth(newWidth);
       }
@@ -221,85 +200,63 @@ const TaskOverviewPage = () => {
   }, []);
 
   const selectProject = (id) => {
+    // console.log(id);
     selectTheProject(id);
   };
 
-  const hidePrev = () => {
-    setShouldShowPreview(false);
-    setAddressbar("");
-    // Clear task data when hiding preview
-    dispatch(clearTask());
+  // 👇 Auto open preview if only one task is selected
+
+  const handleShowPrev = (e, id, groupId, taskId) => {
+    e.stopPropagation();
+
+    setShowPreview((prev) => {
+      if (taskId === prev.taskID) {
+        // same task clicked → toggle
+        setActiveTask({ collId: "", rowId: "" });
+        return {
+          id: null,
+          groupId: null,
+          taskId: null,
+          show: true,
+        };
+      }
+
+      // new task clicked → open preview
+      return { id, groupId, taskID: taskId, show: false };
+    });
   };
 
-  // Watch selectedTasksOutside to determine if preview should show
+  const hidePrev = () => {
+    setShowPreview({
+      ...showPreview,
+      id: null,
+      groupId: null,
+      taskID: null,
+      show: true,
+    });
+    setActiveTask({ collId: "", rowId: "" });
+  };
+
+  // useEffect(() => {
+  //   console.log(assetResults);
+  // }, [assetResults]);
+
   useEffect(() => {
-    if (selectedTasksOutside.length >= 1) {
-      // Find the best task to show in preview
-      let taskToShow = null;
-
-      // First, try to find the most recently selected task with data
-      const tasksWithData = selectedTasksOutside.filter(
-        (task) => task.departmentTask?.taskId || task.departmentTask?.status
-      );
-
-      if (tasksWithData.length > 0) {
-        // If there are tasks with data, show the most recently selected one
-        taskToShow = tasksWithData.reduce((latest, current) => {
-          const latestTime = latest.selectedAt || 0;
-          const currentTime = current.selectedAt || 0;
-          return currentTime > latestTime ? current : latest;
-        });
-      } else {
-        // If no tasks with data, show the most recently selected task (even if no data)
-        taskToShow = selectedTasksOutside.reduce((latest, current) => {
-          const latestTime = latest.selectedAt || 0;
-          const currentTime = current.selectedAt || 0;
-          return currentTime > latestTime ? current : latest;
-        });
-      }
-
-      if (taskToShow) {
-        const { cellId, rowId, entityId, departmentTask } = taskToShow;
-
-        // Set entity ID and task type
-        setEntityId(entityId);
-        setTaskType(cellId);
-
-        // Set taskId from departmentTask if it exists
-        if (departmentTask?.taskId) {
-          setTaskId(departmentTask.taskId);
-        } else {
-          setTaskId(null);
-        }
-
-        // Find entity name for addressbar
-        const allEntities =
-          selectedEntType === "Assets"
-            ? allVariationsResults
-            : films?.results || [];
-
-        const entity = allEntities.find((e) => e.id === entityId);
-        const entName = entity?.name || "";
-
-        setAddressbar(entName + "/" + (cellId + "-" + rowId));
-        setShouldShowPreview(true);
-      }
-    } else {
-      // No tasks selected - hide preview
-      setShouldShowPreview(false);
-      setAddressbar("");
-      // Clear task data when no single task is selected
-      dispatch(clearTask());
+    if (selectedTasksOutside.length > 0) {
+      console.log(selectedTasksOutside);
+      console.log(showPreview);
+      // hidePrev();
     }
   }, [selectedTasksOutside]);
 
   useEffect(() => {
-    if (!shouldShowPreview) {
-      setShowMeta(true);
-    } else {
+    if (!showPreview.show) {
       setShowMeta(false);
+      // setVersionId({}); // 🔥 reset versionId when preview closes
+    } else {
+      setShowMeta(true);
     }
-  }, [shouldShowPreview]);
+  }, [showPreview?.show]);
 
   const searchEntity = (e) => {
     const search = e.target.value;
@@ -307,60 +264,83 @@ const TaskOverviewPage = () => {
   };
 
   useEffect(() => {
-    getTheEntities(
-      selectedProject,
-      selectedEntType,
-      searchItem,
-      entitiesPage,
-      entitiesPageSize
-    );
+    getTheEntities(selectedProject, selectedEntType, searchItem);
   }, [searchItem]);
 
-  // Refetch when page or page size changes
-  useEffect(() => {
-    getTheEntities(
-      selectedProject,
-      selectedEntType,
-      searchItem,
-      entitiesPage,
-      entitiesPageSize
-    );
-  }, [entitiesPage, entitiesPageSize]);
+  // CLose preview by clicking outside
+  // useEffect(() => {
+  //   const handleClickOutside = (e) => {
+  //     // if preview is hidden, do nothing
+  //     if (showPreview.show) return;
+
+  //     if (
+  //       wrapperRef.current &&
+  //       !wrapperRef.current.contains(e.target) &&
+  //       !isResizing.current
+  //     ) {
+  //       hidePrev();
+  //     }
+  //   };
+
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [wrapperRef, isResizing, showPreview.show]);
 
   // FETCH TASKS
   useEffect(() => {
-    if (addressbar && shouldShowPreview) {
-      if (taskId) {
-        fetchTheTask(taskId);
-      } else {
-        // Clear task data when there's no taskId
-        // This will reset the task results to empty state
-        dispatch(clearTask());
-      }
+    if (addressbar) {
+      fetchAllTasks(entityId, taskType);
     }
-  }, [addressbar, shouldShowPreview, taskId]);
+  }, [addressbar, entityResults]);
 
   useEffect(() => {
-    const versions = taskResults?.versions;
+    if (taskResults.length > 0) {
+      setTaskId(taskResults[0]?.id);
+      fetchAllVersions(taskResults[0]?.id);
+    }
+    // console.log(taskResults);
+  }, [taskResults]);
+
+  useEffect(() => {
+    const versions = versionResults?.versions;
 
     if (Array.isArray(versions) && versions.length > 0) {
       const first = versions[0];
       setVersionId((prev) => {
         const newVal = {
           id: first.id,
+          // prefer `version` field, fallback to `name` or empty string
           name: first.version ?? first.name ?? "",
         };
+        // avoid re-setting identical state
         if (prev?.id === newVal.id && prev?.name === newVal.name) return prev;
         return newVal;
       });
     } else {
+      // consider using null if you want "no selection" more explicitly
       setVersionId({});
     }
-  }, [taskResults]);
+  }, [versionResults]);
 
+  // ADD GLOBAL TASK
+  // const addGlobTask = () => {
+  //   setCreateGlobalTaskModal(true);
+  // };
+
+  useEffect(() => {
+    // console.log(fullScreenOverView);
+  }, [entityId]);
+
+  // hide the show modal
   useEffect(() => {
     hidePrev();
   }, [allVariationsResults, films]);
+
+  // useEffect(() => {
+  //   console.log(entityValidTaskTypes);
+  // }, [entityValidTaskTypes]);
 
   return (
     <LayoutOne>
@@ -369,7 +349,7 @@ const TaskOverviewPage = () => {
         <div
           className={`w-full flex-1 h-full  text-white transition flex flex-col gap-[10px]`}
         >
-          {isSmallView || shouldShowPreview ? (
+          {isSmallView || !showPreview.show ? (
             <OverviewHeaderMobile
               projects={projects?.results || []}
               selectProject={selectProject}
@@ -385,7 +365,7 @@ const TaskOverviewPage = () => {
               showAssignees={showAssignees}
               setSelectedEntType={setSelectedEntType}
               selectedEntType={selectedEntType}
-              showPreview={!shouldShowPreview}
+              showPreview={showPreview.show}
               previewWidth={previewWidth}
               searchEntity={searchEntity}
               searchItem={searchItem}
@@ -406,13 +386,14 @@ const TaskOverviewPage = () => {
               showAssignees={showAssignees}
               setSelectedEntType={setSelectedEntType}
               selectedEntType={selectedEntType}
-              showPreview={!shouldShowPreview}
+              showPreview={showPreview.show}
               previewWidth={previewWidth}
               searchEntity={searchEntity}
               searchItem={searchItem}
             />
           )}
 
+          {/* Show loading state when no films data */}
           {!films || !assetResults || !allVariationsResults ? (
             <div className="flex-1 flex items-center justify-center text-white">
               Loading...
@@ -434,6 +415,11 @@ const TaskOverviewPage = () => {
                 </div>
               ) : (
                 <OverveiwTable
+                  handleShowPrev={handleShowPrev}
+                  activeTask={activeTask}
+                  setActiveTask={setActiveTask}
+                  selectedId={showPreview.id}
+                  groupId={showPreview.groupId}
                   tableItemsSize={tableItemsSize}
                   showMeta={showMeta}
                   showAssignees={showAssignees}
@@ -450,7 +436,7 @@ const TaskOverviewPage = () => {
                   }
                   collapseWidth={"w-full"}
                   setAddressbar={setAddressbar}
-                  showPreview={!shouldShowPreview}
+                  showPreview={showPreview.show}
                   previewWidth={previewWidth}
                   setEntityId={setEntityId}
                   setTaskType={setTaskType}
@@ -463,11 +449,6 @@ const TaskOverviewPage = () => {
                   handleCreateGlobalTaskModal={handleCreateGlobalTaskModal}
                   isSmallView={isSmallView}
                   setEntityValidTaskTypes={setEntityValidTaskTypes}
-                  currentPage={entitiesPage}
-                  totalPages={entitiesTotalPages}
-                  onPageChange={handlePageChange}
-                  pageSize={entitiesPageSize}
-                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>
@@ -475,14 +456,29 @@ const TaskOverviewPage = () => {
         </div>
 
         {/* PREVIEW PART */}
-        {selectedTasksOutside.length !== 1 ? null : (
+        {selectedTasksOutside.length > 0 ? (
+          <></>
+        ) : (
+          // <div
+          //   className={` h-full top-0 right-0 z-[999] absolute bg-black/30 `}
+          //   // style={{ width: previewWidth }}
+          // >
+          //   <div
+          //     className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] text-white `}
+          //     style={{ width: previewWidth }}
+          //     ref={wrapperRef}
+          //     onMouseDown={(e) => e.stopPropagation()}
+          //   >
+          //     show the data
+          //   </div>
+          // </div>
           <div
-            className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/30 transition-transform duration-150 ${
-              !shouldShowPreview ? "translate-x-[100%]" : "translate-x-0"
+            className={`w-full h-full top-0 right-0 z-[999] absolute bg-black/30  ${
+              showPreview.show ? "translate-x-[100%]" : "translate-x-0"
             }`}
             style={{
               width:
-                shouldShowPreview && fullScreenOverView
+                !showPreview.show && fullScreenOverView
                   ? "100%"
                   : fullScreenOverView
                   ? "100%"
@@ -494,12 +490,12 @@ const TaskOverviewPage = () => {
           >
             <div
               className={`w-full h-full top-0 right-0 z-[999] absolute flex transition-transform duration-150 bg-[var(--overview-color-one)] `}
-              style={{ width: shouldShowPreview && previewWidth }}
+              style={{ width: !showPreview.show && previewWidth }}
               ref={wrapperRef}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {/* Drag handle */}
-              {shouldShowPreview && (
+              {!showPreview.show && (
                 <div
                   className="absolute -left-2 top-0 w-2 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600 z-[100] transition"
                   onMouseDown={startResizing}
@@ -508,15 +504,17 @@ const TaskOverviewPage = () => {
 
               <PreviewMain
                 addressbar={addressbar}
-                previewWidth={previewWidth}
+                previewWidth={width}
                 stopResizing={stopResizing}
                 isResizing={isResizing}
                 hidePrev={hidePrev}
+                taskResults={taskResults}
                 loading={taskLoading}
-                fetchAllVersions={fetchTheTask}
+                fetchAllVersions={fetchAllVersions}
+                versionLoading={versionLoading}
                 setVersionId={setVersionId}
                 versionId={versionId}
-                taskResults={taskResults}
+                versionResults={versionResults}
                 fetchVersionPreview={fetchSingleVersionPreview}
                 versionPreviewData={versionPreviewData}
                 versionPreviewLoading={versionPreviewLoading}
@@ -526,7 +524,6 @@ const TaskOverviewPage = () => {
                 typeId={typeId}
                 setFullScreenOverview={setFullScreenOverview}
                 entityValidTaskTypes={entityValidTaskTypes}
-                fetchEntities={fetchEntities}
               />
             </div>
           </div>
@@ -544,7 +541,6 @@ const TaskOverviewPage = () => {
             title={"Create Entity"}
             setCreateModal={setCreateEntityModal}
             selectedProject={selectedProject}
-            fetchData={fetchEntities}
           />
         </div>
       </GlobalPureModal>
@@ -562,6 +558,7 @@ const TaskOverviewPage = () => {
       </GlobalPureModal>
       {/* CREATE TASK MODAL  */}
       <GlobalPureModal open={createTaskModal} setOpen={setCreateTaskModal}>
+        {/* <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} /> */}
         <OnlyCreateTaskModal
           entityId={entityId}
           typeId={typeId}
@@ -577,6 +574,7 @@ const TaskOverviewPage = () => {
         setOpen={setCreateGlobalTaskModal}
       >
         <CreateTaskForm
+          // id={entityId}
           selectedProject={selectedProject}
           setCreateModal={setCreateGlobalTaskModal}
           fetchData={fetchEntities}
@@ -586,6 +584,7 @@ const TaskOverviewPage = () => {
 
       {/* add user form  */}
       <GlobalPureModal open={addUserTaskModal} setOpen={setAddUserTaskModal}>
+        {/* <CreateTaskForm id={entityId} setCreateModal={setCreateTaskModal} /> */}
         <AddUserToTaskForm
           id={entityId}
           taskId={taskId}

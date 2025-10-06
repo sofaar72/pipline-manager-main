@@ -4,11 +4,11 @@ import axiosInstance from "../../api/AxiosInstance";
 import { toast } from "react-toastify";
 
 // FETCH TASK
-export const fetchTasks = createAsyncThunk(
-  "task/fetchTasks",
+export const fetchTask = createAsyncThunk(
+  "task/fetchTask",
   async ({ id, queryParams }, thunkAPI) => {
     try {
-      const response = await axiosInstance.get(`/film/${id}/tasks`, {
+      const response = await axiosInstance.get(`/tasks/${id}/`, {
         params: queryParams,
       });
       return response.data;
@@ -112,7 +112,7 @@ const taskSlice = createSlice({
   name: "task",
   initialState: {
     tasks: {
-      results: [],
+      results: {},
       loading: false,
       error: null,
     },
@@ -138,19 +138,25 @@ const taskSlice = createSlice({
       statusesResults: [],
     },
   },
-  reducers: {},
+  reducers: {
+    clearTask: (state) => {
+      state.tasks.results = {};
+      state.tasks.loading = false;
+      state.tasks.error = null;
+    },
+  },
   extraReducers: (builder) => {
     // FETCH TASKS
     builder
-      .addCase(fetchTasks.pending, (state) => {
+      .addCase(fetchTask.pending, (state) => {
         state.tasks.loading = true;
         state.tasks.error = null;
       })
-      .addCase(fetchTasks.fulfilled, (state, action) => {
+      .addCase(fetchTask.fulfilled, (state, action) => {
         state.tasks.loading = false;
         state.tasks.results = action.payload;
       })
-      .addCase(fetchTasks.rejected, (state, action) => {
+      .addCase(fetchTask.rejected, (state, action) => {
         state.tasks.loading = false;
         state.tasks.error = action.payload;
       });
@@ -247,4 +253,5 @@ const taskSlice = createSlice({
   },
 });
 
+export const { clearTask } = taskSlice.actions;
 export default taskSlice.reducer;

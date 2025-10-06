@@ -5,7 +5,7 @@ import {
   createTask,
   deleteTask,
   fetchAssetsTasks,
-  fetchTasks,
+  fetchTask,
   fetchTaskStatuses,
   updateTask,
 } from "../store/Slices/TaskSlice";
@@ -45,14 +45,8 @@ export const useTasks = ({ dataType = "production" } = {}) => {
   const { statusesLoading, statusesError, statusesResults } =
     taskStatuses || {};
 
-  const fetchAllTasks = (entityId, taskType) => {
-    if (dataType === "production") {
-      dispatch(
-        fetchTasks({ id: entityId, queryParams: { task_type: taskType } })
-      );
-    } else {
-      dispatch(fetchAssetsTasks({ id: entityId, queryParams: {} }));
-    }
+  const fetchTheTask = (taskId) => {
+    dispatch(fetchTask({ id: taskId }));
   };
 
   const fetchAllAssetsTasks = (id) => {
@@ -130,7 +124,7 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     deleteTaskError,
     fetchTaskVersion,
     fetchAllVersions,
-    fetchAllTasks,
+    fetchTheTask,
     updateTheTask,
     deleteTheTask,
     fetchAllTaskStatuses,

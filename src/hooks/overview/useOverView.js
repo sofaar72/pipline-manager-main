@@ -23,6 +23,10 @@ export const useOverview = () => {
   const [typeId, setTypeId] = useState(null);
   const [entityValidTaskTypes, setEntityValidTaskTypes] = useState([]);
 
+  // pagination for entities
+  const [entitiesPage, setEntitiesPage] = useState(1);
+  const [entitiesPageSize, setEntitiesPageSize] = useState(10);
+
   const [versionId, setVersionId] = useState(null);
 
   // table controls
@@ -89,8 +93,8 @@ export const useOverview = () => {
     project,
     type = "All",
     search = "",
-    page = 1,
-    pageSize = 20
+    page = entitiesPage,
+    pageSize = entitiesPageSize
   ) => {
     const projectId = project ? project : localStorage.getItem("project_id");
     if (projectId) {
@@ -170,6 +174,10 @@ export const useOverview = () => {
     setAddressbar,
     searchItem,
     setSearchItem,
+    entitiesPage,
+    setEntitiesPage,
+    entitiesPageSize,
+    setEntitiesPageSize,
     entityId,
     setEntityId,
     taskType,
@@ -193,5 +201,11 @@ export const useOverview = () => {
     allVariationsError,
     setEntityValidTaskTypes,
     entityValidTaskTypes,
+    // derived pagination values
+    get entitiesTotalPages() {
+      const total = films?.total ?? films?.count ?? 0;
+      const size = entitiesPageSize || films?.page_size || 10;
+      return total && size ? Math.ceil(total / size) : 1;
+    },
   };
 };

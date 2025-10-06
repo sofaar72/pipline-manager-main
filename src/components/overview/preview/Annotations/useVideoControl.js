@@ -15,9 +15,25 @@ export const useVideoControl = () => {
     type: "Video",
   });
 
+  // Reset video state when switching tasks or changing media
   useEffect(() => {
-    extractFrames();
-  }, [prevVideoData]);
+    if (prevVideoData.media_id) {
+      // Reset video playback state
+      setIsPlaying(false);
+      // Extract frames for new video
+      extractFrames();
+    }
+  }, [prevVideoData.media_id]);
+
+  // Reset video state when URL changes (new version created)
+  useEffect(() => {
+    if (prevVideoData.url) {
+      // Reset video playback state
+      setIsPlaying(false);
+      // Extract frames for new video
+      extractFrames();
+    }
+  }, [prevVideoData.url]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -34,11 +50,22 @@ export const useVideoControl = () => {
 
   // extract the video frames
   const extractFrames = () => {
-    const staticFrames = Array.from(
-      { length: prevVideoData.duration },
-      (_, index) => index + 1
-    );
-    setFrames(staticFrames);
+    // Only extract frames for video type and when duration is available
+    if (
+      prevVideoData.type === "Video" &&
+      prevVideoData.duration &&
+      prevVideoData.duration > 0
+    ) {
+      const frameCount = Math.max(1, Math.floor(prevVideoData.duration));
+      const staticFrames = Array.from(
+        { length: frameCount },
+        (_, index) => index + 1
+      );
+      setFrames(staticFrames);
+    } else {
+      // Clear frames for non-video or invalid duration
+      setFrames([]);
+    }
   };
 
   const changeHeight = (w = null) => {
@@ -75,6 +102,7 @@ export const useVideoControl = () => {
     height,
     changeHeight,
     frames,
+    setFrames,
     extractFrames,
     isPlaying,
     setIsPlaying,

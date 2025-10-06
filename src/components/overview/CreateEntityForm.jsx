@@ -74,6 +74,11 @@ const CreateEntityForm = ({
       <div
         className="w-[700px] h-fit px-[10px] py-[20px] radius bg-[var(--overview-color-one)] flex flex-col gap-[20px] justify-between transition"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if ((e.ctrlKey || e.metaKey) && (e.key === "a" || e.key === "A")) {
+            e.stopPropagation();
+          }
+        }}
       >
         <div className="w-full border-b-1 border-[var(--overview-color-three)]/80 h-lg text-bold text-white flex py-2">
           {header}
@@ -134,20 +139,20 @@ const CreateEntityForm = ({
                       <TheDropDown
                         init={values.type.name}
                         items={
-                          EntTypes.filter((ent) => ent !== "All").map(
-                            (ent, i) => {
-                              let prefix = "";
+                          EntTypes.filter(
+                            (ent) => ent !== "All" && ent !== "Assets"
+                          ).map((ent, i) => {
+                            let prefix = "";
 
-                              if (ent === "Episode") prefix = "EP";
-                              else if (ent === "Shot") prefix = "SH";
-                              else if (ent === "Sequence") prefix = "SQ";
+                            if (ent === "Episodes") prefix = "EP";
+                            else if (ent === "Shot") prefix = "SH";
+                            else if (ent === "Sequence") prefix = "SQ";
 
-                              return {
-                                id: prefix,
-                                name: ent,
-                              };
-                            }
-                          ) || []
+                            return {
+                              id: prefix,
+                              name: ent,
+                            };
+                          }) || []
                         }
                         width={"w-[120px]"}
                         funcAfter={handleTypeChange}

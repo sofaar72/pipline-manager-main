@@ -108,6 +108,10 @@ const TheToolbar = ({
     }
   }, [previewWidth]);
 
+  useEffect(() => {
+    console.log(previewWidth);
+  }, [previewWidth]);
+
   // useEffect(() => {
   //   if (selectedEntType && selectedEntType.taskId) {
   //     fetchTheOnlyVersions({ task: selectedEntType.taskId });

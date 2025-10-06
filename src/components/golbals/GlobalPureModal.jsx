@@ -1,5 +1,5 @@
 import { Dialog, DialogBackdrop } from "@headlessui/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 const GlobalPureModal = ({
   open = false,
@@ -7,6 +7,9 @@ const GlobalPureModal = ({
   modalContent = () => {},
   children,
 }) => {
+  const backdropMouseDownOnSelf = useRef(false);
+  const panelMouseDown = useRef(false);
+
   return (
     <Dialog
       open={open}
@@ -20,16 +23,38 @@ const GlobalPureModal = ({
 
       <div
         className="fixed inset-0 !z-[100000] w-screen overflow-y-auto radius "
-        onClick={() => setOpen(false)}
+        onMouseDownCapture={(e) => {
+          // Track if the initial mousedown started on the backdrop itself
+          backdropMouseDownOnSelf.current = e.target === e.currentTarget;
+          // Reset panel flag; will be set by panel on mousedown
+          panelMouseDown.current = false;
+        }}
+        onClick={() => {
+          // Close if the interaction did not start inside the panel
+          if (!panelMouseDown.current) {
+            setOpen(false);
+          }
+          backdropMouseDownOnSelf.current = false;
+          panelMouseDown.current = false;
+        }}
+        onMouseUp={() => {
+          backdropMouseDownOnSelf.current = false;
+          panelMouseDown.current = false;
+        }}
       >
-        <div
-          className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 "
-          // onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 ">
+          <div
+            className="radius"
+            onMouseDown={(e) => {
+              panelMouseDown.current = true;
+              e.stopPropagation();
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {children}
+          </div>
           {
             //   modalContent(setOpen) ||
-
-            children
           }
         </div>
       </div>

@@ -38,14 +38,6 @@ export const useStageControl = ({
   const [annotations, setAnnotations] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
 
-  // useEffect(() => {
-  //   if (containerRef) {
-  //     console.log(containerRef.current?.videoWidth);
-  //     console.log(containerRef.current?.videoHeight);
-  //   }
-  //   console.log(containerRef);
-  // }, [containerRef]);
-
   // SEND ANNOTAIONS EVERY 3 SECONDs
   const {
     sendAllAnnotations,
@@ -67,6 +59,52 @@ export const useStageControl = ({
     setUndoStack([]);
     setRedoStack([]);
   };
+
+  // Reset all state when media_id changes (task switching)
+  useEffect(() => {
+    if (media_id) {
+      // Reset frame index to 0 when switching to new video
+      setCurrentFrameIndex(0);
+      // Clear any existing annotations
+      setAnnotations([]);
+      // Reset selection state
+      setSelecting(false);
+      setSelectionRect(null);
+      // Clear transformer
+      if (transformerRef.current) {
+        transformerRef.current.nodes([]);
+        transformerRef.current.getLayer()?.batchDraw();
+      }
+    }
+  }, [media_id]);
+
+  // Reset frame index when frames change (new video loaded)
+  useEffect(() => {
+    if (frames.length > 0) {
+      // Reset frame index to 0 when new frames are loaded
+      setCurrentFrameIndex(0);
+      // Clear any existing annotations
+      setAnnotations([]);
+      // Reset selection state
+      setSelecting(false);
+      setSelectionRect(null);
+      // Clear transformer
+      if (transformerRef.current) {
+        transformerRef.current.nodes([]);
+        transformerRef.current.getLayer()?.batchDraw();
+      }
+    } else if (frames.length === 0) {
+      // If no frames, reset everything
+      setCurrentFrameIndex(0);
+      setAnnotations([]);
+      setSelecting(false);
+      setSelectionRect(null);
+      if (transformerRef.current) {
+        transformerRef.current.nodes([]);
+        transformerRef.current.getLayer()?.batchDraw();
+      }
+    }
+  }, [frames.length]);
 
   // ---------- helpers: video size / transform ----------
   // const getVideoNaturalSize = () => {
@@ -428,12 +466,16 @@ export const useStageControl = ({
   useEffect(() => {
     if (frames.length > 0) {
       setAnnotations((prev) => {
+        // Only update if the frame count has actually changed
         if (prev.length === frames.length) return prev;
         return frames.map((_, i) => ({
           frameId: i,
           shapes: [],
         }));
       });
+    } else {
+      // Clear annotations if no frames
+      setAnnotations([]);
     }
   }, [frames]);
 
@@ -490,6 +532,7 @@ export const useStageControl = ({
     if (totalFrames === 0 || !containerRef.current) return;
 
     const clampedIndex = Math.max(0, Math.min(frameIndex, totalFrames - 1));
+    console.log(clampedIndex);
     setCurrentFrameIndex(clampedIndex);
 
     const timePerFrame = containerRef.current.duration / totalFrames;
@@ -562,6 +605,7 @@ export const useStageControl = ({
     if (!isDragging) return;
     const rect = frameBoxRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
+
     handleSelectFrame(getFrameFromX(x));
   };
   const handleMouseUpDrag = () => setIsDragging(false);
@@ -738,7 +782,7 @@ export const useStageControl = ({
           x: videoPos.x,
           y: videoPos.y,
           text: "New Text", // default text
-          fontSize: prevVideoData?.type === "Video" ? 60 : 30, // default font size in video pixels
+          fontSize: prevVideoData?.type === "Video" ? 60 : 60, // default font size in video pixels
           fill: fillColor,
           type: "text",
           selected: false,
@@ -856,8 +900,6 @@ export const useStageControl = ({
           ? {
               ...frame,
               shapes: frame.shapes.map((s) => {
-                // console.log(target);
-                // console.log(s.id, "---------------------- ", target.id());
                 return {
                   ...s,
                   selected: s.id === target.id(),
@@ -921,7 +963,6 @@ export const useStageControl = ({
       if (!rect) return;
 
       const shapes = getShapesForFrame(currentFrameIndex); // your function to get all shapes
-      // console.log(shapes);
       const selectedIds = shapes
         .filter((shape) => {
           const shapeBounds = getShapeBounds(shape); // helper to get x/y/width/height

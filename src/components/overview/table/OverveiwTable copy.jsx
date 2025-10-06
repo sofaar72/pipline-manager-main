@@ -29,6 +29,13 @@ import TableHeader from "./TableHeader";
 import OverviewItems from "./OverviewItems";
 import { useTableFunctions } from "../../../hooks/overview/useTableFunctions";
 import { useTableTaskSettings } from "../../../hooks/overview/useTableTaskSettings,js";
+import { MdDelete } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
+import { IoMdAdd } from "react-icons/io";
+import GlobalPureModal from "../../golbals/GlobalPureModal";
+import OnlyCreateMultiTaskModal from "../OnlyCreateMultiTaskModal";
+import UpdateMultipleTasksModal from "../UpdateTaskModal/UpdateMultipleTasksModal";
+import DeleteTaskModal from "../DeleteTaskModal";
 
 export default function OverviewTable({
   tableItemsSize,
@@ -46,7 +53,23 @@ export default function OverviewTable({
   previewWidth,
   selectedProject,
   setEntityId,
+  setTaskType,
+  setTaskId,
+  setTypeId,
+  typeId,
+  loading,
+  handleAddUserTaskModal,
+  setSelectedTasksOutside,
+  fetchEntities,
+  handleCreateGlobalTaskModal,
+  selectedEntType,
+  isSmallView,
+  setEntityValidTaskTypes,
 }) {
+  const [createTasksModal, setCreateTasksModal] = useState(false);
+  const [updateTaskModal, setUpdateTasksModal] = useState(false);
+  const [deleteTaskModal, setDeleteTasksModal] = useState(false);
+
   // TASK SETTINGS HOOK
   const {
     editMode,
@@ -59,6 +82,12 @@ export default function OverviewTable({
     setSelectedTasks,
     selectedTasks,
     selectedMultipleTasks,
+    selectSingleTask, // Get the new function
+    toggleSingleTask, // Get the new function for Ctrl+Click
+    selectRangeTask, // Get the new function for Shift+Click
+    extendSelectionRange, // Get the new function for Shift+Ctrl+Click
+    handleTaskSelection, // Get the main handler function
+    addToSelection, // Get the legacy function
     clearSelection,
     selectAllTasks,
   } = useTableTaskSettings();
@@ -86,6 +115,10 @@ export default function OverviewTable({
     tableItems,
     editMode,
     setEditMode,
+    loading,
+    handleAddUserTaskModal,
+    handleCreateGlobalTaskModal,
+    selectedEntType,
   });
 
   useEffect(() => {
@@ -99,63 +132,367 @@ export default function OverviewTable({
         clearSelection();
       } else if (e.ctrlKey && e.key === "a") {
         e.preventDefault();
-        selectAllTasks(tableItems);
+        // Get all items from all groups for select all
+        const allItems = grouped.flatMap((g) => g.items || []);
+        selectAllTasks(allItems);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [clearSelection, selectAllTasks, tableItems]);
+  }, [clearSelection, selectAllTasks, grouped]);
+
+  useEffect(() => {
+    setSelectedTasksOutside(selectedTasks);
+    selectedTaskChecker();
+  }, [selectedTasks]);
+
+  // remove multiple tasks
+  const [tasksToRemove, setTAsksToRemove] = useState([]);
+
+  // check the task is empty or not
+  const [tasksWithId, setTasksWithId] = useState([]);
+  const [tasksWithoutId, setTasksWithoutId] = useState([]);
+  const [entIdies, setEntIdies] = useState([]);
+
+  // const selectedTaskChecker = () => {
+  //   const withId = [];
+  //   const withoutId = [];
+
+  //   const withIdSet = new Set();
+  //   const withoutIdSet = new Set();
+
+  //   selectedTasks.forEach((selected) => {
+  //     const entityId = selected.entityId; // get entityId
+
+  //     if (!selected.tasks || Object.keys(selected.tasks).length === 0) {
+  //       // no tasks object → goes to "no id"
+  //       const key = `${entityId}-noTasks`; // make unique per "no tasks" case
+  //       if (!withoutIdSet.has(key)) {
+  //         withoutId.push({ ...selected, entityId });
+  //         withoutIdSet.add(key);
+  //       }
+  //       return;
+  //     }
+
+  //     Object.values(selected.tasks).forEach((task, index) => {
+  //       if (task?.taskId) {
+  //         const key = `${entityId}-${task.taskId}`;
+  //         if (!withIdSet.has(key)) {
+  //           withId.push({ ...task, entityId });
+  //           withIdSet.add(key);
+  //         }
+  //       } else {
+  //         // FIX: use JSON.stringify(task) + index → avoids filtering out extra rows
+  //         const key = `${entityId}-${JSON.stringify(task)}-${index}`;
+  //         if (!withoutIdSet.has(key)) {
+  //           withoutId.push({ ...task, entityId });
+  //           withoutIdSet.add(key);
+  //         }
+  //       }
+  //     });
+  //   });
+
+  //   // set the states
+  //   setTasksWithId(withId);
+  //   setTasksWithoutId(withoutId);
+  // };
+
+  // Updated selectedTaskChecker function
+  // Updated selectedTaskChecker function
+  const selectedTaskChecker = () => {
+    const withId = [];
+    const withoutId = [];
+
+    const withIdSet = new Set();
+    const withoutIdSet = new Set();
+
+    selectedTasks.forEach((selected) => {
+      const { entityId, departmentTask, cellId, typeId } = selected;
+
+      // Check if the department task has a taskId or status (indicating it's an existing task)
+      if (departmentTask?.taskId || departmentTask?.status) {
+        const key = `task-${departmentTask.taskId || `${entityId}-${cellId}`}`;
+        if (!withIdSet.has(key)) {
+          withId.push({
+            ...departmentTask,
+            entityId,
+            cellId,
+            typeId,
+            key: selected.key,
+          });
+          withIdSet.add(key);
+        }
+      } else {
+        // No taskId and no status - this is a new task to be created
+        const key = `new-${entityId}-${cellId}`;
+        if (!withoutIdSet.has(key)) {
+          withoutId.push({
+            ...departmentTask,
+            entityId,
+            cellId,
+            typeId,
+            key: selected.key,
+          });
+          withoutIdSet.add(key);
+        }
+      }
+    });
+
+    setTasksWithId(withId);
+    setTasksWithoutId(withoutId);
+
+    // console.log("Tasks with ID:", withId);
+    // console.log("Tasks without ID:", withoutId);
+  };
 
   return (
-    <div
-      className={`${collapseWidth} h-full p-0 bg-[var(--overview-color-bg)] text-white `}
-    >
-      <div className="w-full h-full flex flex-1 gap-0">
-        <div className="w-full h-full flex-1 rounded-md bg-[#14131a] py-8">
-          <div className="w-full h-full rounded-md bg-[#0f0f14] p-0 flex flex-col gap-[10px] ">
-            <TableHeader
-              gridTemplateColumns={gridTemplateColumns}
-              columns={columns}
-              table={table}
-              startResize={startResize}
-              flexRender={flexRender}
-              showMeta={showMeta}
-              editMode={editMode}
-              showPreview={showPreview}
-              previewWidth={previewWidth}
-            />
-            <div className="w-full h-full flex-1  shrink-0 overflow-hidden">
-              <OverviewItems
-                handleShowPrev={handleShowPrev}
-                activeTask={activeTask}
-                setActiveTask={setActiveTask}
-                selectedId={selectedId}
-                groupId={groupId}
-                grouped={grouped}
-                setCollapsedGroups={setCollapsedGroups}
-                collapsedGroups={collapsedGroups}
-                rowById={rowById}
-                gridTemplateColumns={gridTemplateColumns}
-                flexRender={flexRender}
-                tableItemsSize={tableItemsSize}
-                tableItems={tableItems}
-                editMode={editMode}
-                taskHandleMouseDown={taskHandleMouseDown}
-                taskHandleMouseEnter={taskHandleMouseEnter}
-                taskHandleMouseUp={taskHandleMouseUp}
-                isTaskSelected={isTaskSelected}
-                setAddressbar={setAddressbar}
-                showPreview={showPreview}
-                previewWidth={previewWidth}
-                setEntityId={setEntityId}
-                setSelectedTasks={setSelectedTasks}
-                selectedMultipleTasks={selectedMultipleTasks}
-              />
+    <>
+      <div
+        className={` w-full h-full p-0 bg-[var(--overview-color-bg)] text-white `}
+        style={{
+          width: showPreview
+            ? "100%"
+            : selectedTasks.length > 0
+            ? "100%"
+            : `calc(100% - ${previewWidth}px)`,
+        }}
+      >
+        <div className="w-full h-full flex flex-1 gap-0 overflow-hidden">
+          <div className="w-full h-full flex-1 rounded-md bg-[#14131a] py-4 overflow-hidden">
+            <div className="w-full h-full flex-1 rounded-md  p-0 flex flex-col gap-[10px] overflow-hidden">
+              <div className="w-full h-full flex flex-col gap-4 overflow-x-auto relative">
+                <div className="w-full h-fit ">
+                  <TableHeader
+                    gridTemplateColumns={gridTemplateColumns}
+                    columns={columns}
+                    table={table}
+                    startResize={startResize}
+                    flexRender={flexRender}
+                    showMeta={showMeta}
+                    editMode={editMode}
+                    showPreview={showPreview}
+                    previewWidth={previewWidth}
+                  />
+                </div>
+                <div className="w-full h-full flex-1 ">
+                  <div
+                    className="h-fit"
+                    // style={{
+                    //   width: showPreview
+                    //     ? "100%"
+                    //     : `${previewWidth > 800 ? "fit-content" : "100%"} `,
+                    // }}
+                    // style={{
+                    //   minWidth: previewWidth > 800 ? "800px" : "100%",
+                    //   width: showPreview ? "100%" : "fit-content",
+                    // }}
+                  >
+                    <OverviewItems
+                      handleShowPrev={handleShowPrev}
+                      activeTask={activeTask}
+                      setActiveTask={setActiveTask}
+                      selectedId={selectedId}
+                      groupId={groupId}
+                      grouped={grouped}
+                      setCollapsedGroups={setCollapsedGroups}
+                      collapsedGroups={collapsedGroups}
+                      rowById={rowById}
+                      gridTemplateColumns={gridTemplateColumns}
+                      flexRender={flexRender}
+                      tableItemsSize={tableItemsSize}
+                      tableItems={tableItems}
+                      editMode={editMode}
+                      taskHandleMouseDown={taskHandleMouseDown}
+                      taskHandleMouseEnter={taskHandleMouseEnter}
+                      taskHandleMouseUp={taskHandleMouseUp}
+                      isTaskSelected={isTaskSelected}
+                      setAddressbar={setAddressbar}
+                      showPreview={showPreview}
+                      previewWidth={previewWidth}
+                      setEntityId={setEntityId}
+                      setTaskId={setTaskId}
+                      setTaskType={setTaskType}
+                      setSelectedTasks={setSelectedTasks}
+                      selectedMultipleTasks={selectedMultipleTasks}
+                      selectSingleTask={selectSingleTask} // Pass the new function
+                      toggleSingleTask={toggleSingleTask} // Pass the new function for Ctrl+Click
+                      selectRangeTask={selectRangeTask} // Pass the new function for Shift+Click
+                      extendSelectionRange={extendSelectionRange} // Pass the new function for Shift+Ctrl+Click
+                      handleTaskSelection={handleTaskSelection} // Pass the main handler function
+                      addToSelection={addToSelection} // Pass the legacy function
+                      typeId={typeId}
+                      setTypeId={setTypeId}
+                      selectedTasks={selectedTasks}
+                      setEntityValidTaskTypes={setEntityValidTaskTypes}
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* Enhanced Selection status indicator with more detailed info */}
+              {(tasksWithId.length > 0 || tasksWithoutId.length > 0) && (
+                <div className="px-4 py-2 bg-[var(--overview-color-two)] border-t border-[var(--overview-color-three)]/30">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex flex-col gap-1">
+                      <div className="text-gray-300 flex gap-4 items-center">
+                        {tasksWithId.length > 0 && (
+                          <div className="text-gray-300 flex gap-1 items-center">
+                            <span>
+                              {tasksWithId.length} task
+                              {tasksWithId.length > 1 ? "s" : ""} selected
+                            </span>
+
+                            <div className="flex gap-2 items-center">
+                              {tasksWithId.length > 0 && (
+                                <>
+                                  <button
+                                    className="text-lg cursor-pointer"
+                                    onClick={
+                                      () => {
+                                        setDeleteTasksModal(true);
+                                        setTAsksToRemove(
+                                          tasksWithId.map((task) => task.taskId)
+                                        );
+                                      }
+
+                                      // removeTheTask(
+                                      // )
+                                    }
+                                    title="Delete selected tasks"
+                                  >
+                                    <MdDelete />
+                                  </button>
+                                  <button
+                                    className="text-lg cursor-pointer"
+                                    title="Edit selected tasks"
+                                    onClick={() => {
+                                      setUpdateTasksModal(!updateTaskModal);
+                                    }}
+                                  >
+                                    <FaEdit />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+
+                            {tasksWithId.length > 1 && (
+                              <span className="text-orange-400 ml-1">
+                                (multiple selection)
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {tasksWithoutId.length > 0 && (
+                          <button
+                            className="flex items-center gap-2 cursor-pointer"
+                            onClick={() => {
+                              const entityIds = Array.from(
+                                new Set(tasksWithoutId.map((t) => t.entityId))
+                              );
+
+                              // console.log(
+                              //   "Unique Entity IDs without tasks:",
+                              //   entityIds
+                              // );
+                              setEntIdies(
+                                tasksWithoutId.map((t) => {
+                                  return {
+                                    entId: t.entityId,
+                                    type: t.typeId,
+                                  };
+                                })
+                              );
+                              setCreateTasksModal(!createTasksModal);
+                            }}
+                          >
+                            <div className="text-sm text-green-400">
+                              {tasksWithoutId.length} new task
+                              {tasksWithoutId.length > 1 ? "s" : ""} to create
+                            </div>
+                            <div
+                              className="text-lg cursor-pointer text-green-400"
+                              title="Edit selected tasks"
+                            >
+                              <IoMdAdd />
+                            </div>
+                          </button>
+                        )}
+                      </div>
+
+                      {(tasksWithId.length > 0 ||
+                        tasksWithoutId.length > 0) && (
+                        <div className="text-xs text-gray-400">
+                          <span className="text-gray-500">Tips:</span>
+                          <span className="ml-1">
+                            Click = Select • Ctrl+Click = Toggle • Shift+Click =
+                            Range • Shift+Ctrl+Click = Extend Range
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          const allItems = grouped.flatMap(
+                            (g) => g.items || []
+                          );
+                          selectAllTasks(allItems);
+                        }}
+                        className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                        title="Select All Tasks (Ctrl+A)"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        onClick={clearSelection}
+                        className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                        title="Clear Selection (Escape)"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+      {/* create multiple tasks modal   */}
+      <GlobalPureModal open={createTasksModal} setOpen={setCreateTasksModal}>
+        {entIdies && (
+          <OnlyCreateMultiTaskModal
+            entityIdies={entIdies}
+            parentType={selectedEntType === "Assets" ? "BLD" : "PRD"}
+            typeId={typeId}
+            status={540}
+            setCreateModal={setCreateTasksModal}
+            fetchData={fetchEntities}
+          />
+        )}
+      </GlobalPureModal>
+      {/* update multiple tasks modal */}
+      <GlobalPureModal open={updateTaskModal} setOpen={setUpdateTasksModal}>
+        <UpdateMultipleTasksModal
+          selectedTasksNumbers={tasksWithId.length}
+          // entityIdies={entIdies}
+
+          taskIdies={tasksWithId.map((task) => task.taskId)}
+          // typeId={typeId}
+          status={540}
+          setModal={setUpdateTasksModal}
+          fetchData={fetchEntities}
+        />
+      </GlobalPureModal>
+      {/* delete tasks  */}
+      <GlobalPureModal open={deleteTaskModal} setOpen={setDeleteTasksModal}>
+        <DeleteTaskModal
+          tasksToRemove={tasksToRemove}
+          fetchData={fetchEntities}
+          closeModal={setDeleteTasksModal}
+        />
+      </GlobalPureModal>
+    </>
   );
 }

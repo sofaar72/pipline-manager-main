@@ -75,11 +75,12 @@ export const useVersions = () => {
   ) => {
     dispatch(createVersion(data)).then((res) => {
       if (res.payload) {
-        // setTimeout(() => {
         closeModal();
         setSuccess(true);
-        //   fetchSingleVersionPreview(res.payload.id);
-        // }, 1000);
+        // Refresh the version preview after creating new version
+        setTimeout(() => {
+          fetchSingleVersionPreview(res.payload.id);
+        }, 1000);
       }
     });
   };
@@ -96,6 +97,10 @@ export const useVersions = () => {
       if (res.payload) {
         closeModal();
         setSuccess(true);
+        // Refresh the version preview after updating version
+        setTimeout(() => {
+          fetchSingleVersionPreview(id);
+        }, 1000);
       }
     });
   };

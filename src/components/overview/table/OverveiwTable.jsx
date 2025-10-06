@@ -65,6 +65,12 @@ export default function OverviewTable({
   selectedEntType,
   isSmallView,
   setEntityValidTaskTypes,
+  // pagination
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  pageSize = 10,
+  onPageSizeChange = () => {},
 }) {
   const [createTasksModal, setCreateTasksModal] = useState(false);
   const [updateTaskModal, setUpdateTasksModal] = useState(false);
@@ -241,9 +247,6 @@ export default function OverviewTable({
 
     setTasksWithId(withId);
     setTasksWithoutId(withoutId);
-
-    // console.log("Tasks with ID:", withId);
-    // console.log("Tasks without ID:", withoutId);
   };
 
   return (
@@ -253,7 +256,7 @@ export default function OverviewTable({
         style={{
           width: showPreview
             ? "100%"
-            : selectedTasks.length > 0
+            : selectedTasks.length > 1
             ? "100%"
             : `calc(100% - ${previewWidth}px)`,
         }}
@@ -261,7 +264,7 @@ export default function OverviewTable({
         <div className="w-full h-full flex flex-1 gap-0 overflow-hidden">
           <div className="w-full h-full flex-1 rounded-md bg-[#14131a] py-4 overflow-hidden">
             <div className="w-full h-full flex-1 rounded-md  p-0 flex flex-col gap-[10px] overflow-hidden">
-              <div className="w-full h-full flex flex-col gap-4 overflow-x-auto relative">
+              <div className="w-full h-full flex flex-col gap-4 overflow-hidden relative">
                 <div className="w-full h-fit ">
                   <TableHeader
                     gridTemplateColumns={gridTemplateColumns}
@@ -275,7 +278,7 @@ export default function OverviewTable({
                     previewWidth={previewWidth}
                   />
                 </div>
-                <div className="w-full h-full flex-1 ">
+                <div className="w-full h-full flex-1 overflow-auto">
                   <div
                     className="h-fit"
                     // style={{
@@ -289,11 +292,6 @@ export default function OverviewTable({
                     // }}
                   >
                     <OverviewItems
-                      handleShowPrev={handleShowPrev}
-                      activeTask={activeTask}
-                      setActiveTask={setActiveTask}
-                      selectedId={selectedId}
-                      groupId={groupId}
                       grouped={grouped}
                       setCollapsedGroups={setCollapsedGroups}
                       collapsedGroups={collapsedGroups}
@@ -308,19 +306,16 @@ export default function OverviewTable({
                       taskHandleMouseUp={taskHandleMouseUp}
                       isTaskSelected={isTaskSelected}
                       setAddressbar={setAddressbar}
-                      showPreview={showPreview}
                       previewWidth={previewWidth}
+                      showPreview={showPreview}
                       setEntityId={setEntityId}
                       setTaskId={setTaskId}
                       setTaskType={setTaskType}
                       setSelectedTasks={setSelectedTasks}
                       selectedMultipleTasks={selectedMultipleTasks}
-                      selectSingleTask={selectSingleTask} // Pass the new function
-                      toggleSingleTask={toggleSingleTask} // Pass the new function for Ctrl+Click
-                      selectRangeTask={selectRangeTask} // Pass the new function for Shift+Click
-                      extendSelectionRange={extendSelectionRange} // Pass the new function for Shift+Ctrl+Click
-                      handleTaskSelection={handleTaskSelection} // Pass the main handler function
-                      addToSelection={addToSelection} // Pass the legacy function
+                      selectSingleTask={selectSingleTask}
+                      addToSelection={addToSelection}
+                      handleTaskSelection={handleTaskSelection}
                       typeId={typeId}
                       setTypeId={setTypeId}
                       selectedTasks={selectedTasks}
@@ -329,131 +324,177 @@ export default function OverviewTable({
                   </div>
                 </div>
               </div>
-              {/* Enhanced Selection status indicator with more detailed info */}
-              {(tasksWithId.length > 0 || tasksWithoutId.length > 0) && (
-                <div className="px-4 py-2 bg-[var(--overview-color-two)] border-t border-[var(--overview-color-three)]/30">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex flex-col gap-1">
-                      <div className="text-gray-300 flex gap-4 items-center">
-                        {tasksWithId.length > 0 && (
-                          <div className="text-gray-300 flex gap-1 items-center">
-                            <span>
-                              {tasksWithId.length} task
-                              {tasksWithId.length > 1 ? "s" : ""} selected
-                            </span>
-
-                            <div className="flex gap-2 items-center">
-                              {tasksWithId.length > 0 && (
-                                <>
-                                  <button
-                                    className="text-lg cursor-pointer"
-                                    onClick={
-                                      () => {
-                                        setDeleteTasksModal(true);
-                                        setTAsksToRemove(
-                                          tasksWithId.map((task) => task.taskId)
-                                        );
-                                      }
-
-                                      // removeTheTask(
-                                      // )
-                                    }
-                                    title="Delete selected tasks"
-                                  >
-                                    <MdDelete />
-                                  </button>
-                                  <button
-                                    className="text-lg cursor-pointer"
-                                    title="Edit selected tasks"
-                                    onClick={() => {
-                                      setUpdateTasksModal(!updateTaskModal);
-                                    }}
-                                  >
-                                    <FaEdit />
-                                  </button>
-                                </>
-                              )}
-                            </div>
-
-                            {tasksWithId.length > 1 && (
-                              <span className="text-orange-400 ml-1">
-                                (multiple selection)
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        {tasksWithoutId.length > 0 && (
-                          <button
-                            className="flex items-center gap-2 cursor-pointer"
-                            onClick={() => {
-                              const entityIds = Array.from(
-                                new Set(tasksWithoutId.map((t) => t.entityId))
-                              );
-
-                              // console.log(
-                              //   "Unique Entity IDs without tasks:",
-                              //   entityIds
-                              // );
-                              setEntIdies(
-                                tasksWithoutId.map((t) => {
-                                  return {
-                                    entId: t.entityId,
-                                    type: t.typeId,
-                                  };
-                                })
-                              );
-                              setCreateTasksModal(!createTasksModal);
-                            }}
-                          >
-                            <div className="text-sm text-green-400">
-                              {tasksWithoutId.length} new task
-                              {tasksWithoutId.length > 1 ? "s" : ""} to create
-                            </div>
-                            <div
-                              className="text-lg cursor-pointer text-green-400"
-                              title="Edit selected tasks"
-                            >
-                              <IoMdAdd />
-                            </div>
-                          </button>
-                        )}
-                      </div>
-
-                      {(tasksWithId.length > 0 ||
-                        tasksWithoutId.length > 0) && (
-                        <div className="text-xs text-gray-400">
-                          <span className="text-gray-500">Tips:</span>
-                          <span className="ml-1">
-                            Click = Select • Ctrl+Click = Toggle • Shift+Click =
-                            Range • Shift+Ctrl+Click = Extend Range
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          const allItems = grouped.flatMap(
-                            (g) => g.items || []
-                          );
-                          selectAllTasks(allItems);
-                        }}
-                        className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-                        title="Select All Tasks (Ctrl+A)"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        onClick={clearSelection}
-                        className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-                        title="Clear Selection (Escape)"
-                      >
-                        Clear
-                      </button>
-                    </div>
+              {/* Pagination footer (hidden when preview is open) */}
+              {showPreview && (
+                <div className="w-full h-[48px] flex items-center justify-between px-4 mt-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <span>Rows per page</span>
+                    <select
+                      className="bg-[var(--overview-color-two)] px-2 py-1 radius outline-none"
+                      value={pageSize}
+                      onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                    >
+                      {[10, 20, 30, 50].map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <button
+                      className="px-2 py-1 bg-[var(--overview-color-two)] radius disabled:opacity-50"
+                      onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage <= 1}
+                    >
+                      Prev
+                    </button>
+                    <span className="text-gray-300">
+                      {currentPage} / {Math.max(1, totalPages)}
+                    </span>
+                    <button
+                      className="px-2 py-1 bg-[var(--overview-color-two)] radius disabled:opacity-50"
+                      onClick={() =>
+                        onPageChange(Math.min(totalPages, currentPage + 1))
+                      }
+                      disabled={currentPage >= totalPages}
+                    >
+                      Next
+                    </button>
                   </div>
                 </div>
+              )}
+              {/* Enhanced Selection status indicator with more detailed info */}
+              {selectedTasks.length > 1 && (
+                <>
+                  {(tasksWithId.length > 0 || tasksWithoutId.length > 0) && (
+                    <div className="px-4 py-2 bg-[var(--overview-color-two)] border-t border-[var(--overview-color-three)]/30 min-h-[48px]">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex flex-col gap-1">
+                          <div className="text-gray-300 flex gap-4 items-center">
+                            {tasksWithId.length > 0 && (
+                              <div className="text-gray-300 flex gap-1 items-center">
+                                <span>
+                                  {tasksWithId.length} task
+                                  {tasksWithId.length > 1 ? "s" : ""} selected
+                                </span>
+
+                                <div className="flex gap-2 items-center">
+                                  {tasksWithId.length > 0 && (
+                                    <>
+                                      <button
+                                        className="text-lg cursor-pointer"
+                                        onClick={
+                                          () => {
+                                            setDeleteTasksModal(true);
+                                            setTAsksToRemove(
+                                              tasksWithId.map(
+                                                (task) => task.taskId
+                                              )
+                                            );
+                                          }
+
+                                          // removeTheTask(
+                                          // )
+                                        }
+                                        title="Delete selected tasks"
+                                      >
+                                        <MdDelete />
+                                      </button>
+                                      <button
+                                        className="text-lg cursor-pointer"
+                                        title="Edit selected tasks"
+                                        onClick={() => {
+                                          setUpdateTasksModal(!updateTaskModal);
+                                        }}
+                                      >
+                                        <FaEdit />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+
+                                {tasksWithId.length > 1 && (
+                                  <span className="text-orange-400 ml-1">
+                                    (multiple selection)
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {tasksWithoutId.length > 0 && (
+                              <button
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={() => {
+                                  const entityIds = Array.from(
+                                    new Set(
+                                      tasksWithoutId.map((t) => t.entityId)
+                                    )
+                                  );
+
+                                  setEntIdies(
+                                    tasksWithoutId.map((t) => {
+                                      return {
+                                        entId: t.entityId,
+                                        type: t.typeId,
+                                      };
+                                    })
+                                  );
+                                  setCreateTasksModal(!createTasksModal);
+                                }}
+                              >
+                                <div className="text-sm text-green-400">
+                                  {tasksWithoutId.length} new task
+                                  {tasksWithoutId.length > 1 ? "s" : ""} to
+                                  create
+                                </div>
+                                <div
+                                  className="text-lg cursor-pointer text-green-400"
+                                  title="Edit selected tasks"
+                                >
+                                  <IoMdAdd />
+                                </div>
+                              </button>
+                            )}
+                          </div>
+
+                          {(tasksWithId.length > 0 ||
+                            tasksWithoutId.length > 0) && (
+                            <div className="text-xs text-gray-400">
+                              <span className="text-gray-500">Tips:</span>
+                              <span className="ml-1">
+                                Click = Select • Ctrl+Click = Toggle •
+                                Shift+Click = Range • Shift+Ctrl+Click = Extend
+                                Range
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              const allItems = grouped.flatMap(
+                                (g) => g.items || []
+                              );
+                              selectAllTasks(allItems);
+                            }}
+                            className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                            title="Select All Tasks (Ctrl+A)"
+                          >
+                            Select All
+                          </button>
+                          <button
+                            onClick={clearSelection}
+                            className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                            title="Clear Selection (Escape)"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

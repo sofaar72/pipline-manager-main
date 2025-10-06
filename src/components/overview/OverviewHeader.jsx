@@ -47,9 +47,9 @@ const OverviewHeader = ({
     setEntType(type);
   };
 
-  useEffect(() => {
-    console.log(entType.name);
-  }, [entType]);
+  // useEffect(() => {
+  //   console.log(entType.name);
+  // }, [entType]);
   return (
     <div
       className={`w-full h-[50px] radius px-[10px] py-[5px] bg-[var(--overview-color-one)] flex items-center gap-2 justify-between`}

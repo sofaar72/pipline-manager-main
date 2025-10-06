@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import TheVideo from "./TheVideo";
 import { useVideoControl } from "./useVideoControl";
 import TheFrames from "./TheFrames";
+import SmoothFrameSlider from "./SmoothFrameSlider";
 import TheAnnotatorStage from "./TheAnnotatorStage";
 import { useStageControl } from "./useStageControl";
 import TheToolbar from "./TheToolbar";
@@ -137,7 +138,7 @@ const TheAnnotationWrapper = ({
       clearAnnotations();
       // Reset video controls when new video is loaded
       pauseTheVideo();
-      // setCurrentFrameIndex(0);
+      setCurrentFrameIndex(0);
       // Reset video element
       if (prevVideoData.type === "Video") {
         if (videoRef.current) {
@@ -145,15 +146,13 @@ const TheAnnotationWrapper = ({
           videoRef.current.load(); // Force reload of video element
         }
       }
-      if (prevVideoData.type === "Video") {
-        // Reset frames for new video
-        if (prevVideoData.duration) {
-          const staticFrames = Array.from(
-            { length: prevVideoData.duration },
-            (_, index) => index + 1
-          );
-          setFrames(staticFrames);
-        }
+      // Reset frames for new video
+      if (prevVideoData.duration) {
+        const staticFrames = Array.from(
+          { length: prevVideoData.duration },
+          (_, index) => index + 1
+        );
+        setFrames(staticFrames);
       }
       // Then fetch new annotations
       fetchAllAnnotations(prevVideoData.media_id);
@@ -169,20 +168,17 @@ const TheAnnotationWrapper = ({
     ) {
       // Reset frame index when switching to a new task/version
       setCurrentFrameIndex(0);
+      // Also reset video to beginning
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.load(); // Force reload of video element
+      }
       // Reset video playback state
       pauseTheVideo();
-
-      // Only reset video and frames if we have valid video data
-      if (prevVideoData.type === "Video" && prevVideoData.duration) {
-        // Reset video to beginning
-        if (videoRef.current) {
-          videoRef.current.currentTime = 0;
-          videoRef.current.load(); // Force reload of video element
-        }
-
-        // Generate frames for new video with proper duration
+      // Force re-extract frames for new video
+      if (prevVideoData.duration) {
         const staticFrames = Array.from(
-          { length: Math.max(1, Math.floor(prevVideoData.duration)) },
+          { length: prevVideoData.duration },
           (_, index) => index + 1
         );
         setFrames(staticFrames);
@@ -192,31 +188,26 @@ const TheAnnotationWrapper = ({
 
   // Reset everything when video URL changes (new version created)
   useEffect(() => {
-    if (prevVideoData.url && prevVideoData.type === "Video") {
+    if (prevVideoData.url) {
       // Reset frame index
       setCurrentFrameIndex(0);
-      // Reset video playback state
-      pauseTheVideo();
-
       // Reset video element
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
         videoRef.current.load();
       }
-
-      // Reset frames with proper duration handling
-      if (prevVideoData.duration && prevVideoData.duration > 0) {
+      // Reset video playback state
+      pauseTheVideo();
+      // Reset frames
+      if (prevVideoData.duration) {
         const staticFrames = Array.from(
-          { length: Math.max(1, Math.floor(prevVideoData.duration)) },
+          { length: prevVideoData.duration },
           (_, index) => index + 1
         );
         setFrames(staticFrames);
-      } else {
-        // If no duration, set empty frames array
-        setFrames([]);
       }
     }
-  }, [prevVideoData.url, prevVideoData.type, prevVideoData.duration]);
+  }, [prevVideoData.url]);
 
   // send annotations
   useEffect(() => {
@@ -265,93 +256,80 @@ const TheAnnotationWrapper = ({
     return (
       <div className={containerClass}>
         <div
-          className={`w-full flex-1 relative overflow-hidden bg-black ${
-            isCompare ? "flex" : "block"
-          }`}
+          className="w-full flex-1 relative overflow-hidden bg-black"
           style={{ height: `${height}px` }}
         >
-          {/* Left: primary video/annotation panel */}
-          <div
-            className={`${
-              isCompare ? "w-1/2" : "w-full"
-            } relative overflow-hidden bg-black`}
-            style={{ height: `${isFullScreen ? "100%" : height + "px"}` }}
-          >
-            <TheVideo
-              key={`video-${prevVideoData?.media_id || prevVideoData?.url}-${
-                versionPreviewData?.version || "default"
-              }-${prevVideoData?.duration || 0}`}
-              ref={videoRef}
-              previewWidth={previewWidth}
-              isMuted={isMuted}
-              isLoope={isLoope}
-              videoUrl={prevVideoData?.url}
-              type={prevVideoData?.type}
-            />
+          <TheVideo
+            key={`video-${prevVideoData?.media_id || prevVideoData?.url}-${
+              versionPreviewData?.version || "default"
+            }-${prevVideoData?.duration || 0}`}
+            ref={videoRef}
+            previewWidth={previewWidth}
+            isMuted={isMuted}
+            isLoope={isLoope}
+            videoUrl={prevVideoData?.url}
+            type={prevVideoData?.type}
+          />
 
-            {getAnnotationLoading ? (
-              <Loading />
-            ) : (
-              <TheAnnotatorStage
-                stageSize={stageSize}
-                handleMouseDown={handleMouseDown}
-                handleMouseMove={handleMouseMove}
-                handleMouseUp={handleMouseUp}
-                annotations={annotations}
-                currentFrameIndex={currentFrameIndex}
-                selectionRect={selectionRect}
-                selecting={selecting}
-                updateShape={updateShape}
-                deleteSelectedShapes={deleteSelectedShapes}
-                stageRef={stageRef}
-                fillColor={fillColor}
-                action={action}
-                isDraggable={isDraggable}
-                transformerRef={transformerRef}
-                transformActive={transformActive}
-                handleStageMouseDown={handleStageMouseDown}
-                handleStageMouseMove={handleStageMouseMove}
-                handleStageMouseUp={handleStageMouseUp}
-                isFullScreen={isFullScreen}
-                getShapesForFrame={getShapesForFrame}
-                stageToVideoCoords={stageToVideoCoords}
-                normalizeRect={normalizeRect}
-                denormalizeRect={denormalizeRect}
-                normalizedToVideoRect={normalizedToVideoRect}
-                normalizeCircle={normalizeCircle}
-                denormalizeCircle={denormalizeCircle}
-                normalizedToVideoCircle={normalizedToVideoCircle}
-                normalizeArrow={normalizeArrow}
-                denormalizeArrow={denormalizeArrow}
-                normalizedToVideoArrow={normalizedToVideoArrow}
-                normalizeLine={normalizeLine}
-                denormalizeLine={denormalizeLine}
-                normalizedToVideoLine={normalizedToVideoLine}
-                normalizeText={normalizeText}
-                denormalizeText={denormalizeText}
-                normalizedToVideoText={normalizedToVideoText}
-                handleTransformEnd={handleTransformEnd}
-              />
-            )}
-          </div>
+          {getAnnotationLoading ? (
+            <Loading />
+          ) : (
+            <TheAnnotatorStage
+              stageSize={stageSize}
+              handleMouseDown={handleMouseDown}
+              handleMouseMove={handleMouseMove}
+              handleMouseUp={handleMouseUp}
+              annotations={annotations}
+              currentFrameIndex={currentFrameIndex}
+              selectionRect={selectionRect}
+              selecting={selecting}
+              updateShape={updateShape}
+              deleteSelectedShapes={deleteSelectedShapes}
+              stageRef={stageRef}
+              fillColor={fillColor}
+              action={action}
+              isDraggable={isDraggable}
+              transformerRef={transformerRef}
+              transformActive={transformActive}
+              handleStageMouseDown={handleStageMouseDown}
+              handleStageMouseMove={handleStageMouseMove}
+              handleStageMouseUp={handleStageMouseUp}
+              isFullScreen={isFullScreen}
+              getShapesForFrame={getShapesForFrame}
+              stageToVideoCoords={stageToVideoCoords}
+              normalizeRect={normalizeRect}
+              denormalizeRect={denormalizeRect}
+              normalizedToVideoRect={normalizedToVideoRect}
+              normalizeCircle={normalizeCircle}
+              denormalizeCircle={denormalizeCircle}
+              normalizedToVideoCircle={normalizedToVideoCircle}
+              normalizeArrow={normalizeArrow}
+              denormalizeArrow={denormalizeArrow}
+              normalizedToVideoArrow={normalizedToVideoArrow}
+              normalizeLine={normalizeLine}
+              denormalizeLine={denormalizeLine}
+              normalizedToVideoLine={normalizedToVideoLine}
+              normalizeText={normalizeText}
+              denormalizeText={denormalizeText}
+              normalizedToVideoText={normalizedToVideoText}
+              handleTransformEnd={handleTransformEnd}
+            />
+          )}
         </div>
 
         {/* {previewWidth >= 550 && ( */}
         <div className="w-full h-[40px] flex flex-col bg-[var(--overview-color-one)]">
           <>
-            <TheFrames
-              key={`frames-${prevVideoData?.media_id || "default"}-${
+            <SmoothFrameSlider
+              key={`smooth-frames-${prevVideoData?.media_id || "default"}-${
                 frames.length
               }-${currentFrameIndex}`}
               frames={frames}
               currentFrameIndex={currentFrameIndex}
               onSelectFrame={handleSelectFrame}
               annotations={annotations}
-              frameBoxRef={frameBoxRef}
-              handleMouseDownDrag={handleMouseDownDrag}
-              handleMouseMoveDrag={handleMouseMoveDrag}
-              handleMouseUpDrag={handleMouseUpDrag}
               type={prevVideoData?.type}
+              containerRef={videoRef}
             />
           </>
 

@@ -3,6 +3,11 @@ import OverviewItem from "./OverviewItem";
 import GroupTitle from "./GroupTitle";
 
 const OverviewItems = ({
+  handleShowPrev,
+  activeTask,
+  setActiveTask,
+  selectedId,
+  groupId,
   grouped,
   setCollapsedGroups,
   collapsedGroups,
@@ -37,6 +42,7 @@ const OverviewItems = ({
       <div
         className="w-full h-full flex flex-col gap-0 pr-[10px] pb-[20px]"
         style={{
+          // Ensure consistent width with header
           width: "100%",
           minWidth: "fit-content",
         }}
@@ -60,8 +66,12 @@ const OverviewItems = ({
                   return (
                     <OverviewItem
                       key={i}
+                      handleShowPrev={handleShowPrev}
+                      activeTask={activeTask}
+                      setActiveTask={setActiveTask}
                       id={i}
                       groupId={gIndex}
+                      isSelected={selectedId == i && groupId == gIndex}
                       item={item}
                       row={row}
                       flexRender={flexRender}
