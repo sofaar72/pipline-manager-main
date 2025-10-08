@@ -308,19 +308,7 @@ export const useTableFunctions = ({
     const onMove = (ev) => {
       const dx = ev.clientX - startX;
       setColumnWidths((prev) => {
-        const newWidth = Math.min(
-          Math.max(startWidth + dx, minWidth),
-          colId === "modeling" ||
-            colId === "texturing" ||
-            colId === "light" ||
-            colId === "animate" ||
-            colId === "rigging" ||
-            colId === "shading"
-            ? 250
-            : colId === "entity"
-            ? 250
-            : 150
-        );
+        const newWidth = Math.max(startWidth + dx, minWidth);
         return { ...prev, [colId]: newWidth };
       });
     };

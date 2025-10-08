@@ -205,7 +205,6 @@ export default function OverviewTable({
   // };
 
   // Updated selectedTaskChecker function
-  // Updated selectedTaskChecker function
   const selectedTaskChecker = () => {
     const withId = [];
     const withoutId = [];
@@ -215,6 +214,7 @@ export default function OverviewTable({
 
     selectedTasks.forEach((selected) => {
       const { entityId, departmentTask, cellId, typeId } = selected;
+      console.log(departmentTask);
 
       // Check if the department task has a taskId or status (indicating it's an existing task)
       if (departmentTask?.taskId || departmentTask?.status) {
@@ -265,20 +265,20 @@ export default function OverviewTable({
           <div className="w-full h-full flex-1 rounded-md bg-[#14131a] py-4 overflow-hidden">
             <div className="w-full h-full flex-1 rounded-md  p-0 flex flex-col gap-[10px] overflow-hidden">
               <div className="w-full h-full flex flex-col gap-4 overflow-hidden relative">
-                <div className="w-full h-fit ">
-                  <TableHeader
-                    gridTemplateColumns={gridTemplateColumns}
-                    columns={columns}
-                    table={table}
-                    startResize={startResize}
-                    flexRender={flexRender}
-                    showMeta={showMeta}
-                    editMode={editMode}
-                    showPreview={showPreview}
-                    previewWidth={previewWidth}
-                  />
-                </div>
                 <div className="w-full h-full flex-1 overflow-auto">
+                  <div className="w-full h-fit">
+                    <TableHeader
+                      gridTemplateColumns={gridTemplateColumns}
+                      columns={columns}
+                      table={table}
+                      startResize={startResize}
+                      flexRender={flexRender}
+                      showMeta={showMeta}
+                      editMode={editMode}
+                      showPreview={showPreview}
+                      previewWidth={previewWidth}
+                    />
+                  </div>
                   <div
                     className="h-fit"
                     // style={{

@@ -129,21 +129,21 @@ const TheDropDown = ({
           {items.map((item) => (
             <MenuItem key={item.name} onClick={(e) => selectVisulHandler()}>
               {({ active }) => (
-                <div className="w-full flex items-center justify-between gap-2">
+                <div
+                  className="w-full flex items-center justify-between gap-2"
+                  onClick={(e) => {
+                    e.preventDefault(); // 👈 prevent dropdown from closing
+                    e.stopPropagation(); // 👈 prevent bubbling to MenuItem
+                    checkHandler(item);
+                  }}
+                >
                   <div className="flex items-center gap-2">
                     <img
                       className="w-[20px] h-[20px] rounded-full"
                       src={item.avatar || ""}
                       alt=""
                     />
-                    <TheIcon
-                      cClass="!w-fit !h-fit !p-0 border-none text-xl"
-                      onClick={(e) => {
-                        e.preventDefault(); // 👈 prevent dropdown from closing
-                        e.stopPropagation(); // 👈 prevent bubbling to MenuItem
-                        checkHandler(item);
-                      }}
-                    >
+                    <TheIcon cClass="!w-fit !h-fit !p-0 border-none text-xl">
                       {checked.some((c) => c.id === item.id && c.checked) ? (
                         <IoCheckbox />
                       ) : (

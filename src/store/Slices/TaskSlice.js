@@ -17,6 +17,20 @@ export const fetchTask = createAsyncThunk(
     }
   }
 );
+// Fetch task compare versions
+export const fetchTaskCompareVersions = createAsyncThunk(
+  "task/fetchTaskCompareVersions",
+  async ({ id, queryParams }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/tasks/${id}/`, {
+        params: queryParams,
+      });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
 
 // Fetch assets tasks
 export const fetchAssetsTasks = createAsyncThunk(
@@ -116,6 +130,11 @@ const taskSlice = createSlice({
       loading: false,
       error: null,
     },
+    tasksCompareVersions: {
+      results: {},
+      loading: false,
+      error: null,
+    },
     createStatus: {
       loading: false,
       error: null,
@@ -144,6 +163,11 @@ const taskSlice = createSlice({
       state.tasks.loading = false;
       state.tasks.error = null;
     },
+    clearTaskCompareVersions: (state) => {
+      state.tasksCompareVersions.results = {};
+      state.tasksCompareVersions.loading = false;
+      state.tasksCompareVersions.error = null;
+    },
   },
   extraReducers: (builder) => {
     // FETCH TASKS
@@ -159,6 +183,20 @@ const taskSlice = createSlice({
       .addCase(fetchTask.rejected, (state, action) => {
         state.tasks.loading = false;
         state.tasks.error = action.payload;
+      });
+    // FETCH TASK COMPARE VERSIONS
+    builder
+      .addCase(fetchTaskCompareVersions.pending, (state) => {
+        state.tasksCompareVersions.loading = true;
+        state.tasksCompareVersions.error = null;
+      })
+      .addCase(fetchTaskCompareVersions.fulfilled, (state, action) => {
+        state.tasksCompareVersions.loading = false;
+        state.tasksCompareVersions.results = action.payload;
+      })
+      .addCase(fetchTaskCompareVersions.rejected, (state, action) => {
+        state.tasksCompareVersions.loading = false;
+        state.tasksCompareVersions.error = action.payload;
       });
 
     // FETCH ASSETS TASKS
@@ -199,15 +237,15 @@ const taskSlice = createSlice({
         state.updateStatus.error = null;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
-        const updatedTask = action.payload;
-        const taskIndex = state.tasks.results.findIndex(
-          (task) => task.id === updatedTask.id
-        );
-
-        if (taskIndex !== -1) {
-          state.tasks.results[taskIndex] = updatedTask;
-        }
         state.updateStatus.loading = false;
+        const updatedTask = action.payload;
+        // const taskIndex = state.tasks.results.findIndex(
+        //   (task) => task.id === updatedTask.id
+        // );
+
+        // if (taskIndex !== -1) {
+        //   state.tasks.results[taskIndex] = updatedTask;
+        // }
         state.updateStatus.success = true;
         state.updateStatus.error = null;
         state.updateStatus.updateResults = updatedTask;

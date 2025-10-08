@@ -31,6 +31,18 @@ export const fetchVersionPreview = createAsyncThunk(
     }
   }
 );
+export const fetchVersionPreviewForCompare = createAsyncThunk(
+  "version/fetchVersionPreviewForCompare",
+  async ({ id }, thunkAPI) => {
+    try {
+      // await new Promise((resolve) => setTimeout(resolve, 200));
+      const response = await axiosInstance.get(`/versions/${id}`);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Server error");
+    }
+  }
+);
 
 export const createVersion = createAsyncThunk(
   "version/createVersion",
@@ -98,6 +110,11 @@ const versionSlice = createSlice({
     createVersionData: { data: {}, loading: false, error: null },
     updatedVersion: { data: {}, loading: false, error: null },
     onlyVersions: { onlyVerRes: {}, onlyVerLoading: false, onlyVerError: null },
+    versionPreviewForCompare: {
+      data: {},
+      loading: false,
+      error: null,
+    },
   },
   reducers: {
     resetVersionPreview: (state) => {
@@ -133,6 +150,20 @@ const versionSlice = createSlice({
       .addCase(fetchVersionPreview.rejected, (state, action) => {
         state.versionPreview.loading = false;
         state.versionPreview.error = action.payload;
+      });
+    // version preview for compares
+    builder
+      .addCase(fetchVersionPreviewForCompare.pending, (state) => {
+        state.versionPreviewForCompare.loading = true;
+        state.versionPreviewForCompare.error = null;
+      })
+      .addCase(fetchVersionPreviewForCompare.fulfilled, (state, action) => {
+        state.versionPreviewForCompare.loading = false;
+        state.versionPreviewForCompare.data = action.payload; // ✅ Correct path
+      })
+      .addCase(fetchVersionPreviewForCompare.rejected, (state, action) => {
+        state.versionPreviewForCompare.loading = false;
+        state.versionPreviewForCompare.error = action.payload;
       });
     // only verosons
     builder

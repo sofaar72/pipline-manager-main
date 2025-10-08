@@ -63,8 +63,8 @@ export const useVideoControl = () => {
       );
       setFrames(staticFrames);
     } else {
-      // Clear frames for non-video or invalid duration
-      setFrames([]);
+      // For images or invalid duration, provide a single frame to enable annotation
+      setFrames([1]);
     }
   };
 

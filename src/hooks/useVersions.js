@@ -5,6 +5,7 @@ import {
   fetchOnlyVersions,
   fetchTaskVersions,
   fetchVersionPreview,
+  fetchVersionPreviewForCompare,
   resetVersionPreview,
   updateVersion,
 } from "../store/Slices/VersionsSlice";
@@ -14,13 +15,23 @@ import { useTasks } from "./useTasks";
 export const useVersions = () => {
   const dispatch = useDispatch();
   const [activeVersion, setActiveVersion] = useState(null);
-  const { versions, versionPreview, createVersionData, onlyVersions } =
-    useSelector((state) => state.version);
+  const {
+    versions,
+    versionPreview,
+    createVersionData,
+    onlyVersions,
+    versionPreviewForCompare,
+  } = useSelector((state) => state.version);
   const {
     results: versionResults = [],
     loading: versionLoading,
     error: versionError,
   } = versions || {};
+  const {
+    data: versionPreviewForCompareData,
+    loading: versionPreviewForCompareLoading,
+    error: versionPreviewForCompareError,
+  } = versionPreviewForCompare || {};
   const {
     data: versionPreviewData,
     loading: versionPreviewLoading,
@@ -68,6 +79,13 @@ export const useVersions = () => {
     setActiveVersion(versionId);
   };
 
+  const fetchSingleVersionPreviewForCompare = (versionId) => {
+    if (versionId) {
+      dispatch(fetchVersionPreviewForCompare({ id: versionId }));
+    }
+    // setActiveVersion(versionId);
+  };
+
   const createNewVersion = async (
     data,
     closeModal = () => {},
@@ -112,6 +130,10 @@ export const useVersions = () => {
     versionPreviewData,
     versionPreviewLoading,
     versionPreviewError,
+    fetchSingleVersionPreviewForCompare,
+    versionPreviewForCompareData,
+    versionPreviewForCompareLoading,
+    versionPreviewForCompareError,
     fetchAllVersions,
     fetchSingleVersionPreview,
     fetchVersionPreview,

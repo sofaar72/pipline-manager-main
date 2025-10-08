@@ -535,8 +535,12 @@ export const useStageControl = ({
     console.log(clampedIndex);
     setCurrentFrameIndex(clampedIndex);
 
-    const timePerFrame = containerRef.current.duration / totalFrames;
-    containerRef.current.currentTime = clampedIndex * timePerFrame;
+    // Sync video time only if the container is a VIDEO element with a valid duration
+    const el = containerRef.current;
+    if (el && el.tagName === "VIDEO" && el.duration && totalFrames > 0) {
+      const timePerFrame = el.duration / totalFrames;
+      el.currentTime = clampedIndex * timePerFrame;
+    }
   };
 
   // ---------------- ARROW KEYS ----------------
@@ -552,10 +556,11 @@ export const useStageControl = ({
         const delta = e.key === "ArrowRight" ? 1 : -1;
         const next = clamped(prev + delta);
 
-        // keep video and slider in sync
-        if (containerRef?.current && containerRef.current.duration) {
-          const timePerFrame = containerRef.current.duration / totalFrames;
-          containerRef.current.currentTime = next * timePerFrame;
+        // keep video and slider in sync (only for real videos)
+        const el = containerRef?.current;
+        if (el && el.tagName === "VIDEO" && el.duration) {
+          const timePerFrame = el.duration / totalFrames;
+          el.currentTime = next * timePerFrame;
         }
         return next;
       });
@@ -569,19 +574,22 @@ export const useStageControl = ({
   useEffect(() => {
     if (!containerRef.current || !frames.length) return;
 
-    const video = containerRef.current;
+    const el = containerRef.current;
+    // Only bind timeupdate for actual VIDEO elements
+    if (el.tagName !== "VIDEO") return;
+
     const updateSliderFromVideo = () => {
       const totalFrames = frames.length;
-      const timePerFrame = video.duration / totalFrames || 1;
-      let newFrameIndex = Math.round(video.currentTime / timePerFrame);
+      const timePerFrame = (el.duration || 0) / totalFrames || 1;
+      let newFrameIndex = Math.round((el.currentTime || 0) / timePerFrame);
       newFrameIndex = Math.max(0, Math.min(totalFrames - 1, newFrameIndex));
       setCurrentFrameIndex((prev) =>
         prev === newFrameIndex ? prev : newFrameIndex
       );
     };
 
-    video.addEventListener("timeupdate", updateSliderFromVideo);
-    return () => video.removeEventListener("timeupdate", updateSliderFromVideo);
+    el.addEventListener("timeupdate", updateSliderFromVideo);
+    return () => el.removeEventListener("timeupdate", updateSliderFromVideo);
   }, [frames, containerRef]);
 
   // ---------------- FRAME SLIDER DRAG ----------------

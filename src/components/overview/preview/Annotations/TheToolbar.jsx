@@ -5,6 +5,7 @@ import {
   FaChevronRight,
   FaEraser,
   FaPlay,
+  FaSpinner,
 } from "react-icons/fa6";
 import { FaPause } from "react-icons/fa6";
 import {
@@ -32,6 +33,7 @@ import TheButton from "../../TheButton";
 import { RiFullscreenLine, RiText } from "react-icons/ri";
 import TheDropDown from "../../TheDropDown";
 import { useVersions } from "../../../../hooks/useVersions";
+import { useTasks } from "../../../../hooks/useTasks";
 
 const TheToolbar = ({
   isLoope,
@@ -59,11 +61,28 @@ const TheToolbar = ({
   isCompare,
   setIsCompare,
   entityValidTaskTypes,
+  setComparePreviewDatas,
+  compareIsVideo,
 }) => {
   const [openShapes, setOpenShapes] = useState(false);
   const [selectedEntType, setSelectedEntType] = useState({});
-  const { fetchTheOnlyVersions, onlyVerLoading, onlyVerRes, onlyVerError } =
-    useVersions();
+  const [compareVersions, setCompareVersions] = useState([]);
+  const [selectedCompareVersion, setSelectedCompareVersion] = useState(null);
+  const [versionsLoading, setVersionsLoading] = useState(false);
+  const {
+    taskCompareVersionsResults,
+    taskCompareVersionsLoading,
+    taskCompareVersionsError,
+    fetchTheTaskVersions,
+  } = useTasks();
+
+  console.log(compareIsVideo);
+
+  const {
+    fetchSingleVersionPreviewForCompare,
+    versionPreviewForCompareData,
+    versionPreviewForCompareLoading,
+  } = useVersions();
 
   useEffect(() => {
     // console.log(entityValidTaskTypes[Object.keys(entityValidTaskTypes)[0]]);
@@ -78,6 +97,29 @@ const TheToolbar = ({
   }, [entityValidTaskTypes]);
 
   useEffect(() => {
+    const list = (taskCompareVersionsResults?.versions || []).filter(
+      (v) => v.version !== 0
+    );
+    // Pick latest by version number
+    const latest = list
+      .slice()
+      .sort((a, b) => (b.version || 0) - (a.version || 0))[0];
+
+    setCompareVersions(list);
+    if (latest) setSelectedCompareVersion(latest);
+    setVersionsLoading(false);
+  }, [taskCompareVersionsResults]);
+
+  // Reset selected version when task type changes
+  useEffect(() => {
+    setSelectedCompareVersion(null);
+    setCompareVersions([]);
+    setVersionsLoading(true);
+    // Also clear compare previews immediately to avoid stale preview
+    setComparePreviewDatas([]);
+  }, [selectedEntType.taskId]);
+
+  useEffect(() => {
     // console.log(allPreviews);
   }, [allPreviews]);
   useEffect(() => {
@@ -86,7 +128,11 @@ const TheToolbar = ({
     }
   }, [previewWidth]);
 
-  // console.log(prevVideoData);
+  useEffect(() => {
+    if (!selectedEntType.taskId) return;
+    setVersionsLoading(true);
+    fetchTheTaskVersions(selectedEntType.taskId);
+  }, [selectedEntType]);
 
   const nextItem = () => {
     if (index + 1 >= allPreviews.length) return;
@@ -98,10 +144,6 @@ const TheToolbar = ({
     setIndex(index - 1);
   };
 
-  // useEffect(() => {
-  //   console.log(isCompare);
-  // }, [isCompare]);
-
   useEffect(() => {
     if (previewWidth < 900) {
       setIsCompare(false);
@@ -109,40 +151,54 @@ const TheToolbar = ({
   }, [previewWidth]);
 
   useEffect(() => {
-    console.log(previewWidth);
-  }, [previewWidth]);
+    if (selectedCompareVersion?.id) {
+      fetchSingleVersionPreviewForCompare(selectedCompareVersion.id);
+    } else {
+      setComparePreviewDatas([]);
+    }
+  }, [selectedCompareVersion]);
 
-  // useEffect(() => {
-  //   if (selectedEntType && selectedEntType.taskId) {
-  //     fetchTheOnlyVersions({ task: selectedEntType.taskId });
-  //   }
-  // }, [selectedEntType]);
+  useEffect(() => {
+    // console.log(versionPreviewForCompareData);
+    if (versionPreviewForCompareData) {
+      setComparePreviewDatas(versionPreviewForCompareData.previews);
+    }
+  }, [versionPreviewForCompareData]);
+
+  // Clear compare previews when compare is toggled off
+  useEffect(() => {
+    if (!isCompare) {
+      setSelectedCompareVersion(null);
+      setComparePreviewDatas([]);
+    }
+  }, [isCompare]);
 
   return (
     <div className="w-full h-[25px] shrink-0 bg-[#1D1B37] flex justify-between gap-2 text-white">
       {/* Video Tools  */}
-      {prevVideoData.type === "Video" && (
-        <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
-          <TheIcon
-            onClick={() => pauseOrPlay()}
-            cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
-          >
-            {!isPlaying ? <FaPlay /> : <FaPause />}
-          </TheIcon>
-          <TheIcon
-            onClick={() => loopOrNot()}
-            cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
-          >
-            {!isLoope ? <MdAirlineStops /> : <IoMdRefresh />}
-          </TheIcon>
-          <TheIcon
-            onClick={() => muteOrNot()}
-            cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
-          >
-            {!isMuted ? <IoVolumeMediumSharp /> : <IoVolumeMute />}
-          </TheIcon>
-        </div>
-      )}
+      {prevVideoData.type === "Video" ||
+        (compareIsVideo && (
+          <div className="w-fit h-full flex items-center gap-0 text-sm lg-regular">
+            <TheIcon
+              onClick={() => pauseOrPlay()}
+              cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            >
+              {!isPlaying ? <FaPlay /> : <FaPause />}
+            </TheIcon>
+            <TheIcon
+              onClick={() => loopOrNot()}
+              cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            >
+              {!isLoope ? <MdAirlineStops /> : <IoMdRefresh />}
+            </TheIcon>
+            <TheIcon
+              onClick={() => muteOrNot()}
+              cClass={`!w-[30px] !h-full shrink-0 !border-none !bg-[var(--overview-color-two)] hover:!bg-[var(--overview-color-three)] !rounded-none`}
+            >
+              {!isMuted ? <IoVolumeMediumSharp /> : <IoVolumeMute />}
+            </TheIcon>
+          </div>
+        ))}
       {/* Compare Part  */}
       {/* Compare Switcher  */}
       {previewWidth >= 900 && (
@@ -174,7 +230,7 @@ const TheToolbar = ({
                 name: item,
               };
             })}
-            width={"w-[100px]"}
+            width={"w-[150px]"}
             funcAfter={(selected) => {
               setSelectedEntType({
                 id: selected.id,
@@ -183,11 +239,45 @@ const TheToolbar = ({
               });
             }}
           />
+          {compareVersions && (
+            <>
+              {/* versions  */}
+              {versionsLoading || taskCompareVersionsLoading ? (
+                <div className="w-full h-[25px] flex items-center justify-center">
+                  <FaSpinner />
+                </div>
+              ) : (
+                <TheDropDown
+                  cClass="!bg-[var(--overview-color-three)] !h-[25px] !bg-transparent"
+                  init={
+                    (selectedCompareVersion &&
+                      selectedCompareVersion?.version) ||
+                    (compareVersions && compareVersions.length > 0
+                      ? compareVersions[0]?.version
+                      : "Vers")
+                  }
+                  items={compareVersions.map((item, i) => {
+                    return {
+                      id: item.id,
+                      name: item.version,
+                    };
+                  })}
+                  width={"w-[100px]"}
+                  funcAfter={(selected) => {
+                    setSelectedCompareVersion({
+                      id: selected.id,
+                      name: selected.name,
+                    });
+                  }}
+                />
+              )}
+            </>
+          )}
         </div>
       )}
 
       {/* select previews  */}
-      <div className="h-full flex items-center gap-2 h-small ml-auto">
+      <div className="h-full flex items-center gap-2 h-small mr-auto">
         {/* arrow left */}
         <span className="h-lg" onClick={() => prevItem()}>
           <IoMdArrowDropleft />

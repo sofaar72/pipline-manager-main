@@ -17,6 +17,7 @@ import { useEntities } from "../../hooks/useEntities";
 import { useVariations } from "../../hooks/useVariations";
 import { useTasks } from "../../hooks/useTasks";
 import { useUser } from "../../hooks/useUser";
+import AssignedUsersSearch from "./UpdateTaskModal/AssignedUsersSearch";
 
 const AddUserToTaskForm = ({
   header = "Assign To User",
@@ -45,10 +46,13 @@ const AddUserToTaskForm = ({
   const [taskTypes, setTaskTypes] = useState([]);
   const [assignees, setAssignees] = useState([]);
   const [success, setSuccess] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [assignee, setAssignee] = useState("");
 
   const submitForm = (values) => {
     // console.log(id);
-    const assineesArray = values.assignees.map((assignee) => assignee.id);
+    const assineesArray = selectedUsers.map((assignee) => assignee.id);
     const newData = {
       assignee: assineesArray,
       type: values.type.id,
@@ -89,6 +93,44 @@ const AddUserToTaskForm = ({
     }
   }, [userResults]);
 
+  // initialize selected users from prop so they always show at bottom
+  useEffect(() => {
+    if (Array.isArray(users) && users.length > 0) {
+      const normalized = users.map((u) => ({
+        id: u.id,
+        first_name: u.first_name || u.name || "",
+        avatar: u.avatar,
+      }));
+      setSelectedUsers(normalized);
+    }
+  }, [users]);
+
+  // filter users by query
+  useEffect(() => {
+    if (assignee && userResults) {
+      const users = userResults.filter((user) =>
+        user.first_name.toLowerCase().includes(assignee.toLowerCase())
+      );
+      setFilteredUsers(users);
+    } else {
+      setFilteredUsers([]);
+    }
+  }, [userResults, assignee]);
+
+  const selectUser = (user) => {
+    setSelectedUsers((prev) => {
+      const filtered = prev.filter((u) => u.id !== user.id);
+      return [
+        ...filtered,
+        { id: user.id, first_name: user.first_name, avatar: user.avatar },
+      ];
+    });
+  };
+
+  const removeSelectedUser = (user) => {
+    setSelectedUsers((prev) => prev.filter((u) => u.id !== user.id));
+  };
+
   useEffect(() => {
     if (success) {
       fetchData();
@@ -124,16 +166,7 @@ const AddUserToTaskForm = ({
           }) => {
             // Handler function that updates Formik's values
 
-            const handleAssigneeChange = (selectedAssignees) => {
-              console.log(selectedAssignees);
-              setFieldValue(
-                "assignees",
-                selectedAssignees.map((a) => ({
-                  id: a.id,
-                  name: a.name,
-                }))
-              );
-            };
+            const handleAssigneeChange = () => {};
 
             return (
               <>
@@ -143,46 +176,53 @@ const AddUserToTaskForm = ({
                   encType="multipart/form-data"
                 >
                   {/* inputs  */}
-                  <div className="w-full  flex flex-1  gap-4 ">
-                    <div className="w-fit h-full">
-                      <TheDropDown
-                        init={"Assigne to"}
-                        items={
-                          assignees?.map((assignee, i) => {
-                            return {
-                              id: assignee.id,
-                              name: assignee.name,
-                              avatar: assignee.avatar,
-                            };
-                          }) || []
-                        }
-                        width={"w-[200px]"}
-                        funcAfter={handleAssigneeChange}
-                        type="visual"
-                        users={users}
+                  <div className="w-full  flex flex-col gap-4 ">
+                    <div className="w-full">
+                      <AssignedUsersSearch
+                        setAssignee={setAssignee}
+                        assignee={assignee}
+                        filteredUsers={filteredUsers}
+                        selectedUsers={selectedUsers}
+                        removeUser={removeSelectedUser}
+                        selectUser={selectUser}
                       />
                     </div>
-                    <div className="h-lg w-full h-[300px] flex-1  flex flex-col border-2 border-[var(--overview-color-four)] radius p-2 gap-4">
-                      <div className="w-fit shrink-0">Assigned Users</div>
-                      <div className="w-full h-[0.5px] bg-[var(--overview-color-four)]/50 radius"></div>
-                      <div className="w-full flex items-center gap-2">
-                        {users?.map((user) => {
-                          return (
-                            <img
-                              className="rounded-full w-[40px] h-[4s0px] transition cursor-pointer"
-                              src={user.avatar}
-                            />
-                          );
-                        })}
+                    {/* {selectedUsers?.length > 0 && (
+                      <div className="w-full flex flex-col gap-2">
+                        <div className="h-lg">Confirm Selection</div>
+                        <div className="w-full grid grid-cols-2 gap-2 border border-[var(--overview-color-four)]/50 radius p-2">
+                          {selectedUsers.map((u) => (
+                            <label
+                              key={u.id}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                className="accent-[var(--overview-color-done)]"
+                                checked={true}
+                                onChange={(e) => {
+                                  if (!e.target.checked) removeSelectedUser(u);
+                                }}
+                              />
+                              <img
+                                className="w-[28px] h-[28px] rounded-full border"
+                                src={
+                                  u.avatar ||
+                                  "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+                                }
+                              />
+                              <span className="text-sm">{u.first_name}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )} */}
                   </div>
 
                   {/* actions  */}
                   <div className="w-full flex justify-end gap-2">
                     <TheButton
                       cClass="w-fit !flex !items-center !justify-between gap-2 h-regular !bg-[var(--overview-color-done)]"
-                      // onClick={() => {}}
                       loading={updateTaskLoading}
                       type="submit"
                     >

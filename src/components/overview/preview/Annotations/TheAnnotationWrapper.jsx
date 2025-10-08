@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TheVideo from "./TheVideo";
 import { useVideoControl } from "./useVideoControl";
 import TheFrames from "./TheFrames";
+import VideoProgress from "./VideoProgress";
 import TheAnnotatorStage from "./TheAnnotatorStage";
 import { useStageControl } from "./useStageControl";
 import TheToolbar from "./TheToolbar";
@@ -15,6 +16,8 @@ const TheAnnotationWrapper = ({
   setFullScreenOverview,
   entityValidTaskTypes,
 }) => {
+  const [comparePreviewDatas, setComparePreviewDatas] = useState([]);
+  const compareVideoRef = useRef(null);
   const {
     videoRef,
     height,
@@ -218,6 +221,114 @@ const TheAnnotationWrapper = ({
     }
   }, [prevVideoData.url, prevVideoData.type, prevVideoData.duration]);
 
+  // Sync toolbar state (play/pause, mute, loop) to compare video when applicable
+  useEffect(() => {
+    const el = compareVideoRef.current;
+    if (!isCompare || !el || comparePreviewDatas.length === 0) return;
+    if (comparePreviewDatas[0]?.type !== "Video") return;
+
+    el.muted = isMuted;
+    el.loop = isLoope;
+    if (isPlaying) el.play?.();
+    else el.pause?.();
+  }, [isCompare, comparePreviewDatas, isPlaying, isMuted, isLoope]);
+
+  // Prefer frames from the main video; if not a video, but compare is, derive frames from compare
+  const framesForUi = (() => {
+    const mainIsVideo = prevVideoData?.type === "Video";
+    const compareIsVideo =
+      isCompare && comparePreviewDatas?.[0]?.type === "Video";
+    if (mainIsVideo) return frames;
+    if (compareIsVideo) {
+      const dur = Math.max(
+        1,
+        Math.floor(comparePreviewDatas?.[0]?.duration || 1)
+      );
+      return Array.from({ length: dur }, (_, i) => i + 1);
+    }
+    return frames;
+  })();
+
+  // Reset frames when coming back from compare video to image (and main is not a video)
+  const prevCompareWasVideoRef = useRef(false);
+  useEffect(() => {
+    const mainIsVideo = prevVideoData?.type === "Video";
+    const compareIsVideo =
+      isCompare && comparePreviewDatas?.[0]?.type === "Video";
+
+    if (prevCompareWasVideoRef.current && (!compareIsVideo || !isCompare)) {
+      if (!mainIsVideo) {
+        setCurrentFrameIndex(0);
+        setFrames([1]);
+        if (
+          compareVideoRef.current &&
+          compareVideoRef.current.tagName === "VIDEO"
+        ) {
+          try {
+            compareVideoRef.current.pause();
+            compareVideoRef.current.currentTime = 0;
+          } catch (e) {}
+        }
+      }
+    }
+
+    prevCompareWasVideoRef.current = Boolean(compareIsVideo);
+  }, [isCompare, comparePreviewDatas, prevVideoData?.type]);
+
+  // When only compare side is a video, update the slider from compare video time
+  useEffect(() => {
+    const mainIsVideo = prevVideoData?.type === "Video";
+    if (mainIsVideo) return;
+    if (!isCompare) return;
+    const el = compareVideoRef.current;
+    if (!el || el.tagName !== "VIDEO") return;
+    if (!framesForUi?.length) return;
+
+    const updateFromCompare = () => {
+      const totalFrames = framesForUi.length;
+      const timePerFrame = (el.duration || 0) / totalFrames || 1;
+      let newIndex = Math.round((el.currentTime || 0) / timePerFrame);
+      newIndex = Math.max(0, Math.min(totalFrames - 1, newIndex));
+      setCurrentFrameIndex((prev) => (prev === newIndex ? prev : newIndex));
+    };
+
+    el.addEventListener("timeupdate", updateFromCompare);
+    return () => el.removeEventListener("timeupdate", updateFromCompare);
+  }, [isCompare, prevVideoData?.type, comparePreviewDatas, framesForUi]);
+
+  // Frame selection should seek both videos if they are videos
+  const handleSelectFrameBoth = (idx) => {
+    const total = framesForUi.length || 1;
+    const clamped = Math.max(0, Math.min(idx, total - 1));
+
+    if (prevVideoData?.type === "Video") {
+      handleSelectFrame(clamped);
+    } else {
+      setCurrentFrameIndex(clamped);
+    }
+
+    const mainEl = videoRef.current;
+    if (
+      prevVideoData?.type === "Video" &&
+      mainEl &&
+      mainEl.tagName === "VIDEO"
+    ) {
+      const timePerFrame = (mainEl.duration || 0) / total || 1;
+      mainEl.currentTime = clamped * timePerFrame;
+    }
+
+    const cmp = compareVideoRef.current;
+    if (
+      isCompare &&
+      comparePreviewDatas?.[0]?.type === "Video" &&
+      cmp &&
+      cmp.tagName === "VIDEO"
+    ) {
+      const timePerFrame = (cmp.duration || 0) / total || 1;
+      cmp.currentTime = clamped * timePerFrame;
+    }
+  };
+
   // send annotations
   useEffect(() => {
     if (!prevVideoData.media_id) return;
@@ -251,6 +362,10 @@ const TheAnnotationWrapper = ({
     if (previewWidth < 550) changeHeight();
     else changeHeight(280);
   }, [previewWidth]);
+
+  useEffect(() => {
+    console.log(comparePreviewDatas);
+  }, [comparePreviewDatas]);
 
   const containerClass = isFullScreen
     ? "!fixed top-0 left-0 w-full h-full z-[999999] flex flex-col gap-0 justify-between bg-blue-500 overflow-hidden"
@@ -334,26 +449,118 @@ const TheAnnotationWrapper = ({
               />
             )}
           </div>
+          {isCompare && (
+            <div
+              className={`${
+                isCompare ? "w-1/2" : "w-full"
+              } relative overflow-hidden bg-[var(--overview-color-two)]`}
+              style={{ height: `${isFullScreen ? "100%" : height + "px"}` }}
+            >
+              {comparePreviewDatas.length > 0 ? (
+                <TheVideo
+                  key={`video-${
+                    comparePreviewDatas[0]?.media_id ||
+                    comparePreviewDatas[0]?.url
+                  }-${comparePreviewDatas[0]?.version || "default"}-${
+                    comparePreviewDatas[0]?.duration || 0
+                  }`}
+                  ref={compareVideoRef}
+                  previewWidth={previewWidth}
+                  isMuted={isMuted}
+                  isLoope={isLoope}
+                  videoUrl={
+                    comparePreviewDatas[0]?.hd_download_url ||
+                    comparePreviewDatas[0]?.ld_download_url
+                  }
+                  type={comparePreviewDatas[0]?.type}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-[var(--overview-color-three)]/50 radius">
+                  There is no preview data
+                </div>
+              )}
+              {/* {getAnnotationLoading ? (
+                <Loading />
+              ) : (
+                <TheAnnotatorStage
+                  stageSize={stageSize}
+                  handleMouseDown={handleMouseDown}
+                  handleMouseMove={handleMouseMove}
+                  handleMouseUp={handleMouseUp}
+                  annotations={annotations}
+                  currentFrameIndex={currentFrameIndex}
+                  selectionRect={selectionRect}
+                  selecting={selecting}
+                  updateShape={updateShape}
+                  deleteSelectedShapes={deleteSelectedShapes}
+                  stageRef={stageRef}
+                  fillColor={fillColor}
+                  action={action}
+                  isDraggable={isDraggable}
+                  transformerRef={transformerRef}
+                  transformActive={transformActive}
+                  handleStageMouseDown={handleStageMouseDown}
+                  handleStageMouseMove={handleStageMouseMove}
+                  handleStageMouseUp={handleStageMouseUp}
+                  isFullScreen={isFullScreen}
+                  getShapesForFrame={getShapesForFrame}
+                  stageToVideoCoords={stageToVideoCoords}
+                  normalizeRect={normalizeRect}
+                  denormalizeRect={denormalizeRect}
+                  normalizedToVideoRect={normalizedToVideoRect}
+                  normalizeCircle={normalizeCircle}
+                  denormalizeCircle={denormalizeCircle}
+                  normalizedToVideoCircle={normalizedToVideoCircle}
+                  normalizeArrow={normalizeArrow}
+                  denormalizeArrow={denormalizeArrow}
+                  normalizedToVideoArrow={normalizedToVideoArrow}
+                  normalizeLine={normalizeLine}
+                  denormalizeLine={denormalizeLine}
+                  normalizedToVideoLine={normalizedToVideoLine}
+                  normalizeText={normalizeText}
+                  denormalizeText={denormalizeText}
+                  normalizedToVideoText={normalizedToVideoText}
+                  handleTransformEnd={handleTransformEnd}
+                />
+              )} */}
+            </div>
+          )}
         </div>
 
         {/* {previewWidth >= 550 && ( */}
-        <div className="w-full h-[40px] flex flex-col bg-[var(--overview-color-one)]">
-          <>
-            <TheFrames
-              key={`frames-${prevVideoData?.media_id || "default"}-${
-                frames.length
-              }-${currentFrameIndex}`}
-              frames={frames}
-              currentFrameIndex={currentFrameIndex}
-              onSelectFrame={handleSelectFrame}
-              annotations={annotations}
-              frameBoxRef={frameBoxRef}
-              handleMouseDownDrag={handleMouseDownDrag}
-              handleMouseMoveDrag={handleMouseMoveDrag}
-              handleMouseUpDrag={handleMouseUpDrag}
-              type={prevVideoData?.type}
-            />
-          </>
+        <div className="w-full flex flex-col bg-[var(--overview-color-one)]">
+          <VideoProgress
+            durationSeconds={
+              (prevVideoData?.type === "Video" && videoRef.current?.duration) ||
+              (isCompare &&
+                comparePreviewDatas?.[0]?.type === "Video" &&
+                compareVideoRef.current?.duration) ||
+              0
+            }
+            totalFrames={framesForUi.length || 1}
+            currentFrameIndex={currentFrameIndex}
+            onSeek={handleSelectFrameBoth}
+            annotations={annotations}
+            enabled={
+              prevVideoData?.type === "Video" ||
+              (isCompare && comparePreviewDatas?.[0]?.type === "Video")
+            }
+          />
+          {/**
+           * Legacy frame slider kept for reference:
+           * <TheFrames
+           *   key={`frames-${prevVideoData?.media_id || "default"}-${framesForUi.length}-${currentFrameIndex}`}
+           *   frames={framesForUi}
+           *   currentFrameIndex={currentFrameIndex}
+           *   onSelectFrame={handleSelectFrameBoth}
+           *   annotations={annotations}
+           *   frameBoxRef={frameBoxRef}
+           *   handleMouseDownDrag={handleMouseDownDrag}
+           *   handleMouseMoveDrag={handleMouseMoveDrag}
+           *   handleMouseUpDrag={handleMouseUpDrag}
+           *   type={prevVideoData?.type}
+           * />
+           */}
 
           <TheToolbar
             isLoope={isLoope}
@@ -379,6 +586,8 @@ const TheAnnotationWrapper = ({
             isCompare={isCompare}
             setIsCompare={setIsCompare}
             entityValidTaskTypes={entityValidTaskTypes}
+            setComparePreviewDatas={setComparePreviewDatas}
+            compareIsVideo={comparePreviewDatas?.[0]?.type === "Video"}
           />
         </div>
         {/* )} */}

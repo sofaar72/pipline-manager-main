@@ -6,6 +6,7 @@ import {
   deleteTask,
   fetchAssetsTasks,
   fetchTask,
+  fetchTaskCompareVersions,
   fetchTaskStatuses,
   updateTask,
 } from "../store/Slices/TaskSlice";
@@ -18,13 +19,24 @@ export const useTasks = ({ dataType = "production" } = {}) => {
   const { fetchAllVersions } = useVersions();
   const dispatch = useDispatch();
 
-  const { tasks, createStatus, updateStatus, deleteStatus, taskStatuses } =
-    useSelector((state) => state.task);
+  const {
+    tasks,
+    createStatus,
+    updateStatus,
+    deleteStatus,
+    taskStatuses,
+    tasksCompareVersions,
+  } = useSelector((state) => state.task);
   const {
     results: taskResults,
     loading: taskLoading,
     error: taskError,
   } = tasks || {};
+  const {
+    results: taskCompareVersionsResults,
+    loading: taskCompareVersionsLoading,
+    error: taskCompareVersionsError,
+  } = tasksCompareVersions || {};
   const {
     success: taskSuccess,
     loading: createTaskLoading,
@@ -47,6 +59,9 @@ export const useTasks = ({ dataType = "production" } = {}) => {
 
   const fetchTheTask = (taskId) => {
     dispatch(fetchTask({ id: taskId }));
+  };
+  const fetchTheTaskVersions = (taskId) => {
+    dispatch(fetchTaskCompareVersions({ id: taskId }));
   };
 
   const fetchAllAssetsTasks = (id) => {
@@ -133,5 +148,9 @@ export const useTasks = ({ dataType = "production" } = {}) => {
     statusesResults,
     addTask,
     fetchAllAssetsTasks,
+    fetchTheTaskVersions,
+    taskCompareVersionsResults,
+    taskCompareVersionsLoading,
+    taskCompareVersionsError,
   };
 };
